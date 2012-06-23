@@ -1,0 +1,4 @@
+Dicebot
+=======
+
+Java IRC Dicebot.
