@@ -1,0 +1,565 @@
+package com.chamelaeon.dicebot.rollers;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+
+import com.chamelaeon.dicebot.Behavior;
+import com.chamelaeon.dicebot.Behavior.Explosion;
+import com.chamelaeon.dicebot.Behavior.L5RExplosion;
+import com.chamelaeon.dicebot.Behavior.Reroll;
+import com.chamelaeon.dicebot.InputException;
+import com.chamelaeon.dicebot.LineConsumer;
+import com.chamelaeon.dicebot.Modifier;
+import com.chamelaeon.dicebot.Roll;
+import com.chamelaeon.dicebot.Roll.GroupResult;
+import com.chamelaeon.dicebot.Statistics;
+import com.chamelaeon.dicebot.Utils;
+import com.chamelaeon.dicebot.personality.BasicPersonality;
+import com.chamelaeon.dicebot.personality.Personality;
+import com.chamelaeon.dicebot.random.Random;
+import com.chamelaeon.dicebot.random.Random.MersenneTwisterRandom;
+
+/** Abstract class describing all types of rollers. */
+public abstract class Roller implements LineConsumer {
+	/** The random to use. */
+	protected final Random random;
+	/** The personality object containing quotes (if necessary). */
+	private final Personality personality;
+	
+	/** Protected constructor. */
+	protected Roller(Statistics statistics, Personality personality) {
+		 random = new MersenneTwisterRandom(statistics);
+		 this.personality = personality;
+	}
+	
+	/** Gets the {@link Statistics} object. */
+	protected Statistics getStatistics() {
+		return random.getStatistics();
+	}
+	
+	/** Gets the {@link BasicPersonality} object. */
+	protected Personality getPersonality() {
+		return personality;
+	}
+
+	@Override
+	public String consume(Matcher matcher, String source, String user) throws InputException {
+			int count = matcher.groupCount();
+			String[] parts = new String[count+1];
+			for (int i = 0; i <= count; i++) {
+				String group = matcher.group(i);
+				if (null != group) {
+					group = group.trim();
+				}
+				parts[i] = group;
+			}
+			return assembleRoll(parts, user);
+	}
+	
+	/**
+	 * Parses the groups portion of the roll and limits it to the range [1, 10].
+	 * @param groupString The groups string to parse.
+	 * @return the number of groups.
+	 * @throws InputException if the groups could not be parsed or is less than 1.
+	 */
+	protected short parseGroups(String groupString) throws InputException {
+		if (null != groupString) {
+			short parsedGroups = Utils.parseShort(groupString, getPersonality());
+			if (parsedGroups >= 1) {
+				if (parsedGroups > 10) {
+					return 10;
+				} else {
+					return parsedGroups;
+				}
+			} else {
+				throw getPersonality().getException("LessThanOneGroup");
+			}
+		} else {
+			return 1;
+		}
+	}
+	
+	/**
+	 * Prints the group count to a string, suppressing if the value is 1.
+	 * @param groups The group count that was rolled.
+	 * @return the string.
+	 */
+	protected String getGroupCountString(int groupCount) {
+		String ret = "";
+		if (groupCount > 1) {
+			ret = ret + groupCount + " ";
+		}
+		return ret;
+	}
+	
+	/**
+	 * Performs the actual roll, given all the matched groups from the parsing regexp.
+	 * @param parts The parts to parse.
+	 * @param user The user who made the roll.
+	 * @return the result of the roll.
+	 * @throws InputException if the input has issues.
+	 */
+	protected abstract String assembleRoll(String[] parts, String user) throws InputException;
+	
+	/**
+	 * Gets the name of this rolling system.
+	 * @return the style of the roller.
+	 */
+	public abstract String getName();
+	
+	/**
+	 * Gets the brief description of the rolling system and the available options. Each string
+	 * in the list will be printed as its own line." 
+	 * @return the description of the roller.
+	 */
+	public abstract List<String> getDescription();
+	
+	/**
+	 * Gets the regexp for this roller.
+	 * @return the regexp.
+	 */
+	public abstract String getRegexp();
+	
+	/** A roller for handling standard die behavior, like "2d6" or "1d20". */
+	public static class StandardRoller extends Roller {
+		/**
+		 * Constructor.
+		 * @param statistics The statistics object for tracking statistics.
+		 * @param personality The object containing the dicebot personality.
+		 */
+		public StandardRoller(Statistics statistics, Personality personality) {
+			super(statistics, personality);
+		}
+		
+		@Override
+		public String assembleRoll(String[] parts, String user) throws InputException {
+			short groupCount = parseGroups(parts[1]);
+			short diceCount = Utils.parseDiceCount(parts[2], getPersonality());
+			short diceType = Utils.parseShort(parts[3], getPersonality());
+			if (diceCount < 1) {
+				throw getPersonality().getException("Roll0Dice");
+			} else if (diceType < 1) {
+				throw getPersonality().getException("Roll0Sides");
+			} else if (diceType == 1) {
+				throw getPersonality().getException("OneSidedDice", diceCount, diceCount);
+			}
+			Reroll reroll = Behavior.parseReroll(parts[4], getPersonality());
+			Explosion explosion = Behavior.parseExplosion(parts[4], diceType, getPersonality());
+			Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
+			
+			Roll roll = new Roll(diceCount, diceCount, diceType, modifier, reroll, explosion, getPersonality());
+			System.out.println(roll);
+			List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
+				
+			String behaviors = Behavior.getPrettyString(roll);
+			return buildString(getGroupCountString(groupCount) + diceCount + "d" + diceType + behaviors + modifier , user, groups);
+		}
+		
+		@Override
+		public String getName() {
+			return "Standard";
+		}
+
+		@Override
+		public String getRegexp() {
+			return "^(\\d+ )?(\\d*)d(\\d+)(b[1-9]|v(?:[1-9][0-9]?)?)?(\\+\\d+|-\\d+)?";
+		}
+
+		@Override
+		public List<String> getDescription() {
+			List<String> retList = new ArrayList<String>();
+			retList.add("A standard dice roller, that can handle X number of dice of Y sides each, in the format XdY. (ex. 2d6).");
+			retList.add("Positive or negative modifiers may be applied to affect the result (ex. 2d6-5). If rolling only one die, the initial number may be omitted (ex. d20+10).");
+			retList.add("To roll additional groups of die, prefix the roll with a number then a space (ex. 10 d20+10). Modifiers will be applied to each group individually.");
+			retList.add("Brutal values of 1-9 are available by adding \"b\" then a number (ex. 2d8b2+5). Vorpal is also available by appending \"v\" (ex. 2d8v+5).");
+			return retList;
+		}
+
+		/**
+		 * Builds the result string for the roll groups.
+		 * @param groups The groups to use to build the string.
+		 * @return the output string.
+		 */
+		private String buildString(String baseRoll, String user, List<GroupResult> groups) {
+			if (groups.size() > 1) {
+				StringBuilder natural = new StringBuilder();
+				for (GroupResult group : groups) {
+					natural.append(group.getNatural());
+					natural.append(" ");
+				}
+				
+				StringBuilder modified = new StringBuilder();
+				for (GroupResult group : groups) {
+					modified.append(group.getModified());
+					modified.append(" ");
+				}
+				return getPersonality().getRollResult("StandardMoreGroups", baseRoll, user, natural, modified);
+			} else {
+				GroupResult group = groups.get(0);
+				if (group.isCriticalFailure() || group.isCriticalSuccess()) {
+					if (group.isCriticalFailure()) {
+						return getPersonality().getRollResult("Standard1GroupCrit", baseRoll, user, group.getNatural(), group.getModified(), "FAILURE", getPersonality().chooseCriticalFailureLine(random));
+					} else if (group.isCriticalSuccess()) {
+						return getPersonality().getRollResult("Standard1GroupCrit", baseRoll, user, group.getNatural(), group.getModified(), "SUCCESS", getPersonality().chooseCriticalSuccessLine(random));
+					}
+				} 
+				return getPersonality().getRollResult("Standard1Group", baseRoll, user, group.getNatural(), group.getModified());
+			}
+		}
+	}
+	
+	/** A roller for handling L5R die behavior, like "7k3" or "2k1+2". */
+	public static class L5RRoller extends Roller {
+		/**
+		 * Constructor.
+		 * @param statistics The statistics object for tracking statistics.
+		 * @param personality The object containing the dicebot personality.
+		 */
+		public L5RRoller(Statistics statistics, Personality personality) {
+			super(statistics, personality);
+		}
+		
+		@Override
+		public String assembleRoll(String[] parts, String user) throws InputException {
+			int groupCount = parseGroups(parts[1]);
+			short rolled = Utils.parseShort(parts[2], getPersonality());
+			short kept = Utils.parseShort(parts[3], getPersonality());
+			Modifier modifier = Modifier.createModifier(parts[4], getPersonality());
+			
+			Reroll reroll = Behavior.parseReroll(parts[5], getPersonality());
+			Explosion explosion = Behavior.parseExplosion(parts[5], getPersonality());
+			
+			// If we have no special explosion use the default L5R one. 
+			if (null == explosion) {
+				explosion = new L5RExplosion();
+			}
+			
+			Roll roll = handleRollover(new Roll(rolled, kept, (short) 10, modifier, reroll, explosion, getPersonality()));
+			if (roll.getKept() < 1) {
+				throw getPersonality().getException("KeepingLessThan1");
+			} else if (roll.getRolled() < roll.getKept()) {
+				throw getPersonality().getException("RollLessThanKeep");
+			}
+			
+			// If the analyze flag is on, analyze the roll. Otherwise perform it.
+			if (null != parts[6]) {
+				return analyzeRoll(roll);
+			} else {
+				List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
+				String behaviors = Behavior.getPrettyString(roll);
+				return buildString(getGroupCountString(groupCount) + roll.getRolled() + "k" + roll.getKept() + roll.getModifier() + behaviors, user, groups);
+			}
+		}
+		
+		/**
+		 * Handles the rollover for a group, returning a group which is guaranteed
+		 * to be no more than 10k10.
+		 * @param roll The group to handle rollover for.
+		 * @return the rollable group.
+		 * @throws InputException if the rolled-over values can't meet the reroll condition.
+		 */
+		private Roll handleRollover(Roll roll) throws InputException {
+			if (roll.getRolled() >= 10 && roll.getKept() >= 10) {
+				int rolledOverflow = roll.getRolled() - 10;
+				int keptOverflow = roll.getKept() - 10;
+				int overflow = rolledOverflow + keptOverflow;
+
+				return roll.alterValues(10, 10, roll.getModifier().appendToValue(2 * overflow));
+			}
+			
+			if (roll.getRolled() > 10) {
+				int overflow = roll.getRolled() - 10;
+				if (overflow > 1) {
+					// We have overflow. Remove a single die and recursively call.
+					return handleRollover(roll.alterValues(roll.getRolled() - 2, roll.getKept() + 1, roll.getModifier()));
+				} else {
+					// Strip off the extra 1 and return.
+					return roll.alterValues(10, roll.getKept(), roll.getModifier());
+				}
+			}
+				
+			if (roll.getKept() > 10) {
+				int overflow = roll.getKept() - 10;
+				return roll.alterValues(roll.getRolled(), 10, roll.getModifier().appendToValue(2 * overflow));
+			}
+			
+			return roll;
+		}
+		
+		private String analyzeRoll(Roll roll) {
+			//Regular - 1k1: 6, 1k0: 2, 0k1: 4
+			//Emphasis - 1k1: 6.6, 1k0: 2.1, 0k1: 4.3
+			//Mastery adds about .5 per 1k1
+			return "";
+		}
+		
+		@Override
+		public String getName() {
+			return "L5R";
+		}
+
+		@Override
+		public String getRegexp() {
+			return "^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a)?";
+		}
+
+		@Override
+		public List<String> getDescription() {
+			List<String> retList = new ArrayList<String>();
+			retList.add("A dice roller for Legend of the Five Rings (roll/keep style), which rolls X number of d10s and keeps Y of them (ex. 5k3).");
+			retList.add("Positive or negative modifiers may be applied to affect the result (ex. 5k3-5). Rolls that would \"roll over\" into static bonuses are automatically converted (ex. 13k9 into 10k10+2).");
+			retList.add("To roll additional groups of die, prefix the roll with a number then a space (ex. 10 2k2-5). Modifiers will be applied to each group individually.");
+			retList.add("Emphasis rolls are available by appending \"e\" to the roll (ex. 9k5e). Mastery is also available by appending \"m\" (ex. 12k3m). They may be combined (ex. 12k3+5em).");
+			return retList;
+		}
+		
+		/**
+		 * Builds the result string for the roll groups.
+		 * @param groups The groups to use to build the string.
+		 * @return the output string.
+		 */
+		private String buildString(String baseRoll, String user, List<GroupResult> groups) {
+			if (groups.size() > 1) {
+				StringBuilder dice = new StringBuilder();
+				for (GroupResult group : groups) {
+					dice.append(group.getDice());
+					dice.append(" ");
+				}
+				
+				StringBuilder modified = new StringBuilder();
+				for (GroupResult group : groups) {
+					modified.append(group.getModified());
+					modified.append(" ");
+				}
+				return getPersonality().getRollResult("L5RMoreGroups", baseRoll, user, dice, modified);
+			} else {
+				GroupResult group = groups.get(0);
+				return getPersonality().getRollResult("L5ROneGroup", baseRoll, user, group.getDice(), group.getModified());
+			}
+		}
+	}
+	
+	/** A roller for handling White Wolf die behavior, like "7k3" or "2k1+2". */
+	public static class WhiteWolfRoller extends Roller {
+		/**
+		 * Constructor.
+		 * @param statistics The statistics object for tracking statistics.
+		 * @param personality The object containing the dicebot personality.
+		 */
+		public WhiteWolfRoller(Statistics statistics, Personality personality) {
+			super(statistics, personality);
+		}
+		
+		@Override
+		public String assembleRoll(String[] parts, String user) throws InputException {
+			short rolled = Utils.parseShort(parts[1], getPersonality());
+			short neededSuccesses = Utils.parseShort(parts[2], getPersonality());
+			
+			if (rolled < 1) {
+				throw getPersonality().getException("Roll0Dice");
+			} else if (rolled < neededSuccesses) {
+				throw getPersonality().getException("CannotSatisfySuccesses", neededSuccesses, rolled);
+			}
+			
+			Roll roll = new Roll(rolled, rolled, (short) 10, Modifier.createNullModifier(), null, null, getPersonality());
+			List<GroupResult> groups = roll.performRoll(1, random, getStatistics());
+			return buildString(roll.getRolled() + "t" + neededSuccesses, user, neededSuccesses, groups.get(0));
+		}
+		
+		@Override
+		public String getName() {
+			return "White Wolf";
+		}
+
+		@Override
+		public String getRegexp() {
+			return "^(\\d+)t(\\d+)";
+		}
+
+		@Override
+		public List<String> getDescription() {
+			List<String> retList = new ArrayList<String>();
+			retList.add("A dice roller for White Wolf (roll/successes style), which rolls X number of d10s and looks for Y dice that rolled 5 or over (ex. 6t3).");
+			retList.add("It uses the \"old\" WW rules, via the revised rulebook, i.e. no rerolls and botch is equal to no successes and at least one 1.");
+			return retList;
+		}
+		
+		/**
+		 * Builds the result string for the roll groups.
+		 * @param baseRoll The base roll string.
+		 * @param user The user who made the roll.
+		 * @param neededSuccesses The number of successes needed for the roll.
+		 * @param group The group to use to build the string.
+		 * @return the output string.
+		 */
+		private String buildString(String baseRoll, String user, short neededSuccesses, GroupResult group) {
+			int successesOverMinimum = -neededSuccesses;
+			boolean oneRolled = false;
+			for (Integer die : group.getDice()) {
+				if (die >= 6) {
+					successesOverMinimum++;
+				} else if (die == 1) {
+					oneRolled = true;
+				}
+			}
+			System.out.println(successesOverMinimum + " " + oneRolled);
+			if (successesOverMinimum >= 0) {
+				return getPersonality().getRollResult("WhiteWolfSuccess", baseRoll, user, group.getDice(), successesOverMinimum);
+			} else {
+				if ((successesOverMinimum == -neededSuccesses) && oneRolled) {
+					return getPersonality().getRollResult("WhiteWolfBotch", baseRoll, user, group.getDice());
+				} else {
+					return getPersonality().getRollResult("WhiteWolfFailure", baseRoll, user, group.getDice());
+				}
+			}
+		}
+	}
+	
+	/** A roller for Fudge behavior, e.g. "4dF". */
+	public static class FudgeRoller extends Roller {
+		/**
+		 * Constructor.
+		 * @param statistics The statistics object for tracking statistics.
+		 * @param personality The object containing the dicebot personality.
+		 */
+		public FudgeRoller(Statistics statistics, Personality personality) {
+			super(statistics, personality);
+		}
+
+		@Override
+		protected String assembleRoll(String[] parts, String user) throws InputException {
+			short groupCount = parseGroups(parts[1]);
+			short rolled = Utils.parseShort(parts[2], getPersonality());
+			
+			if (rolled < 1) {
+				throw getPersonality().getException("Roll0Dice");
+			}
+			
+			Roll roll = new Roll(rolled, rolled, (short) 6, Modifier.createNullModifier(), null, null, getPersonality());
+			List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
+			return buildString(roll.getRolled() + "dF", user, groups);
+		}
+
+		@Override
+		public String getName() {
+			return "Fudge";
+		}
+
+		@Override
+		public List<String> getDescription() {
+			List<String> retList = new ArrayList<String>();
+			retList.add("A dice roller for the FUDGE dice style, which rolls X number of d6s with faces of ['-', '-', ' ', ' ', '+', '+'] and returns the additive result (ex. 4dF).");
+			return retList;
+
+		}
+
+		@Override
+		public String getRegexp() {
+			return "^(\\d+ )?(\\d+)dF";
+		}
+		
+		/**
+		 * Builds the result string for the roll groups.
+		 * @param groups The groups to use to build the string.
+		 * @return the output string.
+		 */
+		private String buildString(String baseRoll, String user, List<GroupResult> groups) {
+			if (groups.size() > 1) {
+				StringBuilder natural = new StringBuilder();
+				List<Integer> totals = new ArrayList<Integer>();
+				for (GroupResult group : groups) {
+					List<FudgeDie> convDice = convertToFudgeDie(group.getDice());
+					natural.append(convDice);
+					natural.append(" ");
+					totals.add(sumDice(convDice));
+				}
+				
+				return getPersonality().getRollResult("FudgeMoreGroups", baseRoll, user, natural, totals);
+			} else {
+				GroupResult group = groups.get(0);
+				List<FudgeDie> convDice = convertToFudgeDie(group.getDice());
+				int total = sumDice(convDice);
+				return getPersonality().getRollResult("Fudge1Group", baseRoll, user, convDice, total);
+			}
+		}
+		
+		/**
+		 * Sums a list of fudge dice.
+		 * @param dice The dice to sum.
+		 * @return the total.
+		 */
+		private int sumDice(List<FudgeDie> dice) {
+			int retVal = 0;
+			for (FudgeDie fudgeDie : dice) {
+				retVal += fudgeDie.getValue();
+			}
+			return retVal;
+		}
+		
+		/**
+		 * Converts normal integer dice into fudge dice.
+		 * @param dice The dice to convert.
+		 * @return the corresponding fudge dice.
+		 */
+		private List<FudgeDie> convertToFudgeDie(List<Integer> dice) {
+			List<FudgeDie> retList = new ArrayList<FudgeDie>();
+			for (Integer die : dice) {
+				retList.add(FudgeDie.getFudgeDie(die));
+			}
+			return retList;
+		}
+		
+		/** Enum which represents a fudge die. */
+		private enum FudgeDie {
+			MINUS(-1),
+			BLANK(0),
+			PLUS(1);
+			
+			/** The value of the die. */
+			private final int value;
+			 
+			/**
+			 * Private enum constructor.
+			 * @param value The value of the die.
+			 */
+			private FudgeDie(int value) {
+				this.value = value;
+			}
+			
+			/**
+			 * Converts a normal d6 into Fudge die faces.
+			 * @param dieValue The actual die value.
+			 * @return the value in Fudge dice.
+			 */
+			public static FudgeDie getFudgeDie(int dieValue) {
+				if (dieValue < 3) {
+					return MINUS;
+				} else if (dieValue < 5) {
+					return BLANK;
+				} else {
+					return PLUS;
+				}
+			}
+			
+			/**
+			 * Gets the value of the die.
+			 * @return the value.
+			 */
+			public int getValue() {
+				return value;
+			}
+			
+			@Override
+			public String toString() {
+				if (this == MINUS) {
+					return "-";
+				} else if (this == BLANK) {
+					return " ";
+				} else {
+					return "+";
+				}
+			}
+		}
+	}
+}
