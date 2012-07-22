@@ -21,9 +21,18 @@ public class DicebotRunner {
 	 * @param args The first arg should be a properties file containing the props for the dicebot.
 	 */
 	public static void main(String[] args) throws Exception {
+		if (args.length < 1) {
+			System.out.println("This dicebot requires a single argument: a properties file containing personality information. " 
+					+ "An additional properties file with drama cards can be specified as well.");
+			System.exit(1);
+		} 
+		
 		// Find the arguments.
 		String fileName = args[0];
-		String cardPath = args[1];
+		String cardPath = null;
+		if (args.length >= 2) {
+			cardPath = args[1];
+		}
 		// Grab the properties.
 		Properties props = new Properties();
 		InputStream propStream = null;
