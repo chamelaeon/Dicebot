@@ -49,22 +49,27 @@ public class DicebotRunner {
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\\n");
         while (scanner.hasNextLine()) {
-        	String line = scanner.nextLine();
-        	
-        	if (line.equals("exit") || line.equals("quit")) {
-        		bot.disconnect();
-        		bot.dispose();
-        		System.exit(0);
-        	}
-        	String[] parts = line.split(" ");
-        	String channel = parts[0];
-        	
-        	if (parts[1].equals("/me")) {
-        		String message = line.substring(channel.length() + 4).trim();
-        		bot.sendAction(channel, message);
-        	} else {
-        		String message = line.substring(channel.length()).trim();
-        		bot.sendMessage(channel, message);
+        	String line = "";
+        	try { 
+	        	line = scanner.nextLine();
+	        	
+	        	if (line.equals("exit") || line.equals("quit")) {
+	        		bot.disconnect();
+	        		bot.dispose();
+	        		System.exit(0);
+	        	}
+	        	String[] parts = line.split(" ");
+	        	String channel = parts[0];
+	        	
+	        	if (parts[1].equals("/me")) {
+	        		String message = line.substring(channel.length() + 4).trim();
+	        		bot.sendAction(channel, message);
+	        	} else {
+	        		String message = line.substring(channel.length()).trim();
+	        		bot.sendMessage(channel, message);
+	        	}
+        	} catch (Exception e) {
+        		System.out.println("Encountered invalid input " + line + "! (Exception type was: " + e.getClass() + ", message was: " + e.getMessage() + ")");
         	}
         }
         
