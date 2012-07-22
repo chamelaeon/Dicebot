@@ -48,8 +48,8 @@ public class DicebotRunner {
 
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\\n");
-        while (scanner.hasNext()) {
-        	String line = scanner.next();
+        while (scanner.hasNextLine()) {
+        	String line = scanner.nextLine();
         	
         	if (line.equals("exit") || line.equals("quit")) {
         		bot.disconnect();
