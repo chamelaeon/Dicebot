@@ -85,7 +85,9 @@ public class Dicebot extends PircBot {
 		commands.put("help", new HelpCommand());
 		commands.put("status", new StatusCommand());
 		commands.put("join", new JoinCommand());
-		commands.put("draw", new DrawCardCommand(this, new CardBase(personality.getCardPath())));
+		if (null != personality.getCardPath()) {
+			commands.put("draw", new DrawCardCommand(this, new CardBase(personality.getCardPath())));
+		}
 		return commands;
 	}
 	
