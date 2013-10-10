@@ -17,8 +17,8 @@ public class Roll {
 	private final short rolled;
 	/** The number of kept dice . */
 	private final short kept;
-	/** The number of sides on the dice to be rolled. */
-	private final short sides;
+	/** The die type to be rolled. */
+	private final Die die;
 	/** The modifier for the roll. */
 	private final Modifier modifier;
 	/** The reroll criteria, if any. */
@@ -36,21 +36,21 @@ public class Roll {
 	 * @param modifier The numerical modifier for the roll.
 	 * @throws InputException if there is an issue with the construction of the roll.
 	 */
-	public Roll(short rolled, short kept, short sides, Modifier modifier, Reroll reroll, Explosion explosion, Personality personality) 
+	public Roll(short rolled, short kept, Die die, Modifier modifier, Reroll reroll, Explosion explosion, Personality personality) 
 	throws InputException {
 		this.rolled = rolled;
 		this.kept = kept;
-		this.sides = sides;
+		this.die = die;
 		this.modifier = modifier;
 		this.explosion = explosion;
 		this.reroll = reroll;
 		this.personality = personality;
 		
-		if (reroll != null && reroll.cannotBeSatisfied(sides)) {
+		if (reroll != null && reroll.cannotBeSatisfied(die.getSides())) {
 			if (rolled == 1) {
-				throw personality.getException("CannotSatisfyRerollSingleDie", reroll, sides);	
+				throw personality.getException("CannotSatisfyRerollSingleDie", reroll, die.getSides());	
 			} else {
-				throw personality.getException("CannotSatisfyRerollMultipleDice", reroll, rolled, sides);
+				throw personality.getException("CannotSatisfyRerollMultipleDice", reroll, rolled, die.getSides());
 			}
 		}
 		
@@ -61,7 +61,7 @@ public class Roll {
 	
 	@Override
 	public String toString() {
-		return "Roll [rolled=" + rolled + ", kept=" + kept + ", sides=" + sides
+		return "Roll [rolled=" + rolled + ", kept=" + kept + ", die=" + die
 				+ ", "
 				+ (modifier != null ? "modifier=" + modifier + ", " : "")
 				+ (reroll != null ? "reroll=" + reroll + ", " : "")
@@ -87,7 +87,7 @@ public class Roll {
 	 * @throws InputException if the new roll cannot be constructed correctly. 
 	 */
 	public Roll alterValues(short rolled, short kept, Modifier modifier) throws InputException {
-		return new Roll(rolled, kept, this.sides, modifier, this.reroll, this.explosion, this.personality);
+		return new Roll(rolled, kept, this.die, modifier, this.reroll, this.explosion, this.personality);
 	}
 	
 	/**
@@ -107,11 +107,11 @@ public class Roll {
 	}
 
 	/**
-	 * Gets the number of sides on the dice.
-	 * @return the sides count.
+	 * Gets the die being used for the roll.
+	 * @return the die.
 	 */
-	public short getSides() {
-		return sides;
+	public Die getDie() {
+		return die;
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class Roll {
 			// Generate the rolled dice.
 			List<Integer> dice = new ArrayList<Integer>();
 			for (int j = 0; j < rolled; j++) {
-				int rolled = rollDie(sides, random, reroll, explosion, statistics);
+				int rolled = die.rollDie(random, reroll, explosion, statistics);
 				dice.add(rolled);
 			}
 			Collections.sort(dice);
@@ -156,9 +156,9 @@ public class Roll {
 			statistics.registerRoll(rolled + "-" + kept, natural);
 			long modified = modifier.apply(natural);
 			// Check for criticals.
-			if ((natural == rolled) && personality.useCritSuccesses()) {
+			if ((natural == rolled) && personality.useCritFailures()) {
 				groups.add(new GroupResult(dice, natural, modified, true, false));
-			} else if ((natural == (rolled * sides)) && personality.useCritFailures()) {
+			} else if (die.isCritSuccess(rolled, natural) && personality.useCritSuccesses()) {
 				groups.add(new GroupResult(dice, natural, modified, false, true));
 			} else {
 				groups.add(new GroupResult(dice, natural, modified, false, false));
@@ -166,38 +166,6 @@ public class Roll {
 		}
 		
 		return groups;
-	}
-	
-	/**
-	 * Rolls a d10, recursively handling explosions. 
-	 * @param diceType The type of dice to roll.
-	 * @param random The {@link Random} to use for generating numbers.
-	 * @param behaviors The behaviors of the dice.
-	 * @param statistics The statistics for roll tracking.
-	 * @return the value of the roll.
-	 */
-	private int rollDie(int diceType, Random random, Reroll reroll, Explosion explosion, Statistics statistics) {
-		int roll = random.getRoll(diceType);
-		
-		// Check for reroll.
-		if (null != reroll && reroll.needsRerolled(roll)) {
-			roll = random.getRoll(diceType);
-			while (reroll.needsRerolled(roll) && reroll.forceGoodValue()) {
-				roll = random.getRoll(diceType);
-			}
-		}
-		
-		// Check for explosion.
-		if (null != explosion && explosion.shouldExplode(roll)) {
-			int nextDie = random.getRoll(diceType);
-			roll += nextDie;
-			while (explosion.shouldExplode(nextDie)) {
-				nextDie = random.getRoll(diceType);
-				roll += nextDie;
-			}
-		}
-	
-		return roll;
 	}
 	
 	/** Class that represents the result of a rolled group of dice. */

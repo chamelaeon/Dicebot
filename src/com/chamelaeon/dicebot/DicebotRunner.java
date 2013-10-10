@@ -46,8 +46,8 @@ public class DicebotRunner {
 		}
 		
 		String network = props.getProperty("Network", "irc.sandwich.net");
-		String nicks = props.getProperty("Nicks", "Chibi_Vernon,Walrus_Vernon");
-		String channels = props.getProperty("Channels", "#digbitching,#atc,#besm");
+		String nicks = props.getProperty("Nicks", "Dicebot");
+		String channels = props.getProperty("Channels");
 		boolean verbose = Boolean.parseBoolean(props.getProperty("Verbose", "false"));
 		
 		// Now start our bot up.

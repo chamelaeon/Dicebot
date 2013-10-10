@@ -17,8 +17,14 @@ import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
 
+import com.chamelaeon.dicebot.commands.CheatCommand;
 import com.chamelaeon.dicebot.commands.Command;
 import com.chamelaeon.dicebot.commands.DrawCardCommand;
+import com.chamelaeon.dicebot.commands.JoinCommand;
+import com.chamelaeon.dicebot.commands.LeaveCommand;
+import com.chamelaeon.dicebot.commands.MuteCommand;
+import com.chamelaeon.dicebot.commands.StatusCommand;
+import com.chamelaeon.dicebot.commands.UnmuteCommand;
 import com.chamelaeon.dicebot.personality.Personality;
 import com.chamelaeon.dicebot.rollers.Roller;
 import com.chamelaeon.dicebot.rollers.Roller.FudgeRoller;
@@ -85,8 +91,9 @@ public class Dicebot extends PircBot {
 		commands.put("help", new HelpCommand());
 		commands.put("status", new StatusCommand());
 		commands.put("join", new JoinCommand());
+		commands.put("cheat", new CheatCommand());
 		if (null != personality.getCardPath()) {
-			commands.put("draw", new DrawCardCommand(this, new CardBase(personality.getCardPath())));
+			commands.put("draw", new DrawCardCommand(new CardBase(personality.getCardPath())));
 		}
 		return commands;
 	}
@@ -217,6 +224,10 @@ public class Dicebot extends PircBot {
 	 * @param user The user who initiated the roll.
 	 */
 	private void handleMessage(String destination, String message, String user) {
+		if (null != message) {
+			message = message.trim();
+		}
+		
 		for (Entry<Pattern, LineConsumer> entry : consumers.entrySet()) {
 			Matcher m = entry.getKey().matcher(message);
 			boolean matched = m.matches();
@@ -241,6 +252,74 @@ public class Dicebot extends PircBot {
 		}
 	}
 	
+	/**
+	 * Adds a channel for the dicebot to pay attention to. 
+	 * @param channel The channel to add.
+	 */
+	public void addChannel(String channel) {
+		channels.put(channel, false);
+	}
+	
+	/**
+	 * Removes a channel from the dicebot's tracking.
+	 * @param channel The channel to remove.
+	 */
+	public void removeChannel(String channel) {
+		channels.remove(channel);
+	}
+	
+	/**
+	 * Returns the speaking status of the channel for the dicebot. False means the dicebot is muted for that channel.
+	 * Null means the dicebot is not tracking that channel. 
+	 * @param channel The channel to mute for.
+	 * @return false if muted, true if not, null if not tracking.
+	 */
+	public Boolean getChannelStatus(String channel) {
+		return channels.get(channel);
+	}
+	
+	/**
+	 * Sets the speaking status of the channel.
+	 * @param channel The channel to check.
+	 * @param state The speaking status to set.
+	 */
+	public void setChannelState(String channel, Boolean state) {
+		channels.put(channel, state);
+	}
+	
+	/**
+	 * Returns the number of channels the dicebot is tracking.
+	 * @return the channel count.
+	 */
+	public int getChannelCount() {
+		return channels.size();
+	}
+	
+	/**
+	 * Returns the dicebot status for showing to the user.
+	 * @return the status.
+	 */
+	public String getStatus() {
+		return personality.getStatus();
+	}
+	
+	/**
+	 * Returns the statistics object for the dicebot.
+	 * @return the statistics.
+	 */
+	public Statistics getStatistics() {
+		return statistics;
+	}
+	
+	/**
+	 * Returns a personality message with the given key.
+	 * @param key The key to get the message for.
+	 * @return the message.
+	 */
+	public String getPersonalityMessage(String key) {
+		return personality.getMessage(key);
+	}
+
 	/** Executes commands from either a channel/private message, or the command line. */
 	private class CommandConsumer implements LineConsumer {
 		/** The command to dispatch to. */
@@ -256,71 +335,14 @@ public class Dicebot extends PircBot {
 		
 		@Override
 		public String consume(Matcher matcher, String source, String user) throws InputException {
-			return command.execute(matcher, source, user);
-		}
-	}
-	
-	/** A command to mute the bot for a certain channel. */
-	private class MuteCommand implements Command {
-		@Override
-		public String execute(Matcher matcher, String source, String user) {
-			sendAction(source, "shuts up for " + source + ".");
-			channels.put(source, false);
-			return null;
-		}
-		@Override
-		public String getDescription() {
-			return "Mutes the bot for the channel (or player!) that this command is used in.";
-		}
-		@Override
-		public String getRegexp() {
-			return "mute";
-		}
-	}
-	
-	/** A command to mute the bot for a certain channel. */
-	private class UnmuteCommand implements Command {
-		@Override
-		public String execute(Matcher matcher, String source, String user) {
-			channels.put(source, true);
-			return "is free to talk in " + source + " again!";
-		}
-
-		@Override
-		public String getDescription() {
-			return "Unmutes the bot for the channel that this command is used in.";
-		}
-		
-		@Override
-		public String getRegexp() {
-			return "unmute";
-		}
-	}
-	
-	/** A command to mute the bot for a certain channel. */
-	private class LeaveCommand implements Command {
-		@Override
-		public String execute(Matcher matcher, String source, String user) {
-			channels.remove(source);
-			partChannel(source);
-			return null;
-		}
-
-		@Override
-		public String getDescription() {
-			return "Makes the bot leave the channel that this command is used in.";
-		}
-		
-		@Override
-		public String getRegexp() {
-			return "leave";
+			return command.execute(Dicebot.this, matcher, source, user);
 		}
 	}
 	
 	/** A command to display help to a user. */
 	private class HelpCommand implements Command {
 		@Override
-		public String execute(Matcher matcher, String source, String user) {
+		public String execute(Dicebot dicebot, Matcher matcher, String source, String user) {
 			if (matcher.groupCount() >= 1) {
 				String secondary = (matcher.group(1) != null ? matcher.group(1).trim() : "");
 				if (rollers.containsKey(secondary)) {
@@ -389,51 +411,6 @@ public class Dicebot extends PircBot {
 			String rollerNames = joiner.join(rollers.keySet());
 			String commandNames = joiner.join(commands.keySet());
 			return "help( " + commandNames + "| " + rollerNames + ")?";
-		}
-	}
-	
-	/** A command to display help to a user. */
-	private class StatusCommand implements Command {
-		@Override
-		public String execute(Matcher matcher, String source, String user) {
-			// TODO: Move these into Personality. 
-			sendMessage(user, personality.getStatus());
-			sendMessage(user, "I'm sitting in " + channels.size() + " channels, watching the dice go by.");
-			sendMessage(user, "I've rolled " + statistics.getGroups() + " groups and " + statistics.getDice() + " actual dice since being turned on.");
-			return null;
-		}
-		
-		@Override
-		public String getDescription() {
-			return "Displays status and statistics for the bot.";
-		}
-		
-		@Override
-		public String getRegexp() {
-			return "status";
-		}
-	}
-	
-	/** A command to display help to a user. */
-	private class JoinCommand implements Command {
-		@Override
-		public String execute(Matcher matcher, String source, String user) {
-			if (matcher.groupCount() >= 1) {
-				String channel = matcher.group(1).trim();
-				channels.put(channel, true);
-				joinChannel(channel);
-			}
-			return null;
-		}
-
-		@Override
-		public String getDescription() {
-			return "Makes the bot join the specified channel, if it can.";
-		}
-		
-		@Override
-		public String getRegexp() {
-			return "join (#[a-zA-Z0-9-_]+)";
 		}
 	}
 }

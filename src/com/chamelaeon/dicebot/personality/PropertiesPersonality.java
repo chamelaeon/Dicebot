@@ -12,21 +12,22 @@ public class PropertiesPersonality extends Personality {
 	 */
 	public PropertiesPersonality(Properties props, String cardPath) {
 		super(cardPath);
-		exceptionTexts.put("LessThanOneGroup", props.getProperty("LessThanOneGroup"));
-		exceptionTexts.put("Roll0Dice", props.getProperty("Roll0Dice"));
-		exceptionTexts.put("Roll0Sides", props.getProperty("Roll0Sides"));
-		exceptionTexts.put("OneSidedDice", props.getProperty("OneSidedDice"));
-		exceptionTexts.put("KeepingLessThan1", props.getProperty("KeepingLessThan1"));
-		exceptionTexts.put("RollLessThanKeep", props.getProperty("RollLessThanKeep"));
-		exceptionTexts.put("BadCommand", props.getProperty("BadCommand"));
-		exceptionTexts.put("CannotSatisfyRerollSingleDie", props.getProperty("CannotSatisfyRerollSingleDie"));
-		exceptionTexts.put("CannotSatisfyRerollMultipleDice", props.getProperty("CannotSatisfyRerollMultipleDice"));
-		exceptionTexts.put("InfiniteExplosion", props.getProperty("InfiniteExplosion"));
-		exceptionTexts.put("BrokenRegexp", props.getProperty("BrokenRegexp"));
-		exceptionTexts.put("ParseBadShort", props.getProperty("ParseBadShort"));
-		exceptionTexts.put("ReflectionError", props.getProperty("ReflectionError"));
-		exceptionTexts.put("CannotSatisfySuccesses", props.getProperty("CannotSatisfySuccesses"));
-		exceptionTexts.put("Roll0Dice", props.getProperty("Roll0Dice"));
+		configurableTexts.put("LessThanOneGroup", props.getProperty("LessThanOneGroup"));
+		configurableTexts.put("Roll0Dice", props.getProperty("Roll0Dice"));
+		configurableTexts.put("Roll0Sides", props.getProperty("Roll0Sides"));
+		configurableTexts.put("OneSidedDice", props.getProperty("OneSidedDice"));
+		configurableTexts.put("KeepingLessThan1", props.getProperty("KeepingLessThan1"));
+		configurableTexts.put("RollLessThanKeep", props.getProperty("RollLessThanKeep"));
+		configurableTexts.put("BadCommand", props.getProperty("BadCommand"));
+		configurableTexts.put("CannotSatisfyRerollSingleDie", props.getProperty("CannotSatisfyRerollSingleDie"));
+		configurableTexts.put("CannotSatisfyRerollMultipleDice", props.getProperty("CannotSatisfyRerollMultipleDice"));
+		configurableTexts.put("InfiniteExplosion", props.getProperty("InfiniteExplosion"));
+		configurableTexts.put("BrokenRegexp", props.getProperty("BrokenRegexp"));
+		configurableTexts.put("ParseBadShort", props.getProperty("ParseBadShort"));
+		configurableTexts.put("ReflectionError", props.getProperty("ReflectionError"));
+		configurableTexts.put("CannotSatisfySuccesses", props.getProperty("CannotSatisfySuccesses"));
+		configurableTexts.put("Roll0Dice", props.getProperty("Roll0Dice"));
+		configurableTexts.put("Cheat", props.getProperty("Cheat"));
 		
 		rollOutputs.put("Standard1Group", props.getProperty("Standard1Group"));
 		rollOutputs.put("Standard1GroupCrit", props.getProperty("Standard1GroupCrit"));

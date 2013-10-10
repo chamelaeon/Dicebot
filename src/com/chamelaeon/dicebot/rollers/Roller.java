@@ -1,13 +1,17 @@
 package com.chamelaeon.dicebot.rollers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import com.chamelaeon.dicebot.Behavior;
 import com.chamelaeon.dicebot.Behavior.Explosion;
 import com.chamelaeon.dicebot.Behavior.L5RExplosion;
 import com.chamelaeon.dicebot.Behavior.Reroll;
+import com.chamelaeon.dicebot.Die.FudgeDie;
+import com.chamelaeon.dicebot.Die.SimpleDie;
 import com.chamelaeon.dicebot.InputException;
 import com.chamelaeon.dicebot.LineConsumer;
 import com.chamelaeon.dicebot.Modifier;
@@ -148,7 +152,7 @@ public abstract class Roller implements LineConsumer {
 			Explosion explosion = Behavior.parseExplosion(parts[4], diceType, getPersonality());
 			Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
 			
-			Roll roll = new Roll(diceCount, diceCount, diceType, modifier, reroll, explosion, getPersonality());
+			Roll roll = new Roll(diceCount, diceCount, new SimpleDie(diceType), modifier, reroll, explosion, getPersonality());
 			System.out.println(roll);
 			List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
 				
@@ -235,7 +239,7 @@ public abstract class Roller implements LineConsumer {
 				explosion = new L5RExplosion();
 			}
 			
-			Roll roll = handleRollover(new Roll(rolled, kept, (short) 10, modifier, reroll, explosion, getPersonality()));
+			Roll roll = handleRollover(new Roll(rolled, kept, new SimpleDie((short) 10), modifier, reroll, explosion, getPersonality()));
 			if (roll.getKept() < 1) {
 				throw getPersonality().getException("KeepingLessThan1");
 			} else if (roll.getRolled() < roll.getKept()) {
@@ -362,7 +366,7 @@ public abstract class Roller implements LineConsumer {
 				throw getPersonality().getException("CannotSatisfySuccesses", neededSuccesses, rolled);
 			}
 			
-			Roll roll = new Roll(rolled, rolled, (short) 10, Modifier.createNullModifier(), null, null, getPersonality());
+			Roll roll = new Roll(rolled, rolled, new SimpleDie((short) 10), Modifier.createNullModifier(), null, null, getPersonality());
 			List<GroupResult> groups = roll.performRoll(1, random, getStatistics());
 			return buildString(roll.getRolled() + "t" + neededSuccesses, user, neededSuccesses, groups.get(0));
 		}
@@ -418,6 +422,29 @@ public abstract class Roller implements LineConsumer {
 	
 	/** A roller for Fudge behavior, e.g. "4dF". */
 	public static class FudgeRoller extends Roller {
+		private static final Map<Long, String> descriptors = new HashMap<Long, String>() {
+			private static final long serialVersionUID = -7890866934527969200L;
+		{
+			long idx = -4;
+			put(idx++, "Unfathomably Bad");
+			put(idx++, "Miserable");
+			put(idx++, "Terrible");
+			put(idx++, "Poor");
+			put(idx++, "Mediocre");
+			put(idx++, "Average");
+			put(idx++, "Fair");
+			put(idx++, "Good");
+			put(idx++, "Great");
+			put(idx++, "Superb");
+			put(idx++, "Fantastic");
+			put(idx++, "Epic");
+			put(idx++, "Legendary");
+			put(idx++, "Phat!");
+			put(idx++, "Modular");
+			put(idx++, "Schway");
+			put(idx++, "Truly Outrageous");
+		}};
+		
 		/**
 		 * Constructor.
 		 * @param statistics The statistics object for tracking statistics.
@@ -431,14 +458,15 @@ public abstract class Roller implements LineConsumer {
 		protected String assembleRoll(String[] parts, String user) throws InputException {
 			short groupCount = parseGroups(parts[1]);
 			short rolled = Utils.parseShort(parts[2], getPersonality());
+			Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
 			
 			if (rolled < 1) {
 				throw getPersonality().getException("Roll0Dice");
 			}
 			
-			Roll roll = new Roll(rolled, rolled, (short) 6, Modifier.createNullModifier(), null, null, getPersonality());
+			Roll roll = new Roll(rolled, rolled, new FudgeDie(), modifier, null, null, getPersonality());
 			List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
-			return buildString(roll.getRolled() + "dF", user, groups);
+			return buildString(getGroupCountString(groupCount) + roll.getRolled() + "dF" + modifier, user, groups);
 		}
 
 		@Override
@@ -456,7 +484,7 @@ public abstract class Roller implements LineConsumer {
 
 		@Override
 		public String getRegexp() {
-			return "^(\\d+ )?(\\d+)dF";
+			return "^(\\d+ )?(\\d+)d[fF](\\+\\d+|-\\d+)?";
 		}
 		
 		/**
@@ -466,35 +494,29 @@ public abstract class Roller implements LineConsumer {
 		 */
 		private String buildString(String baseRoll, String user, List<GroupResult> groups) {
 			if (groups.size() > 1) {
-				StringBuilder natural = new StringBuilder();
-				List<Integer> totals = new ArrayList<Integer>();
+				List<Long> naturals = new ArrayList<Long>();
+				List<Long> totals = new ArrayList<Long>();
 				for (GroupResult group : groups) {
-					List<FudgeDie> convDice = convertToFudgeDie(group.getDice());
-					natural.append(convDice);
-					natural.append(" ");
-					totals.add(sumDice(convDice));
+					naturals.add(group.getNatural());
+					totals.add(group.getModified());
 				}
 				
-				return getPersonality().getRollResult("FudgeMoreGroups", baseRoll, user, natural, totals);
+				return getPersonality().getRollResult("FudgeMoreGroups", baseRoll, user, naturals, totals);
 			} else {
 				GroupResult group = groups.get(0);
-				List<FudgeDie> convDice = convertToFudgeDie(group.getDice());
-				int total = sumDice(convDice);
-				return getPersonality().getRollResult("Fudge1Group", baseRoll, user, convDice, total);
+				long total = group.getNatural();
+				long modified = group.getModified();
+				String descriptor = descriptors.get(modified);
+				if (null == descriptor) {
+					if (modified > 0) {
+						descriptor = "Off The Scale!";
+					} else {
+						descriptor = "Did You Have Breakfast Today?";
+					}
+				}
+				List<String> convDice = convertToFudgeDie(group.getDice());
+				return getPersonality().getRollResult("Fudge1Group", baseRoll, user, convDice, total, modified, descriptor);
 			}
-		}
-		
-		/**
-		 * Sums a list of fudge dice.
-		 * @param dice The dice to sum.
-		 * @return the total.
-		 */
-		private int sumDice(List<FudgeDie> dice) {
-			int retVal = 0;
-			for (FudgeDie fudgeDie : dice) {
-				retVal += fudgeDie.getValue();
-			}
-			return retVal;
 		}
 		
 		/**
@@ -502,64 +524,18 @@ public abstract class Roller implements LineConsumer {
 		 * @param dice The dice to convert.
 		 * @return the corresponding fudge dice.
 		 */
-		private List<FudgeDie> convertToFudgeDie(List<Integer> dice) {
-			List<FudgeDie> retList = new ArrayList<FudgeDie>();
+		private List<String> convertToFudgeDie(List<Integer> dice) {
+			List<String> retList = new ArrayList<String>();
 			for (Integer die : dice) {
-				retList.add(FudgeDie.getFudgeDie(die));
+				if (die == 0) {
+					retList.add("o");
+				} else if (die == -1) {
+					retList.add("-");
+				} else if (die == 1) {
+					retList.add("+");
+				}
 			}
 			return retList;
-		}
-		
-		/** Enum which represents a fudge die. */
-		private enum FudgeDie {
-			MINUS(-1),
-			BLANK(0),
-			PLUS(1);
-			
-			/** The value of the die. */
-			private final int value;
-			 
-			/**
-			 * Private enum constructor.
-			 * @param value The value of the die.
-			 */
-			private FudgeDie(int value) {
-				this.value = value;
-			}
-			
-			/**
-			 * Converts a normal d6 into Fudge die faces.
-			 * @param dieValue The actual die value.
-			 * @return the value in Fudge dice.
-			 */
-			public static FudgeDie getFudgeDie(int dieValue) {
-				if (dieValue < 3) {
-					return MINUS;
-				} else if (dieValue < 5) {
-					return BLANK;
-				} else {
-					return PLUS;
-				}
-			}
-			
-			/**
-			 * Gets the value of the die.
-			 * @return the value.
-			 */
-			public int getValue() {
-				return value;
-			}
-			
-			@Override
-			public String toString() {
-				if (this == MINUS) {
-					return "-";
-				} else if (this == BLANK) {
-					return " ";
-				} else {
-					return "+";
-				}
-			}
 		}
 	}
 }

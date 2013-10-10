@@ -13,7 +13,7 @@ import com.chamelaeon.dicebot.random.Random;
 public abstract class Personality {
 
 	/** The exception texts, mapped by key. */
-	final Map<String, String> exceptionTexts;
+	final Map<String, String> configurableTexts;
 	
 	/** The roll outputs, mapped by key. */
 	final Map<String, String> rollOutputs;
@@ -34,7 +34,7 @@ public abstract class Personality {
 	final String cardPath;
 	
 	Personality(String cardPath) {
-		exceptionTexts = new HashMap<String, String>();
+		configurableTexts = new HashMap<String, String>();
 		rollOutputs = new HashMap<String, String>();
 		criticalFailures = new ArrayList<String>();
 		criticalSuccesses = new ArrayList<String>();
@@ -50,9 +50,18 @@ public abstract class Personality {
 	 * @return the exception to throw up to where a user can see it.
 	 */
 	public InputException getException(String key, Object... params) {
-		return new InputException(String.format(exceptionTexts.get(key), params));
+		return new InputException(String.format(configurableTexts.get(key), params));
 	}
 
+	/**
+	 * Gets a simple configurable message.
+	 * @param key The key of the message to get.
+	 * @return the message
+	 */
+	public String getMessage(String key) {
+		return configurableTexts.get(key);
+	}
+	
 	/**
 	 * Gets the roll result text for the given key.
 	 * @param key The roll result's key.

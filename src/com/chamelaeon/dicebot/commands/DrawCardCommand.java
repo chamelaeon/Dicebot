@@ -8,8 +8,6 @@ import com.chamelaeon.dicebot.Dicebot;
 /** A command to draw a drama card. */
 public class DrawCardCommand implements Command {
 
-	/** The dicebot to use to send messages. */
-	private final Dicebot dicebot;
 	/** The database of cards to draw from. */
 	private CardBase cardBase;
 	
@@ -17,13 +15,12 @@ public class DrawCardCommand implements Command {
 	 * Constructor.
 	 * @param parent The parent dicebot of this command.
 	 */
-	public DrawCardCommand(Dicebot parent, CardBase cardBase) {
-		this.dicebot = parent;
+	public DrawCardCommand(CardBase cardBase) {
 		this.cardBase = cardBase;
 	}
 	
 	@Override
-	public String execute(Matcher matcher, String source, String user) {
+	public String execute(Dicebot dicebot, Matcher matcher, String source, String user) {
 		if (matcher.groupCount() >= 1) {
 			String countString = matcher.group(1).trim();
 			String notifyNick = null;
