@@ -154,7 +154,6 @@ public abstract class Roller implements LineConsumer {
 			Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
 			
 			Roll roll = new Roll(diceCount, diceCount, new SimpleDie(diceType), modifier, reroll, explosion, getPersonality());
-			System.out.println(roll);
 			List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
 				
 			String behaviors = Behavior.getPrettyString(roll);
@@ -360,16 +359,28 @@ public abstract class Roller implements LineConsumer {
 		public String assembleRoll(String[] parts, String user) throws InputException {
 			short rolled = Utils.parseShort(parts[1], getPersonality());
 			short neededSuccesses = Utils.parseShort(parts[2], getPersonality());
+			Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
+			String emphasis = parts[4];
+			String dcString = parts[5];
+			Short dc = 6;
+			if (null != dcString) {
+				dc = Short.parseShort(parts[6]);
+			}
 			
 			if (rolled < 1) {
 				throw getPersonality().getException("Roll0Dice");
+			} else if (dc < 0) {
+				throw getPersonality().getException("DCLessThan0");
 			} else if (rolled < neededSuccesses) {
 				throw getPersonality().getException("CannotSatisfySuccesses", neededSuccesses, rolled);
 			}
 			
-			Roll roll = new Roll(rolled, rolled, new SimpleDie((short) 10), Modifier.createNullModifier(), null, null, getPersonality());
+			Roll roll = new Roll(rolled, rolled, new SimpleDie((short) 10), modifier, null, null, getPersonality());
 			List<GroupResult> groups = roll.performRoll(1, random, getStatistics());
-			return buildString(roll.getRolled() + "t" + neededSuccesses, user, neededSuccesses, groups.get(0));
+			String behaviors = null == emphasis | "".equals(emphasis) ? "" : emphasis;
+			dcString = null == dcString || "".equals(dcString) ? "" : " " + dcString; 
+			return buildString(roll.getRolled() + "t" + neededSuccesses + modifier + behaviors + dcString, user, neededSuccesses, dc, modifier, 
+					emphasis, groups.get(0));
 		}
 		
 		@Override
@@ -379,14 +390,16 @@ public abstract class Roller implements LineConsumer {
 
 		@Override
 		public String getRegexp() {
-			return "^(\\d+)t(\\d+)";
+			return "^(\\d+)t(\\d+)(\\+\\d+|\\-\\d+)?(e)?([ ]*[dc|DC]+(\\d+))?";
 		}
 
 		@Override
 		public List<String> getDescription() {
 			List<String> retList = new ArrayList<String>();
-			retList.add("A dice roller for White Wolf (roll/successes style), which rolls X number of d10s and looks for Y dice that rolled 5 or over (ex. 6t3).");
-			retList.add("It uses the \"old\" WW rules, via the revised rulebook, i.e. no rerolls and botch is equal to no successes and at least one 1.");
+			retList.add("A dice roller for White Wolf (roll/successes style), which rolls a number of d10s and looks for numbers over a certain value,");
+			retList.add("attempting to accumulate a certain number of successes. A number of fixed successes can be added or removed. Specifying e (for");
+			retList.add("emphasis) makes 10s explode twice. An example: 6t2+1e dc7 - this specifies rolling 6 dice, looking for 2 dice with a value of");
+			retList.add("7 or higher. Tens will explode twice, and there will be one guaranteed success. If not specified, the DC is 6+.");
 			return retList;
 		}
 		
@@ -398,25 +411,29 @@ public abstract class Roller implements LineConsumer {
 		 * @param group The group to use to build the string.
 		 * @return the output string.
 		 */
-		private String buildString(String baseRoll, String user, short neededSuccesses, GroupResult group) {
-			int successesOverMinimum = -neededSuccesses;
-			boolean oneRolled = false;
+		private String buildString(String baseRoll, String user, short neededSuccesses, short dc, Modifier modifier, 
+				String specialization, GroupResult group) {
+			long successesOverMinimum = -neededSuccesses;
+			int onesRolled = 0;
 			for (DieResult die : group.getDice()) {
-				if (die.getResult() >= 6) {
+			
+				if (10 == die.getResult() && null != specialization) {
+					successesOverMinimum += 2;
+				} else if (die.getResult() >= dc) {
 					successesOverMinimum++;
 				} else if (die.getResult() == 1) {
-					oneRolled = true;
+					onesRolled++;
 				}
 			}
-			System.out.println(successesOverMinimum + " " + oneRolled);
+
+			if (null != modifier) {
+				successesOverMinimum = modifier.apply(successesOverMinimum);
+			}
+			
 			if (successesOverMinimum >= 0) {
-				return getPersonality().getRollResult("WhiteWolfSuccess", baseRoll, user, group.getDice(), successesOverMinimum);
+				return getPersonality().getRollResult("WhiteWolfSuccess", baseRoll, user, group.getDice(), successesOverMinimum, onesRolled);
 			} else {
-				if ((successesOverMinimum == -neededSuccesses) && oneRolled) {
-					return getPersonality().getRollResult("WhiteWolfBotch", baseRoll, user, group.getDice());
-				} else {
-					return getPersonality().getRollResult("WhiteWolfFailure", baseRoll, user, group.getDice());
-				}
+				return getPersonality().getRollResult("WhiteWolfFailure", baseRoll, user, group.getDice());
 			}
 		}
 	}
@@ -444,6 +461,9 @@ public abstract class Roller implements LineConsumer {
 			put(idx++, "Modular");
 			put(idx++, "Schway");
 			put(idx++, "Truly Outrageous");
+			put(idx++, "Off The Chain!");
+			put(idx++, "Ostentatious");
+			put(idx++, "PENTAKILL");
 		}};
 		
 		/**
