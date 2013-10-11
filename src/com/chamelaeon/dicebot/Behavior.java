@@ -6,6 +6,7 @@ package com.chamelaeon.dicebot;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chamelaeon.dicebot.dice.Roll;
 import com.chamelaeon.dicebot.personality.Personality;
 
 /**

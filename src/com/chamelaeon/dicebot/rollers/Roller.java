@@ -10,15 +10,16 @@ import com.chamelaeon.dicebot.Behavior;
 import com.chamelaeon.dicebot.Behavior.Explosion;
 import com.chamelaeon.dicebot.Behavior.L5RExplosion;
 import com.chamelaeon.dicebot.Behavior.Reroll;
-import com.chamelaeon.dicebot.Die.FudgeDie;
-import com.chamelaeon.dicebot.Die.SimpleDie;
 import com.chamelaeon.dicebot.InputException;
 import com.chamelaeon.dicebot.LineConsumer;
 import com.chamelaeon.dicebot.Modifier;
-import com.chamelaeon.dicebot.Roll;
-import com.chamelaeon.dicebot.Roll.GroupResult;
 import com.chamelaeon.dicebot.Statistics;
 import com.chamelaeon.dicebot.Utils;
+import com.chamelaeon.dicebot.dice.DieResult;
+import com.chamelaeon.dicebot.dice.Roll;
+import com.chamelaeon.dicebot.dice.Die.FudgeDie;
+import com.chamelaeon.dicebot.dice.Die.SimpleDie;
+import com.chamelaeon.dicebot.dice.Roll.GroupResult;
 import com.chamelaeon.dicebot.personality.BasicPersonality;
 import com.chamelaeon.dicebot.personality.Personality;
 import com.chamelaeon.dicebot.random.Random;
@@ -400,10 +401,10 @@ public abstract class Roller implements LineConsumer {
 		private String buildString(String baseRoll, String user, short neededSuccesses, GroupResult group) {
 			int successesOverMinimum = -neededSuccesses;
 			boolean oneRolled = false;
-			for (Integer die : group.getDice()) {
-				if (die >= 6) {
+			for (DieResult die : group.getDice()) {
+				if (die.getResult() >= 6) {
 					successesOverMinimum++;
-				} else if (die == 1) {
+				} else if (die.getResult() == 1) {
 					oneRolled = true;
 				}
 			}
@@ -524,14 +525,14 @@ public abstract class Roller implements LineConsumer {
 		 * @param dice The dice to convert.
 		 * @return the corresponding fudge dice.
 		 */
-		private List<String> convertToFudgeDie(List<Integer> dice) {
+		private List<String> convertToFudgeDie(List<DieResult> dice) {
 			List<String> retList = new ArrayList<String>();
-			for (Integer die : dice) {
-				if (die == 0) {
+			for (DieResult die : dice) {
+				if (die.getResult() == 0) {
 					retList.add("o");
-				} else if (die == -1) {
+				} else if (die.getResult() == -1) {
 					retList.add("-");
-				} else if (die == 1) {
+				} else if (die.getResult() == 1) {
 					retList.add("+");
 				}
 			}

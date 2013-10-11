@@ -2,6 +2,7 @@ package com.chamelaeon.dicebot;
 
 import java.util.List;
 
+import com.chamelaeon.dicebot.dice.DieResult;
 import com.chamelaeon.dicebot.personality.Personality;
 
 /**
@@ -46,10 +47,10 @@ public class Utils {
 	 * @param count The first X items to sum.
 	 * @return the sum.
 	 */
-	public static long sumFirst(List<Integer> list, int count) {
+	public static long sumFirst(List<DieResult> list, int count) {
 		long total = 0;
 		for (int i = 0; i < count; i++) {
-			total += list.get(i);
+			total += list.get(i).getResult();
 		}
 		return total;
 	}
