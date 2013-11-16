@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 
 import com.chamelaeon.dicebot.Dicebot;
 
+
 /** A command to mute the bot for a certain channel. */
 public class LeaveCommand implements Command {
 	@Override

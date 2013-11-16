@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 
 import com.chamelaeon.dicebot.Dicebot;
 
+
 /** A command that the bot can perform. */
 public interface Command {
 	/**

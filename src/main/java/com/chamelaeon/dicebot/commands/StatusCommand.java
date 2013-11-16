@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 
 import com.chamelaeon.dicebot.Dicebot;
 
+
 /** A command to display help to a user. */
 public class StatusCommand implements Command {
 	@Override

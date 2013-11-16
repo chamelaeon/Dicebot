@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-
 import com.chamelaeon.dicebot.Statistics;
 import com.chamelaeon.dicebot.random.Random.MersenneTwisterRandom;
 

@@ -4,25 +4,27 @@ import java.util.regex.Matcher;
 
 import com.chamelaeon.dicebot.Dicebot;
 
+
 /** A command to mute the bot for a certain channel. */
-public class UnmuteCommand implements Command {
+public class MuteCommand implements Command {
 	@Override
 	public String execute(Dicebot dicebot, Matcher matcher, String source, String user) {
 		if (null == dicebot.getChannelStatus(source)) {
 			dicebot.addChannel(source);
 		}
-		
-		dicebot.setChannelState(source, true);
-		return "is free to talk in " + source + " again!";
-	}
 
+		dicebot.sendAction(source, "shuts up for " + source + ".");
+		dicebot.setChannelState(source, false);
+		return null;
+	}
+	
 	@Override
 	public String getDescription() {
-		return "Unmutes the bot for the channel that this command is used in.";
+		return "Mutes the bot for the channel (or player!) that this command is used in.";
 	}
 	
 	@Override
 	public String getRegexp() {
-		return "unmute";
+		return "mute";
 	}
 }
