@@ -3,30 +3,25 @@
  */
 package com.chamelaeon.dicebot.commands;
 
-import java.util.regex.Matcher;
+import java.util.List;
 
 import com.chamelaeon.dicebot.Dicebot;
+import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
+import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
 
 
 /**
  * A command for cheaters.
+ * @author Chamelaeon
  */
-public class CheatCommand implements Command {
-
-	@Override
-	public String execute(Dicebot dicebot, Matcher matcher, String source, String user) {
-		dicebot.sendMessage(source, dicebot.getPersonalityMessage("Cheat"));
-		return null;
+public class CheatCommand extends DicebotListenerAdapter {
+    /** Constructor. */
+	public CheatCommand() {
+		super("!cheat", new HelpDetails("cheat", "The cheatiest of commands. For losers only."));
 	}
 
 	@Override
-	public String getDescription() {
-		return "The cheatiest of commands. For losers only.";
-	}
-
-	@Override
-	public String getRegexp() {
-		return "cheat";
-	}
-
+	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) {
+		event.respond(event.getBot().getPersonality().getMessage("Cheat"));
+	} 
 }

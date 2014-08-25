@@ -4,38 +4,42 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 import com.chamelaeon.dicebot.Behavior;
 import com.chamelaeon.dicebot.Behavior.Explosion;
 import com.chamelaeon.dicebot.Behavior.L5RExplosion;
 import com.chamelaeon.dicebot.Behavior.Reroll;
+import com.chamelaeon.dicebot.Dicebot;
 import com.chamelaeon.dicebot.InputException;
-import com.chamelaeon.dicebot.LineConsumer;
 import com.chamelaeon.dicebot.Modifier;
 import com.chamelaeon.dicebot.Statistics;
 import com.chamelaeon.dicebot.Utils;
+import com.chamelaeon.dicebot.commands.HelpDetails;
 import com.chamelaeon.dicebot.dice.Die.FudgeDie;
 import com.chamelaeon.dicebot.dice.Die.SimpleDie;
 import com.chamelaeon.dicebot.dice.DieResult;
 import com.chamelaeon.dicebot.dice.Roll;
 import com.chamelaeon.dicebot.dice.Roll.GroupResult;
+import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
+import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
 import com.chamelaeon.dicebot.personality.BasicPersonality;
 import com.chamelaeon.dicebot.personality.Personality;
 import com.chamelaeon.dicebot.random.Random;
 import com.chamelaeon.dicebot.random.Random.MersenneTwisterRandom;
 
 /** Abstract class describing all types of rollers. */
-public abstract class Roller implements LineConsumer {
+public abstract class Roller extends DicebotListenerAdapter {
 	/** The random to use. */
 	protected final Random random;
 	/** The personality object containing quotes (if necessary). */
 	private final Personality personality;
 	
 	/** Protected constructor. */
-	protected Roller(Statistics statistics, Personality personality) {
-		 random = new MersenneTwisterRandom(statistics);
-		 this.personality = personality;
+	protected Roller(String regexp, String name, String description, 
+			Statistics statistics, Personality personality) {
+		super(regexp, new HelpDetails(name, description));
+		random = new MersenneTwisterRandom(statistics);
+		this.personality = personality;
 	}
 	
 	/** Gets the {@link Statistics} object. */
@@ -49,17 +53,9 @@ public abstract class Roller implements LineConsumer {
 	}
 
 	@Override
-	public String consume(Matcher matcher, String source, String user) throws InputException {
-			int count = matcher.groupCount();
-			String[] parts = new String[count+1];
-			for (int i = 0; i <= count; i++) {
-				String group = matcher.group(i);
-				if (null != group) {
-					group = group.trim();
-				}
-				parts[i] = group;
-			}
-			return assembleRoll(parts, user);
+	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) throws InputException {
+		event.respondWithAction(assembleRoll(groups.toArray(new String[groups.size()]), 
+		        event.getUser().getNick()));
 	}
 	
 	/**
@@ -107,25 +103,6 @@ public abstract class Roller implements LineConsumer {
 	 */
 	protected abstract String assembleRoll(String[] parts, String user) throws InputException;
 	
-	/**
-	 * Gets the name of this rolling system.
-	 * @return the style of the roller.
-	 */
-	public abstract String getName();
-	
-	/**
-	 * Gets the brief description of the rolling system and the available options. Each string
-	 * in the list will be printed as its own line." 
-	 * @return the description of the roller.
-	 */
-	public abstract List<String> getDescription();
-	
-	/**
-	 * Gets the regexp for this roller.
-	 * @return the regexp.
-	 */
-	public abstract String getRegexp();
-	
 	/** A roller for handling standard die behavior, like "2d6" or "1d20". */
 	public static class StandardRoller extends Roller {
 		/**
@@ -134,7 +111,8 @@ public abstract class Roller implements LineConsumer {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public StandardRoller(Statistics statistics, Personality personality) {
-			super(statistics, personality);
+			super("^(\\d+ )?(\\d*)d(\\d+)(b[1-9]|v(?:[1-9][0-9]?)?)?(\\+\\d+|-\\d+)?", "Standard", getDesc(), 
+					statistics, personality);
 		}
 		
 		@Override
@@ -160,24 +138,17 @@ public abstract class Roller implements LineConsumer {
 			return buildString(getGroupCountString(groupCount) + diceCount + "d" + diceType + behaviors + modifier , user, groups);
 		}
 		
-		@Override
-		public String getName() {
-			return "Standard";
-		}
-
-		@Override
-		public String getRegexp() {
-			return "^(\\d+ )?(\\d*)d(\\d+)(b[1-9]|v(?:[1-9][0-9]?)?)?(\\+\\d+|-\\d+)?";
-		}
-
-		@Override
-		public List<String> getDescription() {
-			List<String> retList = new ArrayList<String>();
-			retList.add("A standard dice roller, that can handle X number of dice of Y sides each, in the format XdY. (ex. 2d6).");
-			retList.add("Positive or negative modifiers may be applied to affect the result (ex. 2d6-5). If rolling only one die, the initial number may be omitted (ex. d20+10).");
-			retList.add("To roll additional groups of die, prefix the roll with a number then a space (ex. 10 d20+10). Modifiers will be applied to each group individually.");
-			retList.add("Brutal values of 1-9 are available by adding \"b\" then a number (ex. 2d8b2+5). Vorpal is also available by appending \"v\" (ex. 2d8v+5).");
-			return retList;
+		/**
+		 * Gets the description of the roller.
+		 * @return the description.
+		 */
+		public static String getDesc() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("A standard dice roller, that can handle X number of dice of Y sides each, in the format XdY. (ex. 2d6). ");
+			builder.append("Positive or negative modifiers may be applied to affect the result (ex. 2d6-5). If rolling only one die, the initial number may be omitted (ex. d20+10). ");
+			builder.append("To roll additional groups of die, prefix the roll with a number then a space (ex. 10 d20+10). Modifiers will be applied to each group individually. ");
+			builder.append("Brutal values of 1-9 are available by adding \"b\" then a number (ex. 2d8b2+5). Vorpal is also available by appending \"v\" (ex. 2d8v+5).");
+			return builder.toString();
 		}
 
 		/**
@@ -221,7 +192,8 @@ public abstract class Roller implements LineConsumer {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public L5RRoller(Statistics statistics, Personality personality) {
-			super(statistics, personality);
+			super("^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a)?", "L5R", getDesc(), 
+					statistics, personality);
 		}
 		
 		@Override
@@ -298,24 +270,17 @@ public abstract class Roller implements LineConsumer {
 			return "";
 		}
 		
-		@Override
-		public String getName() {
-			return "L5R";
-		}
-
-		@Override
-		public String getRegexp() {
-			return "^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a)?";
-		}
-
-		@Override
-		public List<String> getDescription() {
-			List<String> retList = new ArrayList<String>();
-			retList.add("A dice roller for Legend of the Five Rings (roll/keep style), which rolls X number of d10s and keeps Y of them (ex. 5k3).");
-			retList.add("Positive or negative modifiers may be applied to affect the result (ex. 5k3-5). Rolls that would \"roll over\" into static bonuses are automatically converted (ex. 13k9 into 10k10+2).");
-			retList.add("To roll additional groups of die, prefix the roll with a number then a space (ex. 10 2k2-5). Modifiers will be applied to each group individually.");
-			retList.add("Emphasis rolls are available by appending \"e\" to the roll (ex. 9k5e). Mastery is also available by appending \"m\" (ex. 12k3m). They may be combined (ex. 12k3+5em).");
-			return retList;
+		/**
+         * Gets the description of the roller.
+         * @return the description.
+         */
+		public static String getDesc() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("A dice roller for Legend of the Five Rings (roll/keep style), which rolls X number of d10s and keeps Y of them (ex. 5k3). ");
+			builder.append("Positive or negative modifiers may be applied to affect the result (ex. 5k3-5). Rolls that would \"roll over\" into static bonuses are automatically converted (ex. 13k9 into 10k10+2). ");
+			builder.append("To roll additional groups of die, prefix the roll with a number then a space (ex. 10 2k2-5). Modifiers will be applied to each group individually. ");
+			builder.append("Emphasis rolls are available by appending \"e\" to the roll (ex. 9k5e). Mastery is also available by appending \"m\" (ex. 12k3m). They may be combined (ex. 12k3+5em).");
+			return builder.toString();
 		}
 		
 		/**
@@ -352,7 +317,8 @@ public abstract class Roller implements LineConsumer {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public WhiteWolfRoller(Statistics statistics, Personality personality) {
-			super(statistics, personality);
+			super("^(\\d+)t(\\d+)(\\+\\d+|\\-\\d+)?(e)?([ ]*[dc|DC]+(\\d+))?", "White Wolf", getDesc(), 
+					statistics, personality);
 		}
 		
 		@Override
@@ -383,24 +349,17 @@ public abstract class Roller implements LineConsumer {
 					emphasis, groups.get(0));
 		}
 		
-		@Override
-		public String getName() {
-			return "White Wolf";
-		}
-
-		@Override
-		public String getRegexp() {
-			return "^(\\d+)t(\\d+)(\\+\\d+|\\-\\d+)?(e)?([ ]*[dc|DC]+(\\d+))?";
-		}
-
-		@Override
-		public List<String> getDescription() {
-			List<String> retList = new ArrayList<String>();
-			retList.add("A dice roller for White Wolf (roll/successes style), which rolls a number of d10s and looks for numbers over a certain value,");
-			retList.add("attempting to accumulate a certain number of successes. A number of fixed successes can be added or removed. Specifying e (for");
-			retList.add("emphasis) makes 10s explode twice. An example: 6t2+1e dc7 - this specifies rolling 6 dice, looking for 2 dice with a value of");
-			retList.add("7 or higher. Tens will explode twice, and there will be one guaranteed success. If not specified, the DC is 6+.");
-			return retList;
+		/**
+         * Gets the description of the roller.
+         * @return the description.
+         */
+		public static String getDesc() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("A dice roller for White Wolf (roll/successes style), which rolls a number of d10s and looks for numbers over a certain value, ");
+			builder.append("attempting to accumulate a certain number of successes. A number of fixed successes can be added or removed. Specifying e (for ");
+			builder.append("emphasis) makes 10s explode twice. An example: 6t2+1e dc7 - this specifies rolling 6 dice, looking for 2 dice with a value of ");
+			builder.append("7 or higher. Tens will explode twice, and there will be one guaranteed success. If not specified, the DC is 6+.");
+			return builder.toString();
 		}
 		
 		/**
@@ -472,7 +431,9 @@ public abstract class Roller implements LineConsumer {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public FudgeRoller(Statistics statistics, Personality personality) {
-			super(statistics, personality);
+			super("^(\\d+ )?(\\d+)d[fF](\\+\\d+|-\\d+)?", "Fudge",
+					"A dice roller for the FUDGE dice style, which rolls X number of d6s with faces of ['-', '-', ' ', ' ', '+', '+'] and returns the additive result (ex. 4dF).", 
+					statistics, personality);
 		}
 
 		@Override
@@ -490,24 +451,6 @@ public abstract class Roller implements LineConsumer {
 			return buildString(getGroupCountString(groupCount) + roll.getRolled() + "dF" + modifier, user, groups);
 		}
 
-		@Override
-		public String getName() {
-			return "Fudge";
-		}
-
-		@Override
-		public List<String> getDescription() {
-			List<String> retList = new ArrayList<String>();
-			retList.add("A dice roller for the FUDGE dice style, which rolls X number of d6s with faces of ['-', '-', ' ', ' ', '+', '+'] and returns the additive result (ex. 4dF).");
-			return retList;
-
-		}
-
-		@Override
-		public String getRegexp() {
-			return "^(\\d+ )?(\\d+)d[fF](\\+\\d+|-\\d+)?";
-		}
-		
 		/**
 		 * Builds the result string for the roll groups.
 		 * @param groups The groups to use to build the string.

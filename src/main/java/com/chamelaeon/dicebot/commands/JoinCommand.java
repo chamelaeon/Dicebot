@@ -1,30 +1,35 @@
 package com.chamelaeon.dicebot.commands;
 
-import java.util.regex.Matcher;
+import java.util.List;
+
+import org.pircbotx.hooks.events.InviteEvent;
 
 import com.chamelaeon.dicebot.Dicebot;
+import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
+import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
 
 
-/** A command to display help to a user. */
-public class JoinCommand implements Command {
+/**
+ * A command to join a channel.
+ * @author Chamelaeon
+ */
+public class JoinCommand extends DicebotListenerAdapter {
+    
+    /** Constructor. */
+	public JoinCommand() {
+		super("!join (#[a-zA-Z0-9-_]+)", new HelpDetails("join", "Makes the bot join the specified channel, if it can."));
+	}
+
 	@Override
-	public String execute(Dicebot dicebot, Matcher matcher, String source, String user) {
-		if (matcher.groupCount() >= 1) {
-			String channel = matcher.group(1).trim();
-			dicebot.addChannel(channel);
-			dicebot.setChannelState(channel, true);
-			dicebot.joinChannel(channel);
+	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) {
+		if (groups.size() >= 1) {
+			String channel = groups.get(1);
+			event.getBot().sendIRC().joinChannel(channel);
 		}
-		return null;
 	}
 
 	@Override
-	public String getDescription() {
-		return "Makes the bot join the specified channel, if it can.";
-	}
-	
-	@Override
-	public String getRegexp() {
-		return "join (#[a-zA-Z0-9-_]+)";
+	public void onInvite(InviteEvent<Dicebot> event) throws Exception {
+		event.getBot().sendIRC().joinChannel(event.getChannel());
 	}
 }

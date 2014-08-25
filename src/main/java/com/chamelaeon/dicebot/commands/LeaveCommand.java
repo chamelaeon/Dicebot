@@ -1,26 +1,29 @@
 package com.chamelaeon.dicebot.commands;
 
-import java.util.regex.Matcher;
+import java.util.List;
 
 import com.chamelaeon.dicebot.Dicebot;
+import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
+import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
 
 
-/** A command to mute the bot for a certain channel. */
-public class LeaveCommand implements Command {
-	@Override
-	public String execute(Dicebot dicebot, Matcher matcher, String source, String user) {
-		dicebot.removeChannel(source);
-		dicebot.partChannel(source);
-		return null;
-	}
-
-	@Override
-	public String getDescription() {
-		return "Makes the bot leave the channel that this command is used in.";
-	}
+/** 
+ * A command to make the bot leave a certain channel.
+ * @author Chamelaeon
+ */
+public class LeaveCommand extends DicebotListenerAdapter {
 	
+	/** Constructor. */
+	public LeaveCommand() {
+		super("!leave", 
+				new HelpDetails("leave", "Makes the bot leave the channel that this command is used in."));
+	}
+
 	@Override
-	public String getRegexp() {
-		return "leave";
+	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) {
+		if (null != event.getChannel()) {
+			// TODO: Fix this to personality.
+		    event.getChannel().send().part("I know when I'm not wanted, suckers.");
+		}
 	}
 }

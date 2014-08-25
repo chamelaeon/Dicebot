@@ -1,32 +1,42 @@
 package com.chamelaeon.dicebot.commands;
 
-import java.util.regex.Matcher;
+import java.util.List;
+
+import org.pircbotx.User;
 
 import com.chamelaeon.dicebot.CardBase;
 import com.chamelaeon.dicebot.Dicebot;
+import com.chamelaeon.dicebot.InputException;
+import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
+import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
 
 
-/** A command to draw a drama card. */
-public class DrawCardCommand implements Command {
+/** 
+ * A command to draw a drama card.
+ * @author Chamelaeon 
+ */
+public class DrawCardCommand extends DicebotListenerAdapter {
 
 	/** The database of cards to draw from. */
 	private CardBase cardBase;
 	
 	/**
 	 * Constructor.
-	 * @param parent The parent dicebot of this command.
+	 * @param cardBase The database of cards to draw from.
 	 */
 	public DrawCardCommand(CardBase cardBase) {
+		super("!draw ([1-5])( [a-zA-Z0-9-<\\[\\]\\{\\}]+)?", 
+				new HelpDetails("draw", "Draws a number of drama cards, from 1 to 5."));
 		this.cardBase = cardBase;
 	}
 	
 	@Override
-	public String execute(Dicebot dicebot, Matcher matcher, String source, String user) {
-		if (matcher.groupCount() >= 1) {
-			String countString = matcher.group(1).trim();
+	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) throws InputException {
+		if (groups.size() >= 1) {
+			String countString = groups.get(1);
 			String notifyNick = null;
-			if (null != matcher.group(2)) {
-				notifyNick = matcher.group(2).trim();
+			if (null != groups.get(2)) {
+				notifyNick = groups.get(2);
 			}
 
 			short count;
@@ -34,8 +44,10 @@ public class DrawCardCommand implements Command {
 				count = Short.parseShort(countString);
 			} catch (NumberFormatException nfe) {
 				// Regexp should prevent this from happening, but...
-				return "The number of cards has to be a number!";
+				throw new InputException("The number of cards has to be a number!");
 			}
+			
+			User user = event.getUser();
 			
 			// Hit up the card DB.
 			for (int i = 0; i < count; i++) {
@@ -44,26 +56,16 @@ public class DrawCardCommand implements Command {
 				
 				// Send a msg to the originating user, and the notified user.
 				if (null != notifyNick) {
-					dicebot.sendMessage(notifyNick, user + " drew a card: " + card);
+					event.getBot().sendIRC().message(notifyNick, user.getNick() + " drew a card: " + card);
 				}
-				dicebot.sendMessage(user, "You drew a card: " + card);
+				user.send().message("You drew a card: " + card);
 			}
+
 			if (null != notifyNick) {
-				return "draws " + count + " cards for " + user + " and notifies " + notifyNick;
+				event.respondWithAction("draws " + count + " cards for " + user.getNick() + " and notifies " + notifyNick + ".");
 			} else {
-				return "draws " + count + " cards for " + user + ". It's a secret to everyone.";
+			    event.respondWithAction("draws " + count + " cards for " + user.getNick() + ". It's a secret to everyone.");
 			}
 		}
-		return null;
-	}
-
-	@Override
-	public String getDescription() {
-		return "Draws a number of drama cards, from 1 to 5.";
-	}
-
-	@Override
-	public String getRegexp() {
-		return "draw ([1-5])( [a-zA-Z0-9-<\\[\\]\\{\\}]+)?" ;
 	}
 }

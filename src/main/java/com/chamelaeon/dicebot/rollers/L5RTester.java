@@ -10,6 +10,7 @@ import com.chamelaeon.dicebot.Statistics;
 import com.chamelaeon.dicebot.personality.BasicPersonality;
 import com.chamelaeon.dicebot.personality.Personality;
 import com.chamelaeon.dicebot.rollers.Roller.L5RRoller;
+import com.google.common.io.Closeables;
 
 /**
  * Driver program for testing L5R rolls and analyzing their statistics.
@@ -24,7 +25,7 @@ public class L5RTester {
 	public static void main(String[] args) throws Exception {
 		Statistics statistics = new Statistics();
 		Personality personality = new BasicPersonality("");
-		Scanner scanner = new Scanner(System.in);
+		
 		final AtomicBoolean running = new AtomicBoolean(true);
 		final L5RRoller roller = new L5RRoller(statistics, personality);
 		final int rolled = 10;
@@ -45,21 +46,27 @@ public class L5RTester {
 			}
 		});
 		
-		while(true) {
-			String line = scanner.nextLine();
-			
-			if ("stop".equals(line)) {
-				running.set(false);
-				long diceCount = statistics.getDice();
-				System.out.println("Rolled " + diceCount + " " + rolled + "k" + kept + " for a mean average of " 
-						+ statistics.getAverage(rolled + "-" + kept) + ".");
-				System.exit(0);
+		Scanner scanner= null;
+		try {
+			scanner = new Scanner(System.in);
+			while(true) {
+				String line = scanner.nextLine();
+				
+				if ("stop".equals(line)) {
+					running.set(false);
+					long diceCount = statistics.getDice();
+					System.out.println("Rolled " + diceCount + " " + rolled + "k" + kept + " for a mean average of " 
+							+ statistics.getAverage(rolled + "-" + kept) + ".");
+					System.exit(0);
+				}
+				if ("stats".equals(line)) {
+					long diceCount = statistics.getDice();
+					System.out.println("Rolled " + diceCount + " " + rolled + "k" + kept + " for a mean average of " 
+							+ statistics.getAverage(rolled + "-" + kept) + ".");
+				}
 			}
-			if ("stats".equals(line)) {
-				long diceCount = statistics.getDice();
-				System.out.println("Rolled " + diceCount + " " + rolled + "k" + kept + " for a mean average of " 
-						+ statistics.getAverage(rolled + "-" + kept) + ".");
-			}
+		} finally {
+			Closeables.closeQuietly(scanner);
 		}
 	}
 
