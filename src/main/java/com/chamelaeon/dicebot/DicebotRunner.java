@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.pircbotx.Configuration.Builder;
 import org.pircbotx.IdentServer;
@@ -107,6 +108,7 @@ public class DicebotRunner {
 		String nicks = props.getProperty("Nicks", "Dicebot");
 		String nickservPassword = props.getProperty("NickservPassword", "");
 		String channels = props.getProperty("Channels");
+		final String motd = props.getProperty("MotD");
 
 		// Builder and mandatory config.
 		this.personality = new PropertiesPersonality(props, cardPath);
@@ -137,7 +139,9 @@ public class DicebotRunner {
         configBuilder.addListener(new ListenerAdapter<Dicebot>() {
 			@Override
 			public void onUserList(UserListEvent<Dicebot> event) throws Exception {
-				event.getChannel().send().message("Hey. I'm in alpha at the moment, everything is a little unstable. Tell Chamelaeon if something breaks.");
+			    if (!StringUtils.isEmpty(motd)) {
+			        event.getChannel().send().message(motd);
+			    }
 			}
 		});
         
