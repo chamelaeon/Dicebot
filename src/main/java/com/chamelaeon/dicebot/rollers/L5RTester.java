@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.chamelaeon.dicebot.InputException;
-import com.chamelaeon.dicebot.Statistics;
+import com.chamelaeon.dicebot.dice.Statistics;
 import com.chamelaeon.dicebot.personality.BasicPersonality;
 import com.chamelaeon.dicebot.personality.Personality;
 import com.chamelaeon.dicebot.rollers.Roller.L5RRoller;
@@ -23,11 +23,11 @@ public class L5RTester {
 	 * @param args The arguments.
 	 */
 	public static void main(String[] args) throws Exception {
-		Statistics statistics = new Statistics();
-		Personality personality = new BasicPersonality("");
-		
+	    Personality personality = new BasicPersonality("");
+	    
+		final Statistics statistics = new Statistics();
 		final AtomicBoolean running = new AtomicBoolean(true);
-		final L5RRoller roller = new L5RRoller(statistics, personality);
+		final L5RRoller roller = new L5RRoller(personality);
 		final int rolled = 10;
 		final int kept = 9;
 
@@ -38,7 +38,7 @@ public class L5RTester {
 				try {
 					while (running.get()) {
 						String[] parts = new String[] {"", "1", "" + rolled, "" + kept, null, null, null};
-						roller.assembleRoll(parts, "");
+						roller.assembleRoll(parts, "", statistics);
 					}
 				} catch (InputException ie) {
 					throw new RuntimeException(ie);

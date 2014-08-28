@@ -2,7 +2,6 @@ package com.chamelaeon.dicebot.dice;
 
 import com.chamelaeon.dicebot.Behavior.Explosion;
 import com.chamelaeon.dicebot.Behavior.Reroll;
-import com.chamelaeon.dicebot.Statistics;
 import com.chamelaeon.dicebot.random.Random;
 
 /**
@@ -33,7 +32,7 @@ public interface Die {
 	 * @param statistics The statistics for roll tracking.
 	 * @return the value of the roll.
 	 */
-	public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, Statistics statistics);
+	public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, IStatistics statistics);
 	
 	/** Simple die implementation. */
 	public static class SimpleDie implements Die {
@@ -59,25 +58,25 @@ public interface Die {
 		}
 		
 		@Override
-		public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, Statistics statistics) {
-			int roll = random.getRoll(sides);
+		public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, IStatistics statistics) {
+			int roll = random.getRoll(sides, statistics);
 			boolean wasRerolled = false;
 			
 			// Check for reroll.
 			if (null != reroll && reroll.needsRerolled(roll)) {
-				roll = random.getRoll(sides);
+				roll = random.getRoll(sides, statistics);
 				while (reroll.needsRerolled(roll) && reroll.forceGoodValue()) {
-					roll = random.getRoll(sides);
+					roll = random.getRoll(sides, statistics);
 				}
 				wasRerolled = true;
 			}
 			
 			// Check for explosion.
 			if (null != explosion && explosion.shouldExplode(roll)) {
-				int nextDie = random.getRoll(sides);
+				int nextDie = random.getRoll(sides, statistics);
 				roll += nextDie;
 				while (explosion.shouldExplode(nextDie)) {
-					nextDie = random.getRoll(sides);
+					nextDie = random.getRoll(sides, statistics);
 					roll += nextDie;
 				}
 			}
@@ -100,8 +99,8 @@ public interface Die {
 		}
 
 		@Override
-		public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, Statistics statistics) {
-			int roll = random.getRoll(6);
+		public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, IStatistics statistics) {
+			int roll = random.getRoll(6, statistics);
 			
 			if (roll < 3) {
 				return new DieResult(-1, false);

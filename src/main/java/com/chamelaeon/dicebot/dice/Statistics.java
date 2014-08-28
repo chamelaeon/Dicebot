@@ -1,10 +1,10 @@
-package com.chamelaeon.dicebot;
+package com.chamelaeon.dicebot.dice;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /** Data struct for storing statistics. */
-public class Statistics {
+public class Statistics implements IStatistics {
 	/** The number of groups that have been rolled. */
 	private long groups = 0;
 	/** The number of dice that have been rolled, by type. */
@@ -50,13 +50,11 @@ public class Statistics {
 		groups++;
 	}
 	
-	/**
-	 * Registers the given roll. This method registers SINGLE DIE ROLLS, i.e. 1d6 or 1d10!
-	 * It should not be used to track complete rolls such as 2d6 or 1k1.
-	 * @param diceType The type of die rolled.
-	 * @param rollValue The value of the roll.
-	 */
-	public void registerRoll(int diceType, int rollValue) {
+	/* (non-Javadoc)
+     * @see com.chamelaeon.dicebot.dice.IStatistics#registerRoll(int, int)
+     */
+	@Override
+    public void registerRoll(int diceType, int rollValue) {
 		Integer count = dice.get(diceType);
 		if (null != count) {
 			dice.put(diceType, count + 1);
@@ -72,14 +70,11 @@ public class Statistics {
 		averages.put(diceType, newAverage);
 	}
 	
-	/**
-	 * Registers the given roll. This method registers ACTUAL ROLLS, i.e. 2d6 or 1k1!
-	 * It will track based on the string name of the roll.
-	 * 
-	 * @param diceName The name of the roll.
-	 * @param rollValue The value of the roll.
-	 */
-	public void registerRoll(String rollName, long rollValue) {
+	/* (non-Javadoc)
+     * @see com.chamelaeon.dicebot.dice.IStatistics#registerRoll(java.lang.String, long)
+     */
+	@Override
+    public void registerRoll(String rollName, long rollValue) {
 		Integer count = namedRolls.get(rollName);
 		if (null != count) {
 			namedRolls.put(rollName, count + 1);

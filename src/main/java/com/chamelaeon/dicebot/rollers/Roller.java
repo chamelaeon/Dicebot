@@ -12,13 +12,13 @@ import com.chamelaeon.dicebot.Behavior.Reroll;
 import com.chamelaeon.dicebot.Dicebot;
 import com.chamelaeon.dicebot.InputException;
 import com.chamelaeon.dicebot.Modifier;
-import com.chamelaeon.dicebot.Statistics;
 import com.chamelaeon.dicebot.Utils;
 import com.chamelaeon.dicebot.commands.HelpDetails;
 import com.chamelaeon.dicebot.dice.Die.FudgeDie;
 import com.chamelaeon.dicebot.dice.Die.SimpleDie;
 import com.chamelaeon.dicebot.dice.DieResult;
 import com.chamelaeon.dicebot.dice.Roll;
+import com.chamelaeon.dicebot.dice.Statistics;
 import com.chamelaeon.dicebot.dice.Roll.GroupResult;
 import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
 import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
@@ -35,16 +35,10 @@ public abstract class Roller extends DicebotListenerAdapter {
 	private final Personality personality;
 	
 	/** Protected constructor. */
-	protected Roller(String regexp, String name, String description, 
-			Statistics statistics, Personality personality) {
+	protected Roller(String regexp, String name, String description,  Personality personality) {
 		super(regexp, new HelpDetails(name, description));
-		random = new MersenneTwisterRandom(statistics);
+		random = new MersenneTwisterRandom();
 		this.personality = personality;
-	}
-	
-	/** Gets the {@link Statistics} object. */
-	protected Statistics getStatistics() {
-		return random.getStatistics();
 	}
 	
 	/** Gets the {@link BasicPersonality} object. */
@@ -54,8 +48,9 @@ public abstract class Roller extends DicebotListenerAdapter {
 
 	@Override
 	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) throws InputException {
-		event.respondWithAction(assembleRoll(groups.toArray(new String[groups.size()]), 
-		        event.getUser().getNick()));
+		event.respondWithAction(
+		        assembleRoll(groups.toArray(new String[groups.size()]), event.getUser().getNick(), 
+		                event.getBot().getStatistics()));
 	}
 	
 	/**
@@ -98,25 +93,25 @@ public abstract class Roller extends DicebotListenerAdapter {
 	 * Performs the actual roll, given all the matched groups from the parsing regexp.
 	 * @param parts The parts to parse.
 	 * @param user The user who made the roll.
+	 * @param statistics The statistics object to use to track the roll.
 	 * @return the result of the roll.
 	 * @throws InputException if the input has issues.
 	 */
-	protected abstract String assembleRoll(String[] parts, String user) throws InputException;
+	protected abstract String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException;
 	
 	/** A roller for handling standard die behavior, like "2d6" or "1d20". */
 	public static class StandardRoller extends Roller {
 		/**
 		 * Constructor.
-		 * @param statistics The statistics object for tracking statistics.
 		 * @param personality The object containing the dicebot personality.
 		 */
-		public StandardRoller(Statistics statistics, Personality personality) {
+		public StandardRoller(Personality personality) {
 			super("^(\\d+ )?(\\d*)d(\\d+)(b[1-9]|v(?:[1-9][0-9]?)?)?(\\+\\d+|-\\d+)?", "Standard", getDesc(), 
-					statistics, personality);
+					personality);
 		}
 		
 		@Override
-		public String assembleRoll(String[] parts, String user) throws InputException {
+		public String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
 			short groupCount = parseGroups(parts[1]);
 			short diceCount = Utils.parseDiceCount(parts[2], getPersonality());
 			short diceType = Utils.parseShort(parts[3], getPersonality());
@@ -132,7 +127,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
 			
 			Roll roll = new Roll(diceCount, diceCount, new SimpleDie(diceType), modifier, reroll, explosion, getPersonality());
-			List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
+			List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
 				
 			String behaviors = Behavior.getPrettyString(roll);
 			return buildString(getGroupCountString(groupCount) + diceCount + "d" + diceType + behaviors + modifier , user, groups);
@@ -188,16 +183,15 @@ public abstract class Roller extends DicebotListenerAdapter {
 	public static class L5RRoller extends Roller {
 		/**
 		 * Constructor.
-		 * @param statistics The statistics object for tracking statistics.
 		 * @param personality The object containing the dicebot personality.
 		 */
-		public L5RRoller(Statistics statistics, Personality personality) {
+		public L5RRoller(Personality personality) {
 			super("^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a)?", "L5R", getDesc(), 
-					statistics, personality);
+					personality);
 		}
 		
 		@Override
-		public String assembleRoll(String[] parts, String user) throws InputException {
+		public String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
 			int groupCount = parseGroups(parts[1]);
 			short rolled = Utils.parseShort(parts[2], getPersonality());
 			short kept = Utils.parseShort(parts[3], getPersonality());
@@ -222,7 +216,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			if (null != parts[6]) {
 				return analyzeRoll(roll);
 			} else {
-				List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
+				List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
 				String behaviors = Behavior.getPrettyString(roll);
 				return buildString(getGroupCountString(groupCount) + roll.getRolled() + "k" + roll.getKept() + roll.getModifier() + behaviors, user, groups);
 			}
@@ -313,16 +307,15 @@ public abstract class Roller extends DicebotListenerAdapter {
 	public static class WhiteWolfRoller extends Roller {
 		/**
 		 * Constructor.
-		 * @param statistics The statistics object for tracking statistics.
 		 * @param personality The object containing the dicebot personality.
 		 */
-		public WhiteWolfRoller(Statistics statistics, Personality personality) {
+		public WhiteWolfRoller(Personality personality) {
 			super("^(\\d+)t(\\d+)(\\+\\d+|\\-\\d+)?(e)?([ ]*[dc|DC]+(\\d+))?", "White Wolf", getDesc(), 
-					statistics, personality);
+					personality);
 		}
 		
 		@Override
-		public String assembleRoll(String[] parts, String user) throws InputException {
+		public String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
 			short rolled = Utils.parseShort(parts[1], getPersonality());
 			short neededSuccesses = Utils.parseShort(parts[2], getPersonality());
 			Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
@@ -342,7 +335,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			}
 			
 			Roll roll = new Roll(rolled, rolled, new SimpleDie((short) 10), modifier, null, null, getPersonality());
-			List<GroupResult> groups = roll.performRoll(1, random, getStatistics());
+			List<GroupResult> groups = roll.performRoll(1, random, statistics);
 			String behaviors = null == emphasis | "".equals(emphasis) ? "" : emphasis;
 			dcString = null == dcString || "".equals(dcString) ? "" : " " + dcString; 
 			return buildString(roll.getRolled() + "t" + neededSuccesses + modifier + behaviors + dcString, user, neededSuccesses, dc, modifier, 
@@ -427,17 +420,16 @@ public abstract class Roller extends DicebotListenerAdapter {
 		
 		/**
 		 * Constructor.
-		 * @param statistics The statistics object for tracking statistics.
 		 * @param personality The object containing the dicebot personality.
 		 */
-		public FudgeRoller(Statistics statistics, Personality personality) {
+		public FudgeRoller(Personality personality) {
 			super("^(\\d+ )?(\\d+)d[fF](\\+\\d+|-\\d+)?", "Fudge",
 					"A dice roller for the FUDGE dice style, which rolls X number of d6s with faces of ['-', '-', ' ', ' ', '+', '+'] and returns the additive result (ex. 4dF).", 
-					statistics, personality);
+					personality);
 		}
 
 		@Override
-		protected String assembleRoll(String[] parts, String user) throws InputException {
+		protected String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
 			short groupCount = parseGroups(parts[1]);
 			short rolled = Utils.parseShort(parts[2], getPersonality());
 			Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
@@ -447,7 +439,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			}
 			
 			Roll roll = new Roll(rolled, rolled, new FudgeDie(), modifier, null, null, getPersonality());
-			List<GroupResult> groups = roll.performRoll(groupCount, random, getStatistics());
+			List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
 			return buildString(getGroupCountString(groupCount) + roll.getRolled() + "dF" + modifier, user, groups);
 		}
 

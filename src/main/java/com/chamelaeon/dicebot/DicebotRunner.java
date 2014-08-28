@@ -47,8 +47,6 @@ public class DicebotRunner {
 	private final List<HelpDetails> rollerHelpDetails;
 	/** The dicebot's personality. */
 	private PropertiesPersonality personality;
-	/** The statistics for the dicebot. */
-	private Statistics statistics;
 	
 	/** Constructor. */
 	private DicebotRunner() {
@@ -112,7 +110,6 @@ public class DicebotRunner {
 
 		// Builder and mandatory config.
 		this.personality = new PropertiesPersonality(props, cardPath);
-	    this.statistics = new Statistics();
 		Builder<Dicebot> configBuilder = new DicebotBuilder();
 		configBuilder.setIdentServerEnabled(true);
 		configBuilder.setAutoReconnect(true);
@@ -151,7 +148,7 @@ public class DicebotRunner {
         	configBuilder.setIdentServerEnabled(false);
         }
         Security.addProvider(new BouncyCastleProvider());
-        Dicebot bot = new Dicebot(configBuilder, personality, statistics);
+        Dicebot bot = new Dicebot(configBuilder, personality);
         bot.start();
 
         // Listen for command-line input.
@@ -243,10 +240,10 @@ public class DicebotRunner {
 	 * @param configBuilder The configuration Builder to register rollers with.
 	 */
 	private void createRollers(Builder<Dicebot> configBuilder) {
-		registerRoller(new StandardRoller(statistics, personality), configBuilder);
-		registerRoller(new L5RRoller(statistics, personality), configBuilder);
-		registerRoller(new WhiteWolfRoller(statistics, personality), configBuilder);
-		registerRoller(new FudgeRoller(statistics, personality), configBuilder);
+		registerRoller(new StandardRoller(personality), configBuilder);
+		registerRoller(new L5RRoller(personality), configBuilder);
+		registerRoller(new WhiteWolfRoller(personality), configBuilder);
+		registerRoller(new FudgeRoller(personality), configBuilder);
 	}
 	
 	/**

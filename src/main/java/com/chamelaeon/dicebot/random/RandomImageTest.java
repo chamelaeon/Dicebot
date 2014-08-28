@@ -5,7 +5,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import com.chamelaeon.dicebot.Statistics;
+import com.chamelaeon.dicebot.dice.Statistics;
 import com.chamelaeon.dicebot.random.Random.MersenneTwisterRandom;
 
 public class RandomImageTest {
@@ -15,7 +15,7 @@ public class RandomImageTest {
 	 */
 	public static void main(String[] args) throws Exception {
 		Statistics statistics = new Statistics();
-		MersenneTwisterRandom random = new MersenneTwisterRandom(statistics);
+		MersenneTwisterRandom random = new MersenneTwisterRandom();
 		
 		int height = 512;
 		int width = 512;
@@ -23,7 +23,7 @@ public class RandomImageTest {
 		
 		for (int y = 0; y < height; y++) {
 		    for (int x=0; x < width; x++){
-		        if (random.getRoll(2) == 2) {
+		        if (random.getRoll(2, statistics) == 2) {
 		        	image.setRGB(x, y, 0);
 		        } else{
 		        	image.setRGB(x, y, Integer.MAX_VALUE);

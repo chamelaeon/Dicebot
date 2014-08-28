@@ -1,6 +1,7 @@
 package com.chamelaeon.dicebot.random;
 
-import com.chamelaeon.dicebot.Statistics;
+import com.chamelaeon.dicebot.dice.IStatistics;
+import com.chamelaeon.dicebot.dice.NullStatistics;
 
 /**
  * Generates random numbers, for simulating dice rolling.
@@ -8,75 +9,70 @@ import com.chamelaeon.dicebot.Statistics;
  */
 public interface Random {
 
+    /**
+     * Returns the next roll from the random number generator, in the range [1-diceType]. The roll is not tracked
+     * by statistics.
+     * @param diceType The type of dice to roll (e.g. d6).
+     * @return the result of the roll.
+     */
+    public int getRoll(int diceType);
+    
 	/**
-	 * Returns the next roll from the random number generator, in the range [1-diceType].
+	 * Returns the next roll from the random number generator, in the range [1-diceType]. The roll is tracked
+	 * in the given Statistics object.
 	 * @param diceType The type of dice to roll (e.g. d6).
+	 * @param statistics The statistics to use to track the roll.
 	 * @return the result of the roll.
 	 */
-	public int getRoll(int diceType);
+	public int getRoll(int diceType, IStatistics statistics);
 
-	/**
-	 * Gets the {@link Statistics} object for this random number generator.
-	 * @return the statistics object.
-	 */
-	public Statistics getStatistics();
-	
+	/** A Random implementation that just uses the base Java Random. */
 	public static class BasicRandom implements Random {
-		/** The statistics object for the roller. */
-		private final Statistics statistics;
 		/** The Random object for the roller. */
 		private final java.util.Random random;
 		
-		/** 
-		 * Creates a new {@link BasicRandom} with the given stats object.
-		 * @param statistics The statistics object.	
-		 */
-		public BasicRandom(Statistics statistics) {
-			this.statistics = statistics;
+		/** Creates a new {@link BasicRandom}. */
+		public BasicRandom() {
 			this.random = new java.util.Random();
 		}
 		
 		@Override
-		public int getRoll(int diceType) {
+        public int getRoll(int diceType) {
+		    return getRoll(diceType, new NullStatistics());
+        }
+
+        @Override
+		public int getRoll(int diceType, IStatistics statistics) {
 			int val = random.nextInt(diceType) + 1;
 			statistics.registerRoll(diceType, val);
 			return val;
 		}
-
-		@Override
-		public Statistics getStatistics() {
-			return statistics;
-		}
 	}
 	
+	/** A Random implementation that uses a Mersenne Twister as the PRNG. */
 	public static class MersenneTwisterRandom implements Random {
-		/** The statistics object for the roller. */
-		private final Statistics statistics;
 		/** A length 624 array to store the state of the generator. */
 		private int[] MT = new int[624];
 		/** The index value. */
 		private int index = 0;
 		
-		/** 
-		 * Creates a new {@link MersenneTwisterRandom} with the given stats object.
-		 * @param statistics The statistics object.	
-		 */
-		public MersenneTwisterRandom(Statistics statistics) {
-			this.statistics = statistics;
+		/**  Creates a new {@link MersenneTwisterRandom}. */
+		public MersenneTwisterRandom() {
 			initializeGenerator((int) System.currentTimeMillis());
 		}
 		
 		@Override
-		public int getRoll(int diceType) {
+        public int getRoll(int diceType) {
+            return getRoll(diceType, new NullStatistics());
+        }
+		
+		@Override
+		public int getRoll(int diceType, IStatistics statistics) {
 			// Cribbed from java.util.Random itself.
 			if (diceType <= 0) {
 	            throw new IllegalArgumentException("n must be positive");
 			}
 
-//	        if ((diceType & -diceType) == diceType) { // i.e., n is a power of 2
-//	            return (int)((diceType * (long) nextInt()) >> 31);
-//	        }
-	        
 	        int bits = 0;
 	        int val = 0;
 	        int condition = 0;
@@ -112,11 +108,6 @@ public interface Random {
 		    
 		    index = (index + 1) % 624;
 		    return y;
-		}
-		
-		@Override
-		public Statistics getStatistics() {
-			return statistics;
 		}
 		
 		 // Initialize the generator from a seed

@@ -8,6 +8,7 @@ import org.pircbotx.Configuration.Builder;
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
 
+import com.chamelaeon.dicebot.dice.Statistics;
 import com.chamelaeon.dicebot.personality.Personality;
 
 /** A bot whose purpose is to roll dice. */
@@ -23,11 +24,10 @@ public class Dicebot extends PircBotX {
 	 * Constructor.
 	 * @param configBuilder Configuration builder for the dicebot.
 	 * @param personality The personality for the bot.
-	 * @param statistics The statistics for the bot.
 	 */
-	public Dicebot(Builder<Dicebot> configBuilder, Personality personality, Statistics statistics) {
+	public Dicebot(Builder<Dicebot> configBuilder, Personality personality) {
 		super(configBuilder.buildConfiguration());
-        this.statistics = statistics;
+        this.statistics = new Statistics();
         this.personality = personality;
         this.mainLoop = Executors.newSingleThreadExecutor();
     }
