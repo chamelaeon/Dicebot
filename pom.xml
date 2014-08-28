@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>dicebot</artifactId>
 	<groupId>com.chamelaeon</groupId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.1-SNAPSHOT</version>
 
 	<repositories>
 		<repository>
@@ -18,8 +18,50 @@
 	</repositories>
 
 	<build>
-		<finalName>Dicebot</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>com.chamelaeon.dicebot.DicebotRunner</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<version>1.8.1</version>
+				<configuration>
+					<copyConfigurationDirectory>true</copyConfigurationDirectory>
+					<platforms>
+						<platform>windows</platform>
+					</platforms>
+					<programs>
+						<program>
+							<mainClass>com.chamelaeon.dicebot.DicebotRunner</mainClass>
+							<commandLineArguments>
+								<commandLineArgument>../etc/dicesuke.properties</commandLineArgument>
+								<commandLineArgument>../etc/dramaCards.properties</commandLineArgument>
+							</commandLineArguments>
+							<id>dicebot</id>
+						</program>
+					</programs>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
