@@ -48,6 +48,8 @@ public class DicebotRunner {
 	private final List<HelpDetails> rollerHelpDetails;
 	/** The dicebot's personality. */
 	private PropertiesPersonality personality;
+	/** The listener for setting nicks. */
+    private NickSetListener nickListener;
 	
 	/** Constructor. */
 	private DicebotRunner() {
@@ -169,6 +171,14 @@ public class DicebotRunner {
 		        		bot.disconnect();
 		        		System.exit(0);
 		        	}
+		        	
+		        	// Allow the person running it to reset the nicks
+		        	if (line.equals("nickreset")) {
+		        	    nickListener.resetNickIndex();
+		        	    bot.disconnect();
+		        	    continue;
+		        	}
+		        	
 		        	String[] parts = line.split(" ");
 		        	String channel = parts[0];
 		        	
@@ -234,7 +244,8 @@ public class DicebotRunner {
 	 */
 	private void processNicks(String nickString, Builder<Dicebot> configBuilder) {
 		String[] nicks = nickString.split(",");
-		configBuilder.addListener(new NickSetListener(nicks));
+		nickListener = new NickSetListener(nicks);
+		configBuilder.addListener(nickListener);
 		// Set the first nick.
 		configBuilder.setName(nicks[0]);
 	}

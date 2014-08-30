@@ -36,4 +36,12 @@ public class NickSetListener extends ListenerAdapter<Dicebot> {
 			event.respond(event.getAutoNewNick());
 		}
 	}
+
+	/**
+	 * Resets the nick index, allowing the bot to start back at the beginning of its nicklist and 
+	 * potentially reclaim a nick that has pinged out. 
+	 */
+    public void resetNickIndex() {
+        index = 0;
+    }
 }
