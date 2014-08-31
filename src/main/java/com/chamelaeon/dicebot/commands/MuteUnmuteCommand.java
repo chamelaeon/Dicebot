@@ -2,10 +2,11 @@ package com.chamelaeon.dicebot.commands;
 
 import java.util.List;
 
-import com.chamelaeon.dicebot.Dicebot;
-import com.chamelaeon.dicebot.MuteableChannel;
-import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
-import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
+import com.chamelaeon.dicebot.api.Dicebot;
+import com.chamelaeon.dicebot.api.HelpDetails;
+import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
+import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
+import com.chamelaeon.dicebot.framework.MuteableChannel;
 
 
 /** 

@@ -1,4 +1,4 @@
-package com.chamelaeon.dicebot.commands;
+package com.chamelaeon.dicebot.api;
 
 /**
  * Details about the command, for use in the help system.

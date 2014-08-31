@@ -1,13 +1,15 @@
 /**
  * 
  */
-package com.chamelaeon.dicebot;
+package com.chamelaeon.dicebot.framework;
 
 import org.pircbotx.Channel;
 import org.pircbotx.Configuration.BotFactory;
 import org.pircbotx.Configuration.Builder;
 import org.pircbotx.PircBotX;
 import org.pircbotx.output.OutputChannel;
+
+import com.chamelaeon.dicebot.api.Dicebot;
 
 /**
  * A custom configuration builder.

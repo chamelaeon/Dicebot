@@ -2,10 +2,10 @@ package com.chamelaeon.dicebot.personality;
 
 
 
-public class BasicPersonality extends Personality {
+
+public class BasicPersonality extends AbstractPersonality {
 	
-	public BasicPersonality(String cardPath) {
-		super(cardPath);
+	public BasicPersonality() {
 		configurableTexts.put("LessThanOneGroup", "Rolling fewer than 1 groups may cause pan-dimensional collapse and a great deal of wibbly. Let's not do it.");
 		configurableTexts.put("Roll0Dice", "It's come to my attention you're rolling 0 dice. I'm pleased to inform you that you've rolled NaN. Good day.");
 		configurableTexts.put("Roll0Sides", "My god, man, you've rolled a die with no sides! We have to act quickly! You stay put and hold this umbrella, I'll go get the lemurs.");

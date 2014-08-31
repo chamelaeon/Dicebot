@@ -6,7 +6,7 @@ package com.chamelaeon.dicebot.listener;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.NickAlreadyInUseEvent;
 
-import com.chamelaeon.dicebot.Dicebot;
+import com.chamelaeon.dicebot.api.Dicebot;
 
 /**
  * A listener that tracks if a nick is already in use and provides another.
@@ -28,7 +28,7 @@ public class NickSetListener extends ListenerAdapter<Dicebot> {
 	
 	@Override
 	public void onNickAlreadyInUse(NickAlreadyInUseEvent<Dicebot> event) throws Exception {
-		if (index < nicks.length) {
+	    if (index < nicks.length) {
 			System.out.println(event.getUsedNick() + " already in use. Retrying with " + nicks[++index] + ".");
 			event.respond(nicks[index]);
 		} else {

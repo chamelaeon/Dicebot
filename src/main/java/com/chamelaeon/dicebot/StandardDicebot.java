@@ -5,16 +5,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.pircbotx.Configuration.Builder;
-import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
 
-import com.chamelaeon.dicebot.dice.Statistics;
-import com.chamelaeon.dicebot.personality.Personality;
+import com.chamelaeon.dicebot.api.Dicebot;
+import com.chamelaeon.dicebot.api.Personality;
+import com.chamelaeon.dicebot.statistics.StandardStatistics;
 
 /** A bot whose purpose is to roll dice. */
-public class Dicebot extends PircBotX {
+public class StandardDicebot extends Dicebot {
 	/** The object which keeps track of statistics. */
-	private final Statistics statistics;
+	private final StandardStatistics statistics;
 	/** The object which maintains the "personality" of the bot. */
 	private final Personality personality;
 	/** The main run loop for the dicebot. */
@@ -25,18 +25,14 @@ public class Dicebot extends PircBotX {
 	 * @param configBuilder Configuration builder for the dicebot.
 	 * @param personality The personality for the bot.
 	 */
-	public Dicebot(Builder<Dicebot> configBuilder, Personality personality) {
+	public StandardDicebot(Builder<Dicebot> configBuilder, Personality personality) {
 		super(configBuilder.buildConfiguration());
-        this.statistics = new Statistics();
+        this.statistics = new StandardStatistics();
         this.personality = personality;
         this.mainLoop = Executors.newSingleThreadExecutor();
     }
 	
-	/**
-	 * Starts the dicebot.
-	 * @throws IOException if the connection fails due to IO issues.
-	 * @throws IrcException if the server will not let us connect. 
-	 */
+	@Override
 	public void start() throws IOException, IrcException {
 		System.out.println("Attempting to connect to: " + getConfiguration().getServerHostname());
 		
@@ -56,32 +52,23 @@ public class Dicebot extends PircBotX {
 		});
 	}
 	
-	/**
-     * Joins the given channel.
-     * @param channel The channel to join.
-     */
-	public void joinChannel(String channel) {
+	@Override
+    public void joinChannel(String channel) {
 	    System.out.println("Joining channel: " + channel);
         sendIRC().joinChannel(channel);
 	}
 	
-	/**
-	 * Returns the statistics object for the dicebot.
-	 * @return the statistics.
-	 */
-	public Statistics getStatistics() {
+	@Override
+    public StandardStatistics getStatistics() {
 		return statistics;
 	}
 	
-	/**
-	 * Returns the personality object for the dicebot.
-	 * @return the personality.
-	 */
-	public Personality getPersonality() {
+	@Override
+    public Personality getPersonality() {
 		return personality;
 	}
 	
-	/** Disconnects the bot from the server and stops it. */
+	@Override
 	public void disconnect() {
 		stopBotReconnect();
 		// TODO: Better message and personality extract.

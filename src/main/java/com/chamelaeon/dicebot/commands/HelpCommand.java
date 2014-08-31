@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.chamelaeon.dicebot.Dicebot;
-import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
-import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
+import com.chamelaeon.dicebot.api.Dicebot;
+import com.chamelaeon.dicebot.api.HelpDetails;
+import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
+import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
 import com.google.common.base.Joiner;
 
 /** 

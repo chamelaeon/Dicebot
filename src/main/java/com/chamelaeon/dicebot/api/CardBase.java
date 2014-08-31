@@ -1,4 +1,4 @@
-package com.chamelaeon.dicebot;
+package com.chamelaeon.dicebot.api;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +35,10 @@ public class CardBase {
 		}
 	}
 	
+	/**
+	 * Draws a card.
+	 * @return The drawn card.
+	 */
 	public String draw() {
 		int randomIndex = random.nextInt(cards.size());
 		Enumeration<Object> cardEnum = cards.elements();

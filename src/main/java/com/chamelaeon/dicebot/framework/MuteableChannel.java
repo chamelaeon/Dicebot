@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chamelaeon.dicebot;
+package com.chamelaeon.dicebot.framework;
 
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.pircbotx.Channel;
@@ -20,7 +20,7 @@ public class MuteableChannel extends Channel {
      * @param userChannelDao The user/channel DAO for the bot.
      * @param name The name of the channel.
      */
-	protected MuteableChannel(PircBotX bot, UserChannelDao<User, Channel> userChannelDao, String name) {
+    public MuteableChannel(PircBotX bot, UserChannelDao<User, Channel> userChannelDao, String name) {
 		super(bot, userChannelDao, name);
 	}
 	

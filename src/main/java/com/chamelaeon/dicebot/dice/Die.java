@@ -1,11 +1,13 @@
 package com.chamelaeon.dicebot.dice;
 
-import com.chamelaeon.dicebot.Behavior.Explosion;
-import com.chamelaeon.dicebot.Behavior.Reroll;
+import com.chamelaeon.dicebot.api.Statistics;
+import com.chamelaeon.dicebot.dice.Behavior.Explosion;
+import com.chamelaeon.dicebot.dice.Behavior.Reroll;
 import com.chamelaeon.dicebot.random.Random;
 
 /**
- *
+ * A die that can be used in a roll.
+ * @author Chamelaeon
  */
 public interface Die {
 
@@ -32,7 +34,7 @@ public interface Die {
 	 * @param statistics The statistics for roll tracking.
 	 * @return the value of the roll.
 	 */
-	public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, IStatistics statistics);
+	public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, Statistics statistics);
 	
 	/** Simple die implementation. */
 	public static class SimpleDie implements Die {
@@ -58,7 +60,7 @@ public interface Die {
 		}
 		
 		@Override
-		public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, IStatistics statistics) {
+		public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, Statistics statistics) {
 			int roll = random.getRoll(sides, statistics);
 			boolean wasRerolled = false;
 			
@@ -99,7 +101,7 @@ public interface Die {
 		}
 
 		@Override
-		public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, IStatistics statistics) {
+		public DieResult rollDie(Random random, Reroll reroll, Explosion explosion, Statistics statistics) {
 			int roll = random.getRoll(6, statistics);
 			
 			if (roll < 3) {

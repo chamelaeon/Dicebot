@@ -1,6 +1,7 @@
-package com.chamelaeon.dicebot;
+package com.chamelaeon.dicebot.dice;
 
-import com.chamelaeon.dicebot.personality.Personality;
+import com.chamelaeon.dicebot.api.InputException;
+import com.chamelaeon.dicebot.api.Personality;
 
 
 /** Class describing modifiers. */
@@ -40,7 +41,7 @@ public abstract class Modifier {
 	 */
 	public static Modifier createModifier(String modifierString, Personality personality) throws InputException {
 		if (null != modifierString) {
-			short value = Utils.parseShort(modifierString.substring(1), personality);
+			short value = personality.parseShort(modifierString.substring(1));
 			if (modifierString.startsWith("+")) {
 				return new PositiveModifier(value);
 			} else if (modifierString.startsWith("-")) {

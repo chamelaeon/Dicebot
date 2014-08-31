@@ -1,13 +1,13 @@
 /**
  * 
  */
-package com.chamelaeon.dicebot;
+package com.chamelaeon.dicebot.dice;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.chamelaeon.dicebot.dice.Roll;
-import com.chamelaeon.dicebot.personality.Personality;
+import com.chamelaeon.dicebot.api.InputException;
+import com.chamelaeon.dicebot.api.Personality;
 
 /**
  * Represents a dice behavior. This can be something like "Explodes on 10s" or

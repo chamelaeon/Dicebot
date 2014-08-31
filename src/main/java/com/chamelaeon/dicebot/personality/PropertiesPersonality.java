@@ -3,15 +3,14 @@ package com.chamelaeon.dicebot.personality;
 import java.util.Arrays;
 import java.util.Properties;
 
-public class PropertiesPersonality extends Personality {
+
+public class PropertiesPersonality extends AbstractPersonality {
 
 	/**
 	 * Constructs a {@link PropertiesPersonality} from the given Properties file.
 	 * @param props The properties to load from.
-	 * @param cardPath The path to the card database.
 	 */
-	public PropertiesPersonality(Properties props, String cardPath) {
-		super(cardPath);
+	public PropertiesPersonality(Properties props) {
 		configurableTexts.put("LessThanOneGroup", props.getProperty("LessThanOneGroup"));
 		configurableTexts.put("Roll0Dice", props.getProperty("Roll0Dice"));
 		configurableTexts.put("Roll0Sides", props.getProperty("Roll0Sides"));

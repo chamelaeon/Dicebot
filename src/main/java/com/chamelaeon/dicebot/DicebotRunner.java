@@ -19,15 +19,18 @@ import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.UserListEvent;
 
+import com.chamelaeon.dicebot.api.CardBase;
+import com.chamelaeon.dicebot.api.Command;
+import com.chamelaeon.dicebot.api.Dicebot;
+import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.commands.CheatCommand;
-import com.chamelaeon.dicebot.commands.Command;
 import com.chamelaeon.dicebot.commands.DrawCardCommand;
 import com.chamelaeon.dicebot.commands.HelpCommand;
-import com.chamelaeon.dicebot.commands.HelpDetails;
 import com.chamelaeon.dicebot.commands.JoinCommand;
 import com.chamelaeon.dicebot.commands.LeaveCommand;
 import com.chamelaeon.dicebot.commands.MuteUnmuteCommand;
 import com.chamelaeon.dicebot.commands.StatusCommand;
+import com.chamelaeon.dicebot.framework.DicebotBuilder;
 import com.chamelaeon.dicebot.listener.ChannelJoinListener;
 import com.chamelaeon.dicebot.listener.NickSetListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
@@ -113,7 +116,7 @@ public class DicebotRunner {
 		final String motd = props.getProperty("MotD");
 
 		// Builder and mandatory config.
-		this.personality = new PropertiesPersonality(props, cardPath);
+		this.personality = new PropertiesPersonality(props);
 		Builder<Dicebot> configBuilder = new DicebotBuilder();
 		configBuilder.setIdentServerEnabled(true);
 		configBuilder.setAutoReconnect(true);
@@ -136,11 +139,12 @@ public class DicebotRunner {
         processNicks(nicks, configBuilder);
         processChannels(channels, configBuilder);
         createRollers(configBuilder);
-        createCommands(configBuilder);
+        createCommands(configBuilder, cardPath);
 
         configBuilder.addListener(new ListenerAdapter<Dicebot>() {
 			@Override
 			public void onUserList(UserListEvent<Dicebot> event) throws Exception {
+			    System.out.println("WTF");
 			    if (!StringUtils.isEmpty(motd)) {
 			        event.getChannel().send().message(motd);
 			    }
@@ -154,7 +158,7 @@ public class DicebotRunner {
         	configBuilder.setIdentServerEnabled(false);
         }
         Security.addProvider(new BouncyCastleProvider());
-        Dicebot bot = new Dicebot(configBuilder, personality);
+        Dicebot bot = new StandardDicebot(configBuilder, personality);
         bot.start();
 
         // Listen for command-line input.
@@ -201,16 +205,16 @@ public class DicebotRunner {
 	/**
 	 * Creates the commands for the dicebot.
 	 * @param configBuilder The configuration Builder to register commands with.
+	 * @param cardPath The card path to use.
 	 */
-	private void createCommands(Builder<Dicebot> configBuilder) {
+	private void createCommands(Builder<Dicebot> configBuilder, String cardPath) {
 		registerCommand(new MuteUnmuteCommand(), configBuilder);
 		registerCommand(new LeaveCommand(), configBuilder);
 		registerCommand(new StatusCommand(), configBuilder);
 		registerCommand(new JoinCommand(), configBuilder);
 		registerCommand(new CheatCommand(), configBuilder);
-		if (null != personality.getCardPath()) {
-			registerCommand(
-					new DrawCardCommand(new CardBase(personality.getCardPath())), configBuilder);
+		if (null != cardPath) {
+			registerCommand(new DrawCardCommand(new CardBase(cardPath)), configBuilder);
 		}
 		
 		// Always register the help command last so it has all the help details.

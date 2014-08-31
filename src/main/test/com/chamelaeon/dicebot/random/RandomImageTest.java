@@ -5,8 +5,8 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import com.chamelaeon.dicebot.dice.Statistics;
-import com.chamelaeon.dicebot.random.Random.MersenneTwisterRandom;
+import com.chamelaeon.dicebot.api.Statistics;
+import com.chamelaeon.dicebot.statistics.StandardStatistics;
 
 public class RandomImageTest {
 
@@ -14,7 +14,7 @@ public class RandomImageTest {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		Statistics statistics = new Statistics();
+		Statistics statistics = new StandardStatistics();
 		MersenneTwisterRandom random = new MersenneTwisterRandom();
 		
 		int height = 512;

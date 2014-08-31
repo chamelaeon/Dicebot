@@ -5,27 +5,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.chamelaeon.dicebot.Behavior;
-import com.chamelaeon.dicebot.Behavior.Explosion;
-import com.chamelaeon.dicebot.Behavior.L5RExplosion;
-import com.chamelaeon.dicebot.Behavior.Reroll;
-import com.chamelaeon.dicebot.Dicebot;
-import com.chamelaeon.dicebot.InputException;
-import com.chamelaeon.dicebot.Modifier;
-import com.chamelaeon.dicebot.Utils;
-import com.chamelaeon.dicebot.commands.HelpDetails;
+import com.chamelaeon.dicebot.api.Dicebot;
+import com.chamelaeon.dicebot.api.HelpDetails;
+import com.chamelaeon.dicebot.api.InputException;
+import com.chamelaeon.dicebot.api.Personality;
+import com.chamelaeon.dicebot.api.Statistics;
+import com.chamelaeon.dicebot.dice.Behavior;
+import com.chamelaeon.dicebot.dice.Behavior.Explosion;
+import com.chamelaeon.dicebot.dice.Behavior.L5RExplosion;
+import com.chamelaeon.dicebot.dice.Behavior.Reroll;
 import com.chamelaeon.dicebot.dice.Die.FudgeDie;
 import com.chamelaeon.dicebot.dice.Die.SimpleDie;
 import com.chamelaeon.dicebot.dice.DieResult;
+import com.chamelaeon.dicebot.dice.GroupResult;
+import com.chamelaeon.dicebot.dice.Modifier;
 import com.chamelaeon.dicebot.dice.Roll;
-import com.chamelaeon.dicebot.dice.Statistics;
-import com.chamelaeon.dicebot.dice.Roll.GroupResult;
-import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
-import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
+import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
+import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
 import com.chamelaeon.dicebot.personality.BasicPersonality;
-import com.chamelaeon.dicebot.personality.Personality;
+import com.chamelaeon.dicebot.random.MersenneTwisterRandom;
 import com.chamelaeon.dicebot.random.Random;
-import com.chamelaeon.dicebot.random.Random.MersenneTwisterRandom;
 
 /** Abstract class describing all types of rollers. */
 public abstract class Roller extends DicebotListenerAdapter {
@@ -61,7 +60,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 	 */
 	protected short parseGroups(String groupString) throws InputException {
 		if (null != groupString) {
-			short parsedGroups = Utils.parseShort(groupString, getPersonality());
+			short parsedGroups = getPersonality().parseShort(groupString);
 			if (parsedGroups >= 1) {
 				if (parsedGroups > 10) {
 					return 10;
@@ -113,8 +112,8 @@ public abstract class Roller extends DicebotListenerAdapter {
 		@Override
 		public String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
 			short groupCount = parseGroups(parts[1]);
-			short diceCount = Utils.parseDiceCount(parts[2], getPersonality());
-			short diceType = Utils.parseShort(parts[3], getPersonality());
+			short diceCount = getPersonality().parseDiceCount(parts[2]);
+			short diceType = getPersonality().parseShort(parts[3]);
 			if (diceCount < 1) {
 				throw getPersonality().getException("Roll0Dice");
 			} else if (diceType < 1) {
@@ -169,9 +168,9 @@ public abstract class Roller extends DicebotListenerAdapter {
 				GroupResult group = groups.get(0);
 				if (group.isCriticalFailure() || group.isCriticalSuccess()) {
 					if (group.isCriticalFailure()) {
-						return getPersonality().getRollResult("Standard1GroupCrit", baseRoll, user, group.getNatural(), group.getModified(), "FAILURE", getPersonality().chooseCriticalFailureLine(random));
+						return getPersonality().getRollResult("Standard1GroupCrit", baseRoll, user, group.getNatural(), group.getModified(), "FAILURE", getPersonality().chooseCriticalFailureLine());
 					} else if (group.isCriticalSuccess()) {
-						return getPersonality().getRollResult("Standard1GroupCrit", baseRoll, user, group.getNatural(), group.getModified(), "SUCCESS", getPersonality().chooseCriticalSuccessLine(random));
+						return getPersonality().getRollResult("Standard1GroupCrit", baseRoll, user, group.getNatural(), group.getModified(), "SUCCESS", getPersonality().chooseCriticalSuccessLine());
 					}
 				} 
 				return getPersonality().getRollResult("Standard1Group", baseRoll, user, group.getNatural(), group.getModified());
@@ -193,8 +192,8 @@ public abstract class Roller extends DicebotListenerAdapter {
 		@Override
 		public String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
 			int groupCount = parseGroups(parts[1]);
-			short rolled = Utils.parseShort(parts[2], getPersonality());
-			short kept = Utils.parseShort(parts[3], getPersonality());
+			short rolled = getPersonality().parseShort(parts[2]);
+			short kept = getPersonality().parseShort(parts[3]);
 			Modifier modifier = Modifier.createModifier(parts[4], getPersonality());
 			
 			Reroll reroll = Behavior.parseReroll(parts[5], getPersonality());
@@ -316,8 +315,8 @@ public abstract class Roller extends DicebotListenerAdapter {
 		
 		@Override
 		public String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
-			short rolled = Utils.parseShort(parts[1], getPersonality());
-			short neededSuccesses = Utils.parseShort(parts[2], getPersonality());
+			short rolled = getPersonality().parseShort(parts[1]);
+			short neededSuccesses = getPersonality().parseShort(parts[2]);
 			Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
 			String emphasis = parts[4];
 			String dcString = parts[5];
@@ -431,7 +430,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 		@Override
 		protected String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
 			short groupCount = parseGroups(parts[1]);
-			short rolled = Utils.parseShort(parts[2], getPersonality());
+			short rolled = getPersonality().parseShort(parts[2]);
 			Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
 			
 			if (rolled < 1) {

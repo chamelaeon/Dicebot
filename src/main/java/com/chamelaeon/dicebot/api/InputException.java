@@ -1,4 +1,4 @@
-package com.chamelaeon.dicebot;
+package com.chamelaeon.dicebot.api;
 
 /** Exception for exception handling on the input values. */
 public class InputException extends Exception {

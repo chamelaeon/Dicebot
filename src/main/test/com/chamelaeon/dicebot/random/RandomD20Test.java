@@ -10,8 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.chamelaeon.dicebot.dice.Statistics;
-import com.chamelaeon.dicebot.random.Random.MersenneTwisterRandom;
+import com.chamelaeon.dicebot.statistics.StandardStatistics;
 import com.google.common.io.Closeables;
 
 public class RandomD20Test {
@@ -20,7 +19,7 @@ public class RandomD20Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		final Statistics statistics = new Statistics();
+		final StandardStatistics statistics = new StandardStatistics();
 		final AtomicBoolean running = new AtomicBoolean(true);
 		final MersenneTwisterRandom random = new MersenneTwisterRandom();
 		final AtomicInteger doubles = new AtomicInteger(0);

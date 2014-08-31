@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chamelaeon.dicebot.listener;
+package com.chamelaeon.dicebot.framework;
 
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;

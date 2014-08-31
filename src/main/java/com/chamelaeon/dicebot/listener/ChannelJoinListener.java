@@ -6,7 +6,7 @@ package com.chamelaeon.dicebot.listener;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ConnectEvent;
 
-import com.chamelaeon.dicebot.Dicebot;
+import com.chamelaeon.dicebot.api.Dicebot;
 
 /**
  * A listener that joins channels upon connection to the server. This also functions as auto-reconnect for those channels.

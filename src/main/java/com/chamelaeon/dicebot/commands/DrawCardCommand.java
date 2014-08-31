@@ -4,11 +4,12 @@ import java.util.List;
 
 import org.pircbotx.User;
 
-import com.chamelaeon.dicebot.CardBase;
-import com.chamelaeon.dicebot.Dicebot;
-import com.chamelaeon.dicebot.InputException;
-import com.chamelaeon.dicebot.listener.DicebotGenericEvent;
-import com.chamelaeon.dicebot.listener.DicebotListenerAdapter;
+import com.chamelaeon.dicebot.api.CardBase;
+import com.chamelaeon.dicebot.api.Dicebot;
+import com.chamelaeon.dicebot.api.HelpDetails;
+import com.chamelaeon.dicebot.api.InputException;
+import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
+import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
 
 
 /** 

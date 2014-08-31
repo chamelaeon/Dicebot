@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chamelaeon.dicebot.listener;
+package com.chamelaeon.dicebot.framework;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +13,10 @@ import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 
-import com.chamelaeon.dicebot.Dicebot;
-import com.chamelaeon.dicebot.InputException;
-import com.chamelaeon.dicebot.commands.Command;
-import com.chamelaeon.dicebot.commands.HelpDetails;
+import com.chamelaeon.dicebot.api.Command;
+import com.chamelaeon.dicebot.api.Dicebot;
+import com.chamelaeon.dicebot.api.HelpDetails;
+import com.chamelaeon.dicebot.api.InputException;
 
 /**
  * An extension to the PircBotX ListenerAdapter that processes the event for a match to a regexp pattern.

@@ -1,10 +1,12 @@
-package com.chamelaeon.dicebot.dice;
+package com.chamelaeon.dicebot.statistics;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chamelaeon.dicebot.api.Statistics;
+
 /** Data struct for storing statistics. */
-public class Statistics implements IStatistics {
+public class StandardStatistics implements Statistics {
 	/** The number of groups that have been rolled. */
 	private long groups = 0;
 	/** The number of dice that have been rolled, by type. */
@@ -16,28 +18,21 @@ public class Statistics implements IStatistics {
 	/** The map holding die type averages. */
 	private final Map<String, Double> namedAverages;
 	
-	
 	/** Public constructor. */
-	public Statistics() {
+	public StandardStatistics() {
 		averages = new HashMap<Integer, Double>();
 		dice = new HashMap<Integer, Integer>();
 		namedRolls = new HashMap<String, Integer>();
 		namedAverages = new HashMap<String, Double>();
 	}
 	
-	/**
-	 * Gets the number of rolled groups.
-	 * @return the groups.
-	 */
-	public long getGroups() {
+	@Override
+    public long getGroups() {
 		return groups;
 	}
 	
-	/**
-	 * Gets the number of rolled dice.
-	 * @return the dieCount.
-	 */
-	public long getDice() {
+	@Override
+    public long getDice() {
 		long total = 0;
 		for (Integer rolled : dice.values()) {
 			total += rolled;
@@ -50,9 +45,6 @@ public class Statistics implements IStatistics {
 		groups++;
 	}
 	
-	/* (non-Javadoc)
-     * @see com.chamelaeon.dicebot.dice.IStatistics#registerRoll(int, int)
-     */
 	@Override
     public void registerRoll(int diceType, int rollValue) {
 		Integer count = dice.get(diceType);
@@ -70,9 +62,6 @@ public class Statistics implements IStatistics {
 		averages.put(diceType, newAverage);
 	}
 	
-	/* (non-Javadoc)
-     * @see com.chamelaeon.dicebot.dice.IStatistics#registerRoll(java.lang.String, long)
-     */
 	@Override
     public void registerRoll(String rollName, long rollValue) {
 		Integer count = namedRolls.get(rollName);
@@ -90,10 +79,7 @@ public class Statistics implements IStatistics {
 		namedAverages.put(rollName, newAverage);
 	}
 	
-	/**
-	 * Increases the groups count by the given amount.
-	 * @param modifier the amount to increase the groups by.
-	 */
+	@Override
 	public void addToGroups(int modifier) {
 		groups += modifier;
 	}
