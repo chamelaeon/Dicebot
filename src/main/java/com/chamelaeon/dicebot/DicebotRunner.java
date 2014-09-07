@@ -31,7 +31,6 @@ import com.chamelaeon.dicebot.commands.LeaveCommand;
 import com.chamelaeon.dicebot.commands.MuteUnmuteCommand;
 import com.chamelaeon.dicebot.commands.StatusCommand;
 import com.chamelaeon.dicebot.framework.DicebotBuilder;
-import com.chamelaeon.dicebot.listener.ChannelJoinListener;
 import com.chamelaeon.dicebot.listener.NickSetListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
 import com.chamelaeon.dicebot.rollers.Roller.FudgeRoller;
@@ -144,7 +143,6 @@ public class DicebotRunner {
         configBuilder.addListener(new ListenerAdapter<Dicebot>() {
 			@Override
 			public void onUserList(UserListEvent<Dicebot> event) throws Exception {
-			    System.out.println("WTF");
 			    if (!StringUtils.isEmpty(motd)) {
 			        event.getChannel().send().message(motd);
 			    }
@@ -238,7 +236,9 @@ public class DicebotRunner {
 	 */
 	private void processChannels(String channelsString, Builder<Dicebot> configBuilder) {
 		String[] channels = channelsString.split(",");
-		configBuilder.addListener(new ChannelJoinListener(channels));
+		for (String channel : channels) {
+            configBuilder.addAutoJoinChannel(channel);
+        }
 	}
 	
 	/**
