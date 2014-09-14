@@ -10,14 +10,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.pircbotx.Configuration.Builder;
 import org.pircbotx.IdentServer;
 import org.pircbotx.UtilSSLSocketFactory;
 import org.pircbotx.exception.IrcException;
-import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.events.UserListEvent;
 
 import com.chamelaeon.dicebot.api.CardBase;
 import com.chamelaeon.dicebot.api.Command;
@@ -32,6 +29,7 @@ import com.chamelaeon.dicebot.commands.MuteUnmuteCommand;
 import com.chamelaeon.dicebot.commands.StatusCommand;
 import com.chamelaeon.dicebot.framework.DicebotBuilder;
 import com.chamelaeon.dicebot.listener.NickSetListener;
+import com.chamelaeon.dicebot.listener.SendMotdListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
 import com.chamelaeon.dicebot.rollers.Roller.FudgeRoller;
 import com.chamelaeon.dicebot.rollers.Roller.L5RRoller;
@@ -139,15 +137,7 @@ public class DicebotRunner {
         processChannels(channels, configBuilder);
         createRollers(configBuilder);
         createCommands(configBuilder, cardPath);
-
-        configBuilder.addListener(new ListenerAdapter<Dicebot>() {
-			@Override
-			public void onUserList(UserListEvent<Dicebot> event) throws Exception {
-			    if (!StringUtils.isEmpty(motd)) {
-			        event.getChannel().send().message(motd);
-			    }
-			}
-		});
+        configBuilder.addListener(new SendMotdListener(motd));
         
         // Start the ident server before anything else, unless there's already one running.
         try {
