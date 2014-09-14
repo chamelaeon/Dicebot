@@ -52,13 +52,7 @@ public class StandardDicebot extends Dicebot {
 		});
 	}
 	
-	@Override
-    public void joinChannel(String channel) {
-	    System.out.println("Joining channel: " + channel);
-        sendIRC().joinChannel(channel);
-	}
-	
-	@Override
+    @Override
     public StandardStatistics getStatistics() {
 		return statistics;
 	}
@@ -70,8 +64,6 @@ public class StandardDicebot extends Dicebot {
 	
 	@Override
 	public void disconnect() {
-		stopBotReconnect();
-		// TODO: Better message and personality extract.
-		sendIRC().quitServer("Someone quit me from the command line.");
+		shutdown(true);
 	}
 }

@@ -4,16 +4,17 @@
 package com.chamelaeon.dicebot.framework;
 
 import org.pircbotx.Channel;
-import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.types.GenericMessageEvent;
+
+import com.chamelaeon.dicebot.api.Dicebot;
 
 /**
  * A wrapper for the PircBotX generic message event, with a custom ability to respond.
  * @author Chamelaeon
  */
-public class DicebotGenericEvent<T extends PircBotX> implements GenericMessageEvent<T> {
+public class DicebotGenericEvent<T extends Dicebot> implements GenericMessageEvent<T> {
     /** The original generic message event. */
 	private final GenericMessageEvent<T> event;
 	/** The user who generated the event. */
@@ -85,7 +86,7 @@ public class DicebotGenericEvent<T extends PircBotX> implements GenericMessageEv
             user.send().action(response);
         }
 	}
-
+	
 	@Override
 	public T getBot() {
 		return event.getBot();

@@ -25,7 +25,13 @@ public class JoinCommand extends DicebotListenerAdapter {
 	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) {
 		if (groups.size() >= 1) {
 			String channel = groups.get(1);
-			event.getBot().sendIRC().joinChannel(channel);
+			
+			try {
+			    event.getBot().sendIRC().joinChannel(channel);
+			} catch (IllegalStateException ise) {
+			    // Personality & better.
+			    event.respond("Love to, but I'm at my max number of channels and I can't leave any.");
+			}
 		}
 	}
 

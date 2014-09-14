@@ -30,12 +30,6 @@ public abstract class Dicebot extends PircBotX {
     public abstract void start() throws IOException, IrcException;
     
     /**
-     * Joins the given channel.
-     * @param channel The channel to join.
-     */
-    public abstract void joinChannel(String channel);
-
-    /**
      * Returns the statistics object for the dicebot.
      * @return the statistics.
      */
@@ -49,5 +43,4 @@ public abstract class Dicebot extends PircBotX {
     
     /** Disconnects the bot from the server and stops it. */
     public abstract void disconnect();
-
 }
