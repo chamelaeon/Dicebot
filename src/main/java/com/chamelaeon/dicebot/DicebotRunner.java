@@ -183,6 +183,9 @@ public class DicebotRunner {
 		        	
 		        	String[] parts = line.split(" ");
 		        	String channel = parts[0];
+		        	if (!channel.startsWith("#")) {
+		        	    channel = "#" + channel;
+		        	}
 		        	
 		        	if (parts[1].equals("/me")) {
 		        		String message = line.substring(channel.length() + 4).trim();
