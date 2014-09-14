@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.Configuration.Builder;
 import org.pircbotx.exception.IrcException;
 
@@ -61,6 +62,16 @@ public class StandardDicebot extends Dicebot {
     public Personality getPersonality() {
 		return personality;
 	}
+	
+     @Override
+     protected void loggedIn(String nick) {
+         // Do NOT set the nick if we already have one!
+         if (!StringUtils.isEmpty(getNick())) {
+             nick = getNick();
+         }
+         
+         super.loggedIn(nick);
+     }
 	
 	@Override
 	public void disconnect() {

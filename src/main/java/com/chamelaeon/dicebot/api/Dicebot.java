@@ -43,4 +43,10 @@ public abstract class Dicebot extends PircBotX {
     
     /** Disconnects the bot from the server and stops it. */
     public abstract void disconnect();
+    
+    @Override
+    public void setNick(String nick) {
+        // Change this method to public.
+        super.setNick(nick);
+    }
 }

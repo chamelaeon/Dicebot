@@ -30,6 +30,7 @@ public class NickSetListener extends ListenerAdapter<Dicebot> {
 	public void onNickAlreadyInUse(NickAlreadyInUseEvent<Dicebot> event) throws Exception {
 	    if (index < nicks.length) {
 			System.out.println(event.getUsedNick() + " already in use. Retrying with " + nicks[++index] + ".");
+			event.getBot().setNick(nicks[index]);
 			event.respond(nicks[index]);
 		} else {
 			System.out.println("All given nicks are currently being used! Defaulting to just appending numbers...");
