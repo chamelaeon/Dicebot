@@ -83,4 +83,23 @@ public abstract class DicebotListenerAdapter extends ListenerAdapter<Dicebot> im
 	 * @throws InputException if there is a problem with the input.
 	 */
 	public abstract void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) throws InputException;
+	
+	
+	/**
+	 * Normalizes a channel name to account for invalid characters, etc. This includes prepending a #
+	 * to the channel name if it does not exist. If the channel name is null, null is returned.
+	 * @param channel The channel name to normalize.
+	 * @return the normalized channel name, or null.
+	 */
+	protected String normalizeChannelName(String channel) {
+	    if (null == channel) {
+	        return channel;
+	    }
+	    
+	    if (!channel.startsWith("#")) {
+	        channel = "#" + channel;
+	    }
+	    
+	    return channel;
+	}
 }

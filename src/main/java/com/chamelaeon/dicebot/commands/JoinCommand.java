@@ -18,13 +18,13 @@ public class JoinCommand extends DicebotListenerAdapter {
     
     /** Constructor. */
 	public JoinCommand() {
-		super("!join (#[a-zA-Z0-9-_]+)", new HelpDetails("join", "Makes the bot join the specified channel, if it can."));
+		super("!join (#?[a-zA-Z0-9-_]+)", new HelpDetails("join", "Makes the bot join the specified channel, if it can."));
 	}
 
 	@Override
 	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) {
 		if (groups.size() >= 1) {
-			String channel = groups.get(1);
+			String channel = normalizeChannelName(groups.get(1));
 			
 			try {
 			    event.getBot().sendIRC().joinChannel(channel);
