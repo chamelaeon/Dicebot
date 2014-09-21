@@ -171,6 +171,13 @@ public class DicebotRunner {
 		        	    continue;
 		        	}
 		        	
+		        	// Allow for raw command sending.
+		        	if (line.startsWith("//")) {
+		        	    line = line.substring(2);
+		        	    bot.sendRaw().rawLine(line);
+		        	    continue;
+		        	}
+		        	
 		        	String[] parts = line.split(" ");
 		        	String channel = parts[0];
 		        	if (!channel.startsWith("#")) {
