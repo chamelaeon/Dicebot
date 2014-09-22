@@ -12,7 +12,7 @@ import com.chamelaeon.dicebot.api.Dicebot;
  * A listener that tracks if a nick is already in use and provides another.
  * @author Chamelaeon
  */
-public class NickSetListener extends ListenerAdapter<Dicebot> {
+public class NickSetListener extends ListenerAdapter<Dicebot> implements NickHandlingListener {
     /** The nicks to use for the dicebot. */
 	private final String[] nicks;
 	/** The current index for nicks. */
@@ -38,10 +38,7 @@ public class NickSetListener extends ListenerAdapter<Dicebot> {
 		}
 	}
 
-	/**
-	 * Resets the nick index, allowing the bot to start back at the beginning of its nicklist and 
-	 * potentially reclaim a nick that has pinged out. 
-	 */
+    @Override
     public void resetNickIndex() {
         index = 0;
     }

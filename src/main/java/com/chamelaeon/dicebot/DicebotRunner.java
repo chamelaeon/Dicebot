@@ -28,6 +28,8 @@ import com.chamelaeon.dicebot.commands.LeaveCommand;
 import com.chamelaeon.dicebot.commands.MuteUnmuteCommand;
 import com.chamelaeon.dicebot.commands.StatusCommand;
 import com.chamelaeon.dicebot.framework.DicebotBuilder;
+import com.chamelaeon.dicebot.listener.NickGhostListener;
+import com.chamelaeon.dicebot.listener.NickHandlingListener;
 import com.chamelaeon.dicebot.listener.NickSetListener;
 import com.chamelaeon.dicebot.listener.SendMotdListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
@@ -48,8 +50,8 @@ public class DicebotRunner {
 	private final List<HelpDetails> rollerHelpDetails;
 	/** The dicebot's personality. */
 	private PropertiesPersonality personality;
-	/** The listener for setting nicks. */
-    private NickSetListener nickListener;
+	/** The listener for handling nicks. */
+    private NickHandlingListener nickListener;
 	
 	/** Constructor. */
 	private DicebotRunner() {
@@ -109,6 +111,7 @@ public class DicebotRunner {
 		boolean trustAllCerts = Boolean.parseBoolean(props.getProperty("TrustAllCertificates", "false"));
 		String nicks = props.getProperty("Nicks", "Dicebot");
 		String nickservPassword = props.getProperty("NickservPassword", "");
+		boolean useGhostIfNickExists = Boolean.parseBoolean(props.getProperty("UseGhostIfNickExists", "false"));
 		String channels = props.getProperty("Channels");
 		final String motd = props.getProperty("MotD");
 
@@ -133,7 +136,7 @@ public class DicebotRunner {
 			configBuilder.setSocketFactory(socketFactory);
 		}
 		
-        processNicks(nicks, configBuilder);
+        processNicks(nicks, useGhostIfNickExists, nickservPassword, configBuilder);
         processChannels(channels, configBuilder);
         createRollers(configBuilder);
         createCommands(configBuilder, cardPath);
@@ -242,13 +245,25 @@ public class DicebotRunner {
 	}
 	
 	/**
-	 * Processes all nicks for use by the bot.
+	 * Processes all nicks for use by the bot. If useGhostIfNickExists is false, the bot will attempt to use
+	 * alternate provided nicks if the first one is in use. If true, the bot will attempt to use the nickserv
+	 * "ghost" command to kick the nick and reclaim it.
+	 * 
 	 * @param nickString The bot's nicks, in a comma-delimited string.
+	 * @param useGhostIfNickExists If true, will use the ghost strategy for nick in use problems.
+	 *                             If false, will use the alternate nick strategy instead.
+	 * @param nickservPassword The nickserv password to use for ghosting.
 	 * @param configBuilder The config builder.
 	 */
-	private void processNicks(String nickString, Builder<Dicebot> configBuilder) {
+	private void processNicks(String nickString, boolean useGhostIfNickExists, String nickservPassword, 
+	        Builder<Dicebot> configBuilder) {
 		String[] nicks = nickString.split(",");
-		nickListener = new NickSetListener(nicks);
+		
+		if (useGhostIfNickExists) {
+		    nickListener = new NickGhostListener(nickservPassword);
+		} else {
+		    nickListener = new NickSetListener(nicks);
+		}
 		configBuilder.addListener(nickListener);
 		// Set the first nick.
 		configBuilder.setName(nicks[0]);
