@@ -117,7 +117,7 @@ public class DicebotRunner {
 
 		// Builder and mandatory config.
 		this.personality = new PropertiesPersonality(props);
-		Builder<Dicebot> configBuilder = new DicebotBuilder();
+		Builder<Dicebot> configBuilder = new DicebotBuilder(personality);
 		configBuilder.setIdentServerEnabled(true);
 		configBuilder.setAutoReconnect(true);
 		configBuilder.setMaxLineLength(400);

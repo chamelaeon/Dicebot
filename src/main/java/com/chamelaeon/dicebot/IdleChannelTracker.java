@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.pircbotx.Channel;
 
+import com.chamelaeon.dicebot.api.Personality;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Ordering;
@@ -24,11 +25,17 @@ public class IdleChannelTracker {
     private final Map<Channel, Long> channelLastUsedTime;
     /** The list of "permanent" channels, i.e. channels the bot will always join and never leave. */
     private final List<String> permanentChannels;
+    /** The personality for the bot. */
+    private final Personality personality;
     /** The limit to the number of channels the bot can be in. */
     private int channelLimit;
     
-    /** Constructor. */
-    public IdleChannelTracker() {
+    /** 
+     * Constructor.
+     * @param personality The personality for the bot. 
+     */
+    public IdleChannelTracker(Personality personality) {
+        this.personality = personality;
         channelLastUsedTime = new HashMap<>();
         permanentChannels = new ArrayList<>();
     }
@@ -87,8 +94,7 @@ public class IdleChannelTracker {
             
             // TODO: Jodatime. This is checking if it's at least 1h idle.
             if (now - idleTime <= 1000 * 60 * 60 * 1) {
-                // TODO: Message and personality.
-                idleCandidate.send().part("See you suckers, there's action elsewhere.");
+                idleCandidate.send().part(personality.getMessage("LeaveIdleChannel"));
                 updateChannelIdle(channel);
                 return true;
             } else {

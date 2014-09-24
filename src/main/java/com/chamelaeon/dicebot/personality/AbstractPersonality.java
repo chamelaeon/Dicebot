@@ -56,6 +56,11 @@ public abstract class AbstractPersonality implements Personality {
 	}
 	
 	@Override
+    public String getMessage(String key, Object... params) {
+        return String.format(configurableTexts.get(key), params);
+    }
+	
+	@Override
     public String getRollResult(String key, Object... params) {
 		return String.format(rollOutputs.get(key), params);
 	}

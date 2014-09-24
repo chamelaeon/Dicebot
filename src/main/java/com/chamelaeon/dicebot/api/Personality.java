@@ -14,9 +14,17 @@ public interface Personality {
     /**
      * Gets a simple configurable message.
      * @param key The key of the message to get.
-     * @return the message
+     * @return the message.
      */
     public abstract String getMessage(String key);
+    
+    /**
+     * Gets a simple configurable message.
+     * @param key The key of the message to get.
+     * @param params The parameters to fill out for the message.
+     * @return the message.
+     */
+    public abstract String getMessage(String key, Object... params);
 
     /**
      * Gets the roll result text for the given key.

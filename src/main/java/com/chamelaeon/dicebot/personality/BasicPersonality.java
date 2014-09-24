@@ -4,7 +4,7 @@ package com.chamelaeon.dicebot.personality;
 
 
 public class BasicPersonality extends AbstractPersonality {
-	
+	// TODO: Fix this class.
 	public BasicPersonality() {
 		configurableTexts.put("LessThanOneGroup", "Rolling fewer than 1 groups may cause pan-dimensional collapse and a great deal of wibbly. Let's not do it.");
 		configurableTexts.put("Roll0Dice", "It's come to my attention you're rolling 0 dice. I'm pleased to inform you that you've rolled NaN. Good day.");

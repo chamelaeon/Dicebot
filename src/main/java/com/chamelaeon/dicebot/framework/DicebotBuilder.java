@@ -15,6 +15,7 @@ import org.pircbotx.output.OutputIRC;
 
 import com.chamelaeon.dicebot.IdleChannelTracker;
 import com.chamelaeon.dicebot.api.Dicebot;
+import com.chamelaeon.dicebot.api.Personality;
 
 /**
  * A custom configuration builder.
@@ -26,9 +27,12 @@ public class DicebotBuilder extends Builder<Dicebot> {
     private final IdleChannelTracker idleTracker;
     private final DicebotFactory botFactory;
     
-    /** Constructor. */
-    public DicebotBuilder() {
-        this.idleTracker = new IdleChannelTracker();
+    /** 
+     * Constructor.
+     * @param personality The personality for the bot. 
+     */
+    public DicebotBuilder(Personality personality) {
+        this.idleTracker = new IdleChannelTracker(personality);
         this.botFactory = new DicebotFactory(idleTracker);
         
         this.addListener(new ListenerAdapter<Dicebot>() {

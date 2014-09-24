@@ -41,8 +41,7 @@ public class StandardDicebot extends Dicebot {
 		mainLoop.execute(new Runnable() {
 			@Override
 			public void run() {
-				// TODO: HA HA HA NO
-				while(true) {
+				while(!reconnectStopped) {
 					try {
 						startBot();
 					} catch (IOException | IrcException e) {

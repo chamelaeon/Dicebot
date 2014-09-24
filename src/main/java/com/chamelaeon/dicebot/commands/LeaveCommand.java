@@ -23,8 +23,7 @@ public class LeaveCommand extends DicebotListenerAdapter {
 	@Override
 	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) {
 		if (null != event.getChannel()) {
-			// TODO: Fix this to personality.
-		    event.getChannel().send().part("I know when I'm not wanted, suckers.");
+		    event.getChannel().send().part(event.getBot().getPersonality().getMessage("Leave"));
 		}
 	}
 }
