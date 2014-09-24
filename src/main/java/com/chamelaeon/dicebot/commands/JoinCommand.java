@@ -1,5 +1,6 @@
 package com.chamelaeon.dicebot.commands;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.pircbotx.hooks.events.InviteEvent;
@@ -18,7 +19,9 @@ public class JoinCommand extends DicebotListenerAdapter {
     
     /** Constructor. */
 	public JoinCommand() {
-		super("!join (#?[a-zA-Z0-9-_]+)", new HelpDetails("join", "Makes the bot join the specified channel, if it can."));
+		super("!join (#?[a-zA-Z0-9-_]+)", new HelpDetails("join", 
+		        "Makes the bot join the specified channel, if it can. It will automatically add a # if it's omitted.", 
+		        Arrays.asList("!join #channel", "!join otherchannel")));
 	}
 
 	@Override

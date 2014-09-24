@@ -1,5 +1,6 @@
 package com.chamelaeon.dicebot.commands;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.pircbotx.User;
@@ -27,7 +28,9 @@ public class DrawCardCommand extends DicebotListenerAdapter {
 	 */
 	public DrawCardCommand(CardBase cardBase) {
 		super("!draw ([1-5])( [a-zA-Z0-9-<\\[\\]\\{\\}]+)?", 
-				new HelpDetails("draw", "Draws a number of drama cards, from 1 to 5."));
+				new HelpDetails("draw", "Draws a number of drama cards, from 1 to 5. " 
+				        + "The results are reported via private message. A second player can optionally be notified privately as well.",
+				Arrays.asList("!draw PlayerOne", "!draw PlayerOne GameMaster")));
 		this.cardBase = cardBase;
 	}
 	

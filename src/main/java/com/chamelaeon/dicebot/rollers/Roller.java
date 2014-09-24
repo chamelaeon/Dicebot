@@ -1,6 +1,7 @@
 package com.chamelaeon.dicebot.rollers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +35,8 @@ public abstract class Roller extends DicebotListenerAdapter {
 	private final Personality personality;
 	
 	/** Protected constructor. */
-	protected Roller(String regexp, String name, String description,  Personality personality) {
-		super(regexp, new HelpDetails(name, description));
+	protected Roller(String regexp, String name, String description, List<String> examples, Personality personality) {
+		super(regexp, new HelpDetails(name, description, "roller", examples));
 		random = new MersenneTwisterRandom();
 		this.personality = personality;
 	}
@@ -105,7 +106,10 @@ public abstract class Roller extends DicebotListenerAdapter {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public StandardRoller(Personality personality) {
-			super("^(\\d+ )?(\\d*)d(\\d+)(b[1-9]|v(?:[1-9][0-9]?)?)?(\\+\\d+|-\\d+)?", "Standard", getDesc(), 
+			super("^(\\d+ )?(\\d*)d(\\d+)(b[1-9]|v(?:[1-9][0-9]?)?)?(\\+\\d+|-\\d+)?", "Standard", getDesc(),
+			        Arrays.asList("Normal rolls: 2d6, d20", "Roll with modifier: d20+3", "Roll with Brutal 2: 2d6b2",
+			                "Roll with basic vorpal: d10v", "Roll with expanded vorpal (5-10 range): d10v6",
+			                "Roll with brutal 2 and modifier: 2d6b2+5", "Roll with vorpal and modifier: 2d6v+3"),
 					personality);
 		}
 		
@@ -185,7 +189,11 @@ public abstract class Roller extends DicebotListenerAdapter {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public L5RRoller(Personality personality) {
-			super("^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a)?", "L5R", getDesc(), 
+			super("^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a)?", "L5R", getDesc(),
+			        Arrays.asList("Basic roll: 5k2", "Roll with modifier: 7k3+5", "Roll with rollover: 14k6", 
+			                "Roll with emphasis: 9k2e", "Roll with modifier and emphasis: 10k6+16e", 
+			                "Roll with mastery: 9k3m", "Roll with modifier, emphasis, and mastery: 10k6me",
+			                "One with everything: 10k8+16me"),
 					personality);
 		}
 		
@@ -302,7 +310,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 		}
 	}
 	
-	/** A roller for handling White Wolf die behavior, like "7k3" or "2k1+2". */
+	/** A roller for handling White Wolf die behavior. */
 	public static class WhiteWolfRoller extends Roller {
 		/**
 		 * Constructor.
@@ -310,6 +318,9 @@ public abstract class Roller extends DicebotListenerAdapter {
 		 */
 		public WhiteWolfRoller(Personality personality) {
 			super("^(\\d+)t(\\d+)(\\+\\d+|\\-\\d+)?(e)?([ ]*[dc|DC]+(\\d+))?", "White Wolf", getDesc(), 
+			        Arrays.asList("Basic roll: 7t2", "Roll with 2 fixed successes: 7t2+2", 
+			                "Roll with 10s counting twice: 7t2e", "Roll with fixed successes and 10s counting twice: 7t2+2e",
+			                "Roll with custom DC: 7t2 dc7", "Roll with fixed successes, 10s counting twice and a custom DC: 7t2+2e dc7"),
 					personality);
 		}
 		
@@ -423,7 +434,8 @@ public abstract class Roller extends DicebotListenerAdapter {
 		 */
 		public FudgeRoller(Personality personality) {
 			super("^(\\d+ )?(\\d+)d[fF](\\+\\d+|-\\d+)?", "Fudge",
-					"A dice roller for the FUDGE dice style, which rolls X number of d6s with faces of ['-', '-', ' ', ' ', '+', '+'] and returns the additive result (ex. 4dF).", 
+					"A dice roller for the FUDGE dice style, which rolls X number of d6s with faces of ['-', '-', ' ', ' ', '+', '+'] and returns the additive result (ex. 4dF).",
+					Arrays.asList("Basic roll: 4dF", " Roll with modifier: 4dF+3"),
 					personality);
 		}
 

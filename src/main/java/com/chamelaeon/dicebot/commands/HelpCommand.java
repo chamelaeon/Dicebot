@@ -11,6 +11,7 @@ import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 
 /** 
  * A command to display help to a user.
@@ -45,12 +46,16 @@ public class HelpCommand extends DicebotListenerAdapter {
 	@Override
 	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) {
 		if (groups.size() > 1 && null != groups.get(1)) {
-			HelpDetails details = commandDetailsMap.get(groups.get(1));
-			if (null == details) {
-				sendRollerHelp(event, rollerDetailsMap.get(groups.get(1)));
-			} else {
-				event.respond(details.getDescription());
-			}
+		    String helpPhrase = groups.get(1);
+		    if (commandDetailsMap.containsKey(helpPhrase)
+		            || rollerDetailsMap.containsKey(helpPhrase)) {
+		        
+		        HelpDetails details = Objects.firstNonNull(
+		                commandDetailsMap.get(helpPhrase),
+		                rollerDetailsMap.get(helpPhrase));
+		        
+		        sendHelp(event, details);
+		    }
 		} else {
 			sendMainHelp(event);
 		}
@@ -65,7 +70,7 @@ public class HelpCommand extends DicebotListenerAdapter {
 		for (String string : commandList) {
 			event.respond(string);
 		}
-		event.respond("For more details on the dice systems, try !help command, replacing \"command\" with the actual name of the command. Prefix all commands with !.");
+		event.respond("For more details on the commands, try !help [command], replacing \"[command]\" with the actual name of the command. Prefix all commands with !.");
 		List<String> rollerList = buildHelpList("Here is a list of the dice systems I can handle: ", rollerDetailsMap.values());
 		for (String string : rollerList) {
 			event.respond(string);
@@ -73,10 +78,17 @@ public class HelpCommand extends DicebotListenerAdapter {
 		event.respond("For more details on the dice systems, try !help [systemName], replacing \"[systemName]\" with the actual name of the system.");
 	}
 	
-	/** Sends a specific roller's help to the user. */
-	private void sendRollerHelp(DicebotGenericEvent<Dicebot> event, HelpDetails details) {
-		event.respond("Help for the " + details.getCommandName() + " roller:");
+	/** Sends a specific help to the user. */
+	private void sendHelp(DicebotGenericEvent<Dicebot> event, HelpDetails details) {
+		event.respond("Help for the " + details.getCommandName() + " " + details.getType() + ":");
 		event.respond(details.getDescription());
+		
+		if (details.getExamples().size() > 0) {
+		    event.respond("Examples:");
+		    for (String example : details.getExamples()) {
+                event.respond(example);
+            }
+		}
 	}
 	
 	/** 
