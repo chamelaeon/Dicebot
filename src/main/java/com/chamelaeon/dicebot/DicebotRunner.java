@@ -68,23 +68,32 @@ public class DicebotRunner {
 	 * @param args Arguments for the dicebot.  
 	 */
 	public static void main(String[] args) throws Exception {
+		InputStream propStream;
+		InputStream cardStream;
 		if (args.length < 1) {
-			System.out.println("This dicebot requires a single argument: a properties file containing personality information. " 
-					+ "An additional properties file with drama cards can be specified as well.");
-			System.exit(1);
-		} 
-		
-		// Find the arguments.
-		String fileName = args[0];
-		String cardPath = null;
-		if (args.length >= 2) {
-			cardPath = args[1];
+			propStream = DicebotRunner.class.getResourceAsStream("/dicesuke.properties");
+			cardStream = DicebotRunner.class.getResourceAsStream("/dramaCards.properties");
+			
+			if (null == propStream) {
+				System.out.println("This dicebot requires a single argument: a properties file containing personality information. " 
+						+ "An additional properties file with drama cards can be specified as well.");
+				System.exit(1);
+			}
+		} else {
+			// Find the arguments.
+			String fileName = args[0];
+			String cardPath = null;
+			if (args.length >= 2) {
+				cardPath = args[1];
+			}
+			
+			propStream = new FileInputStream(new File(fileName));
+			cardStream = new FileInputStream(new File(cardPath));
 		}
+		
 		// Grab the properties.
 		Properties props = new Properties();
-		InputStream propStream = null;
 		try {
-			propStream = new FileInputStream(new File(fileName));
 			props.load(propStream);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -93,7 +102,7 @@ public class DicebotRunner {
 		}
 		
 		DicebotRunner runner = new DicebotRunner();
-		runner.start(props, cardPath);
+		runner.start(props, cardStream);
 	}
 	
 	/**
@@ -103,7 +112,7 @@ public class DicebotRunner {
 	 * @throws IrcException if there is a problem with the bot framework.
 	 * @throws IOException if there is a connection issue.
 	 */
-	private void start(Properties props, String cardPath) throws IrcException, IOException { 
+	private void start(Properties props, InputStream cardStream) throws IrcException, IOException { 
 		// Pull out properties we need.
 		String network = props.getProperty("Network", "irc.sandwich.net");
 		int port = Integer.parseInt(props.getProperty("Port", "6697"));
@@ -139,7 +148,7 @@ public class DicebotRunner {
         processNicks(nicks, useGhostIfNickExists, nickservPassword, configBuilder);
         processChannels(channels, configBuilder);
         createRollers(configBuilder);
-        createCommands(configBuilder, cardPath);
+        createCommands(configBuilder, cardStream);
         configBuilder.addListener(new SendMotdListener(motd));
         
         // Start the ident server before anything else, unless there's already one running.
@@ -208,14 +217,14 @@ public class DicebotRunner {
 	 * @param configBuilder The configuration Builder to register commands with.
 	 * @param cardPath The card path to use.
 	 */
-	private void createCommands(Builder<Dicebot> configBuilder, String cardPath) {
+	private void createCommands(Builder<Dicebot> configBuilder, InputStream cardStream) {
 		registerCommand(new MuteUnmuteCommand(), configBuilder);
 		registerCommand(new LeaveCommand(), configBuilder);
 		registerCommand(new StatusCommand(), configBuilder);
 		registerCommand(new JoinCommand(), configBuilder);
 		registerCommand(new CheatCommand(), configBuilder);
-		if (null != cardPath) {
-			registerCommand(new DrawCardCommand(new CardBase(cardPath)), configBuilder);
+		if (null != cardStream) {
+			registerCommand(new DrawCardCommand(new CardBase(cardStream)), configBuilder);
 		}
 		
 		// Always register the help command last so it has all the help details.

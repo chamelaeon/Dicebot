@@ -1,9 +1,8 @@
 package com.chamelaeon.dicebot.api;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Random;
@@ -21,13 +20,13 @@ public class CardBase {
 	
 	/**
 	 * Constructor.
-	 * @param path The path to the XML of the cards.
+	 * @param stream The input stream to the XML of the cards.
 	 */
-	public CardBase(String path) {
+	public CardBase(InputStream stream) {
 		cards = new Properties();
 		random = new Random();
 		try {
-			cards.load(new FileInputStream(new File(path)));
+			cards.load(stream);
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (IOException e) {
