@@ -189,7 +189,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public L5RRoller(Personality personality) {
-			super("^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a)?", "L5R", getDesc(),
+			super("^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a$)?", "L5R", getDesc(),
 			        Arrays.asList("Basic roll: 5k2", "Roll with modifier: 7k3+5", "Roll with rollover: 14k6", 
 			                "Roll with emphasis: 9k2e", "Roll with modifier and emphasis: 10k6+16e", 
 			                "Roll with mastery: 9k3m", "Roll with modifier, emphasis, and mastery: 10k6me",
@@ -268,7 +268,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			//Regular - 1k1: 6, 1k0: 2, 0k1: 4
 			//Emphasis - 1k1: 6.6, 1k0: 2.1, 0k1: 4.3
 			//Mastery adds about .5 per 1k1
-			return "";
+			return "doesn't quite know how to analyze rolls yet.";
 		}
 		
 		/**
