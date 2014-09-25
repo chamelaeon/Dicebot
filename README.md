@@ -46,6 +46,10 @@ The bot outputs a lot of text to the channels it's in as part of the rolling pro
     - **LeaveIdleChannel**: Triggered when the bot automatically leaves an idle channel. *Markers*: None.
     - **StatusChannelCount**: Triggered when the bot is asked for its status - should tell how many channels the bot is in. *Markers*: %d. The number of channels the bot is in.
     - **StatusRolledCount**: Triggered when the bot is asked for its status - should tell how many groups and dice the bot has rolled. *Markers*: %d, %d. In order: The number of groups the bot has rolled, the number of actual dice the bot has rolled.
+    - **JoinChannelDenied**: Triggered when the bot is asked to leave an idle channel and no channels are eligible. *Markers*: None.
+    - **DrawNonNumberCards**: Triggered when a player tries to draw an invalid number of cards. *Markers*: None.
+    - **DrawCard**: Triggered when a player draws cards without notifying anyone else. *Markers*: %d, %s. In order: The number of cards drawn, the player who drew them.
+    - **DrawCardAndNotify**: Triggered when a player draws cards and notifies another user. *Markers*: %d, %s, %s. In order: The number of cards drawn, the player who drew them, the user to be notified.
 - ####Basic Rolling
     - **LessThanOneGroup**: Triggered when a roll is made with 0 groups (e.g. 0 6d10). *Markers*: None.
     - **Roll0Dice**: Triggered when a roll is made with 0 dice (e.g. 0d10). *Markers*: None.

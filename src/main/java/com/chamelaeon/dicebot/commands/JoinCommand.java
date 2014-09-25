@@ -33,7 +33,7 @@ public class JoinCommand extends DicebotListenerAdapter {
 			    event.getBot().sendIRC().joinChannel(channel);
 			} catch (IllegalStateException ise) {
 			    // Personality & better.
-			    event.respond("Love to, but I'm at my max number of channels and I can't leave any.");
+			    event.respond(event.getBot().getPersonality().getMessage("JoinChannelDenied"));
 			}
 		}
 	}

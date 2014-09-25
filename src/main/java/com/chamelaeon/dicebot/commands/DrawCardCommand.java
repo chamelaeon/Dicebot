@@ -48,7 +48,7 @@ public class DrawCardCommand extends DicebotListenerAdapter {
 				count = Short.parseShort(countString);
 			} catch (NumberFormatException nfe) {
 				// Regexp should prevent this from happening, but...
-				throw new InputException("The number of cards has to be a number!");
+				throw new InputException(event.getBot().getPersonality().getMessage("DrawNonNumberCards"));
 			}
 			
 			User user = event.getUser();
@@ -66,9 +66,9 @@ public class DrawCardCommand extends DicebotListenerAdapter {
 			}
 
 			if (null != notifyNick) {
-				event.respondWithAction("draws " + count + " cards for " + user.getNick() + " and notifies " + notifyNick + ".");
+				event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCardAndNotify", count, user.getNick(), notifyNick));
 			} else {
-			    event.respondWithAction("draws " + count + " cards for " + user.getNick() + ". It's a secret to everyone.");
+			    event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCard", count, user.getNick()));
 			}
 		}
 	}
