@@ -18,7 +18,7 @@ public class RandomD20Test {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		final StandardStatistics statistics = new StandardStatistics();
 		final AtomicBoolean running = new AtomicBoolean(true);
 		final MersenneTwisterRandom random = new MersenneTwisterRandom();
@@ -78,7 +78,7 @@ public class RandomD20Test {
 		        }
 		    }
 		} catch (Exception e) {
-		    Closeables.closeQuietly(scanner);
+		    Closeables.close(scanner, false);
 		}
 	}
 }

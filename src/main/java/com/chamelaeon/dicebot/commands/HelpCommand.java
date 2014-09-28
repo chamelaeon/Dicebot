@@ -11,7 +11,7 @@ import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
 import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /** 
  * A command to display help to a user.
@@ -50,7 +50,7 @@ public class HelpCommand extends DicebotListenerAdapter {
 		    if (commandDetailsMap.containsKey(helpPhrase)
 		            || rollerDetailsMap.containsKey(helpPhrase)) {
 		        
-		        HelpDetails details = Objects.firstNonNull(
+		        HelpDetails details = MoreObjects.firstNonNull(
 		                commandDetailsMap.get(helpPhrase),
 		                rollerDetailsMap.get(helpPhrase));
 		        

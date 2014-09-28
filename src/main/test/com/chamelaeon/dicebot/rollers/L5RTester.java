@@ -66,7 +66,7 @@ public class L5RTester {
 				}
 			}
 		} finally {
-			Closeables.closeQuietly(scanner);
+		    Closeables.close(scanner, false);
 		}
 	}
 

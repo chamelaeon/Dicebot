@@ -208,7 +208,7 @@ public class DicebotRunner {
 	        	}
 	        }
         } finally {
-    		Closeables.closeQuietly(scanner);
+    		Closeables.close(scanner, false);
     	}
 	}
 
