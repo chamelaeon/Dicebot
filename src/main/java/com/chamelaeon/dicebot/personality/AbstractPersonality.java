@@ -1,6 +1,7 @@
 package com.chamelaeon.dicebot.personality;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +15,8 @@ import com.chamelaeon.dicebot.random.Random;
 
 public abstract class AbstractPersonality implements Personality {
 
-	/** The exception texts, mapped by key. */
-	final Map<String, String> configurableTexts;
-	
-	/** The roll outputs, mapped by key. */
-	final Map<String, String> rollOutputs;
+	/** The bot text strings, mapped by key. */
+	final Map<String, String> outputTexts;
 	
 	/** The available critical failure message list. */
 	final List<String> criticalFailures;
@@ -32,12 +30,16 @@ public abstract class AbstractPersonality implements Personality {
 	/** Whether or not to use critical failure messages. */
 	final AtomicBoolean useCritFailures;
 	
+	/** The random for selecting random values. */
 	final Random random;
+	
+	/** A list of all personality file keys which are configs and not output text. */
+	static final List<String> configKeys = Arrays.asList("Network", "Port", "Channels", "Nicks", "SSL", 
+	        "NickservPassword", "UseGhostIfNickExists", "TrustAllCertificates", "MotD"); 
 	
 	/** Constructor. */
 	AbstractPersonality() {
-		configurableTexts = new HashMap<String, String>();
-		rollOutputs = new HashMap<String, String>();
+		outputTexts = new HashMap<String, String>();
 		criticalFailures = new ArrayList<String>();
 		criticalSuccesses = new ArrayList<String>();
 		useCritSuccesses = new AtomicBoolean(true);
@@ -47,22 +49,22 @@ public abstract class AbstractPersonality implements Personality {
 	
 	@Override
     public InputException getException(String key, Object... params) {
-		return new InputException(String.format(configurableTexts.get(key), params));
+		return new InputException(String.format(outputTexts.get(key), params));
 	}
 
 	@Override
     public String getMessage(String key) {
-		return configurableTexts.get(key);
+		return outputTexts.get(key);
 	}
 	
 	@Override
     public String getMessage(String key, Object... params) {
-        return String.format(configurableTexts.get(key), params);
+        return String.format(outputTexts.get(key), params);
     }
 	
 	@Override
     public String getRollResult(String key, Object... params) {
-		return String.format(rollOutputs.get(key), params);
+		return String.format(outputTexts.get(key), params);
 	}
 	
 	@Override
