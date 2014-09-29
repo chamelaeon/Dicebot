@@ -55,7 +55,6 @@ public class DrawCardCommand extends DicebotListenerAdapter {
 			
 			// Hit up the card DB.
 			for (int i = 0; i < count; i++) {
-				// TODO: Add rarity
 				String card = cardBase.draw();
 				
 				// Send a msg to the originating user, and the notified user.

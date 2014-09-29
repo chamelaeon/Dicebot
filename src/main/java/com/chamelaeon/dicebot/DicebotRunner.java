@@ -52,8 +52,8 @@ public class DicebotRunner {
 	private PropertiesPersonality personality;
 	/** The listener for handling nicks. */
     private NickHandlingListener nickListener;
-	
-	/** Constructor. */
+
+    /** Constructor. */
 	private DicebotRunner() {
 		this.commandHelpDetails = new ArrayList<>();
 		this.rollerHelpDetails = new ArrayList<>();
@@ -96,23 +96,35 @@ public class DicebotRunner {
 		try {
 			props.load(propStream);
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			throw ioe;
 		} finally {
 			Closeables.closeQuietly(propStream);
 		}
 		
+		// Load the card base.
+		CardBase cardBase = null;
+		if (0 == cardStream.available()) {
+    		try {
+    		    cardBase = new CardBase(cardStream);
+    		} catch (IOException ioe) {
+    		    throw ioe;
+            } finally {
+                Closeables.closeQuietly(cardStream);
+            }
+		}
+		
 		DicebotRunner runner = new DicebotRunner();
-		runner.start(props, cardStream);
+		runner.start(props, cardBase);
 	}
 	
 	/**
 	 * Starts the dicebot. 
 	 * @param props The properties of the dicebot.
-	 * @param cardPath The card path for the dicebot to use, if any.
+	 * @param cardBase The card base for the dicebot to use, if any.
 	 * @throws IrcException if there is a problem with the bot framework.
 	 * @throws IOException if there is a connection issue.
 	 */
-	private void start(Properties props, InputStream cardStream) throws IrcException, IOException { 
+	private void start(Properties props, CardBase cardBase) throws IrcException, IOException { 
 		// Pull out properties we need.
 		String network = props.getProperty("Network", "irc.sandwich.net");
 		int port = Integer.parseInt(props.getProperty("Port", "6697"));
@@ -148,7 +160,7 @@ public class DicebotRunner {
         processNicks(nicks, useGhostIfNickExists, nickservPassword, configBuilder);
         processChannels(channels, configBuilder);
         createRollers(configBuilder);
-        createCommands(configBuilder, cardStream);
+        createCommands(configBuilder, cardBase);
         configBuilder.addListener(new SendMotdListener(motd));
         
         // Start the ident server before anything else, unless there's already one running.
@@ -217,14 +229,14 @@ public class DicebotRunner {
 	 * @param configBuilder The configuration Builder to register commands with.
 	 * @param cardPath The card path to use.
 	 */
-	private void createCommands(Builder<Dicebot> configBuilder, InputStream cardStream) {
+	private void createCommands(Builder<Dicebot> configBuilder, CardBase cardBase) {
 		registerCommand(new MuteUnmuteCommand(), configBuilder);
 		registerCommand(new LeaveCommand(), configBuilder);
 		registerCommand(new StatusCommand(), configBuilder);
 		registerCommand(new JoinCommand(), configBuilder);
 		registerCommand(new CheatCommand(), configBuilder);
-		if (null != cardStream) {
-			registerCommand(new DrawCardCommand(new CardBase(cardStream)), configBuilder);
+		if (null != cardBase) {
+			registerCommand(new DrawCardCommand(cardBase), configBuilder);
 		}
 		
 		// Always register the help command last so it has all the help details.
