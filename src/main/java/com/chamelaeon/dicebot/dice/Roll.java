@@ -35,10 +35,12 @@ public class Roll {
 	 * @param kept The number of kept dice.
 	 * @param sides The number of sides on the dice to be rolled.
 	 * @param modifier The numerical modifier for the roll.
+	 * @param reroll The reroll behavior for the roll, if any.
+	 * @param explosion The explosion behavior for the roll, if any.
 	 * @throws InputException if there is an issue with the construction of the roll.
 	 */
-	public Roll(short rolled, short kept, Die die, Modifier modifier, Reroll reroll, Explosion explosion, Personality personality) 
-	throws InputException {
+	public Roll(short rolled, short kept, Die die, Modifier modifier, Reroll reroll, Explosion explosion, 
+	        Personality personality) throws InputException {
 		this.rolled = rolled;
 		this.kept = kept;
 		this.die = die;
@@ -138,9 +140,15 @@ public class Roll {
 	public Explosion getExplosion() {
 		return explosion;
 	}
-	
-	
-	public List<GroupResult> performRoll(int groupCount, Random random, Statistics statistics) {
+
+	/**
+	 * Performs the actual roll.
+	 * @param groupCount The number of groups to roll.
+	 * @param random The random object for the roll.
+	 * @param statistics The statistics tracking object.
+	 * @return the result of all groups in the roll.
+	 */
+    public List<GroupResult> performRoll(int groupCount, Random random, Statistics statistics) {
 		List<GroupResult> groups = new ArrayList<GroupResult>();
 		statistics.addToGroups(groupCount);
 		for (int i = 0; i < groupCount; i++) {
