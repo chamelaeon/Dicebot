@@ -19,11 +19,6 @@ public class PropertiesPersonalityTest {
     }
 
     @Test
-    public void testGetStatus() {
-        assertEquals("Copacetic, one supposes.", propsPersonality.getStatus());
-    }
-
-    @Test
     public void testPropertiesPersonality() {
         assertEquals(1, propsPersonality.outputTexts.size());
         assertEquals("TestValue", propsPersonality.outputTexts.get("TestKey"));

@@ -59,12 +59,6 @@ public interface Personality {
     public abstract String chooseCriticalSuccessLine();
 
     /**
-     * Gets a status message.
-     * @return the status.
-     */
-    public abstract String getStatus();
-
-    /**
      * Safely parses a string into an short.
      * @param shortString The string to parse.
      * @return the parsed short.

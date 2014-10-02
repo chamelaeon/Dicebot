@@ -23,7 +23,7 @@ public class StatusCommand extends DicebotListenerAdapter {
 	@Override
 	public void onSuccess(DicebotGenericEvent<Dicebot> event, List<String> groups) {
 		Personality personality = event.getBot().getPersonality();
-		event.respond(personality.getStatus());
+		event.respond(personality.getMessage("StatusGeneral"));
 		event.respond(personality.getMessage("StatusChannelCount", 
 		        event.getBot().getUserChannelDao().getAllChannels().size()));
 		event.respond(personality.getMessage("StatusRolledCount", event.getBot().getStatistics().getGroups(), 

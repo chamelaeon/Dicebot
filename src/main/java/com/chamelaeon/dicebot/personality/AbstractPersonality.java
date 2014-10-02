@@ -82,9 +82,6 @@ public abstract class AbstractPersonality implements Personality {
 		return criticalSuccesses.get(random.getRoll(criticalSuccesses.size()) - 1);
 	}
 
-	@Override
-    public abstract String getStatus();
-
     @Override
     public short parseShort(String shortString) throws InputException {
         try {

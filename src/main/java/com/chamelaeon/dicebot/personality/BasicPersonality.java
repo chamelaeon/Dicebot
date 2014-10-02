@@ -39,9 +39,4 @@ public class BasicPersonality extends AbstractPersonality {
 		criticalSuccesses.add("Ah, then this IS the reality where you're kicking ass. My apologies, I'll amend my notes.");
 		criticalSuccesses.add("Astonishing! May I borrow your pituitary gland for a moment? You'll get it back good as new, I promise!");
 	}
-	
-	@Override
-	public String getStatus() {
-		return "Status: Not A Walrus!";
-	}
 }

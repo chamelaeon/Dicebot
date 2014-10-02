@@ -32,9 +32,4 @@ public class PropertiesPersonality extends AbstractPersonality {
 			criticalFailures.addAll(Arrays.asList(critFailSplit));
 		}
 	}
-	
-	@Override
-	public String getStatus() {
-		return "Copacetic, one supposes.";
-	}
 }
