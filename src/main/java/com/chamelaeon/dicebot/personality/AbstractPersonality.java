@@ -1,7 +1,6 @@
 package com.chamelaeon.dicebot.personality;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +31,6 @@ public abstract class AbstractPersonality implements Personality {
 	
 	/** The random for selecting random values. */
 	final Random random;
-	
-	/** A list of all personality file keys which are configs and not output text. */
-	static final List<String> configKeys = Arrays.asList("Network", "Port", "Channels", "Nicks", "SSL", 
-	        "NickservPassword", "UseGhostIfNickExists", "TrustAllCertificates", "MotD"); 
 	
 	/** Constructor. */
 	AbstractPersonality() {

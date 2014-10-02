@@ -14,16 +14,13 @@ public class PropertiesPersonality extends AbstractPersonality {
 	 * Constructs a {@link PropertiesPersonality} from the given Properties file.
 	 * @param props The properties to load from.
 	 */
-	public PropertiesPersonality(Properties props) {
+	public PropertiesPersonality(Properties props, boolean useCritSuccesses, boolean useCritFailures) {
 	    for (Entry<Object, Object> entry : props.entrySet()) {
-	        
-	        if (!configKeys.contains(entry.getKey())) {
-	            outputTexts.put(entry.getKey().toString(), entry.getValue().toString());
-	        }
+            outputTexts.put(entry.getKey().toString(), entry.getValue().toString());
         }
 	    
-		useCritSuccesses.set(Boolean.parseBoolean(props.getProperty("UseCriticalSuccessMessages").trim()));
-		useCritFailures.set(Boolean.parseBoolean(props.getProperty("UseCriticalFailureMessages").trim()));
+		this.useCritSuccesses.set(useCritSuccesses);
+		this.useCritFailures.set(useCritFailures);
 		if (useCritSuccesses()) {
 			String critSucc = props.getProperty("CriticalSuccesses");
 			String[] critSuccSplit = critSucc.split("#");

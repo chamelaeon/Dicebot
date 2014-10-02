@@ -20,6 +20,7 @@ import com.chamelaeon.dicebot.api.CardBase;
 import com.chamelaeon.dicebot.api.Command;
 import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.HelpDetails;
+import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.commands.CheatCommand;
 import com.chamelaeon.dicebot.commands.DrawCardCommand;
 import com.chamelaeon.dicebot.commands.HelpCommand;
@@ -49,7 +50,7 @@ public class DicebotRunner {
 	/** The list of help details for rollers. */
 	private final List<HelpDetails> rollerHelpDetails;
 	/** The dicebot's personality. */
-	private PropertiesPersonality personality;
+	private Personality personality;
 	/** The listener for handling nicks. */
     private NickHandlingListener nickListener;
 
@@ -68,37 +69,45 @@ public class DicebotRunner {
 	 * @param args Arguments for the dicebot.  
 	 */
 	public static void main(String[] args) throws Exception {
-		InputStream propStream;
+		InputStream configStream;
+		InputStream personalityStream;
 		InputStream cardStream;
-		if (args.length < 1) {
-			propStream = DicebotRunner.class.getResourceAsStream("/dicesuke.properties");
+		if (args.length < 2) {
+		    configStream = DicebotRunner.class.getResourceAsStream("/config.properties");
+		    personalityStream = DicebotRunner.class.getResourceAsStream("/dicesuke.properties");
 			cardStream = DicebotRunner.class.getResourceAsStream("/dramaCards.properties");
 			
-			if (null == propStream) {
-				System.out.println("This dicebot requires a single argument: a properties file containing personality information. " 
+			if (null == configStream || null == personalityStream) {
+				System.out.println("This dicebot requires two arguments: a properties file with configuration options " 
+				        + "and a properties file containing personality information. " 
 						+ "An additional properties file with drama cards can be specified as well.");
 				System.exit(1);
 			}
 		} else {
 			// Find the arguments.
-			String fileName = args[0];
+			String configPath = args[0];
+			String personalityPath = args[1];
 			String cardPath = null;
-			if (args.length >= 2) {
-				cardPath = args[1];
+			if (args.length >= 3) {
+				cardPath = args[2];
 			}
 			
-			propStream = new FileInputStream(new File(fileName));
+			configStream = new FileInputStream(new File(configPath));
+			personalityStream = new FileInputStream(new File(personalityPath));
 			cardStream = new FileInputStream(new File(cardPath));
 		}
 		
-		// Grab the properties.
-		Properties props = new Properties();
+		// Grab the configuration and personality properties.
+		Properties configProps = new Properties();
+		Properties personalityProps = new Properties();
 		try {
-			props.load(propStream);
+			configProps.load(configStream);
+			personalityProps.load(personalityStream);
 		} catch (IOException ioe) {
 			throw ioe;
 		} finally {
-			Closeables.closeQuietly(propStream);
+			Closeables.closeQuietly(configStream);
+			Closeables.closeQuietly(personalityStream);
 		}
 		
 		// Load the card base.
@@ -114,30 +123,33 @@ public class DicebotRunner {
 		}
 		
 		DicebotRunner runner = new DicebotRunner();
-		runner.start(props, cardBase);
+		runner.start(configProps, personalityProps, cardBase);
 	}
 	
 	/**
 	 * Starts the dicebot. 
-	 * @param props The properties of the dicebot.
+	 * @param config The configuration properties of the dicebot.
+	 * @param personality The personality of the dicebot.
 	 * @param cardBase The card base for the dicebot to use, if any.
 	 * @throws IrcException if there is a problem with the bot framework.
 	 * @throws IOException if there is a connection issue.
 	 */
-	private void start(Properties props, CardBase cardBase) throws IrcException, IOException { 
+	private void start(Properties config, Properties personalityProps, CardBase cardBase) throws IrcException, IOException { 
 		// Pull out properties we need.
-		String network = props.getProperty("Network", "irc.sandwich.net");
-		int port = Integer.parseInt(props.getProperty("Port", "6697"));
-		boolean useSsl = Boolean.parseBoolean(props.getProperty("SSL", "true"));
-		boolean trustAllCerts = Boolean.parseBoolean(props.getProperty("TrustAllCertificates", "false"));
-		String nicks = props.getProperty("Nicks", "Dicebot");
-		String nickservPassword = props.getProperty("NickservPassword", "");
-		boolean useGhostIfNickExists = Boolean.parseBoolean(props.getProperty("UseGhostIfNickExists", "false"));
-		String channels = props.getProperty("Channels");
-		final String motd = props.getProperty("MotD");
+		String network = config.getProperty("Network", "irc.sandwich.net");
+		int port = Integer.parseInt(config.getProperty("Port", "6697"));
+		boolean useSsl = Boolean.parseBoolean(config.getProperty("SSL", "true"));
+		boolean trustAllCerts = Boolean.parseBoolean(config.getProperty("TrustAllCertificates", "false"));
+		String nicks = config.getProperty("Nicks", "Dicebot");
+		String nickservPassword = config.getProperty("NickservPassword", "");
+		boolean useGhostIfNickExists = Boolean.parseBoolean(config.getProperty("UseGhostIfNickExists", "false"));
+		String channels = config.getProperty("Channels");
+		final String motd = config.getProperty("MotD");
 
 		// Builder and mandatory config.
-		this.personality = new PropertiesPersonality(props);
+		this.personality =  new PropertiesPersonality(personalityProps, 
+		                Boolean.parseBoolean(config.getProperty("UseCriticalSuccessMessages").trim()),
+		                Boolean.parseBoolean(config.getProperty("UseCriticalFailureMessages").trim()));
 		Builder<Dicebot> configBuilder = new DicebotBuilder(personality);
 		configBuilder.setIdentServerEnabled(true);
 		configBuilder.setAutoReconnect(true);

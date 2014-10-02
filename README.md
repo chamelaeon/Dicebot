@@ -16,7 +16,7 @@ You will need Java 8 installed and on your classpath to continue. Unzip the bund
 - **Idle Channels**: If the bot detects a channel limit on the server, it keeps track of how many channels it is in. If it is asked to join a new channel and it is at its channel limit, it will attempt to leave idle channels. Idle channels are defined as channels in which the bot has not responded to a dice roll or other command within one hour. The bot keeps track of how long the channels have been idle, and will always leave the most idle channel first - so if it is in two idle channels, and channel #A has been idle for 1 hour, and channel #B has been idle for two hours, it will leave channel #B.
 
 ###Options
-The basic behavior and personality of the bot is controlled via "personality files" - configuration files that contain options and triggers for behavior, as well as most if not all of the bot's actual visible output to the IRC server. The default personality file is "dicesuke.properties", which provides a surly personality to the bot. An additional personality file ("chibiVernon.properties") is included for your convenience, which provides a more cheery (if unhinged) experience.
+The basic behavior of the bot is controlled via a configuration file - this file contains options and triggers for behavior. The default configuration file is "config.properties".
 
 Here are the basic options available. If a default is listed, then that default is used if the option is missing or can't be parsed.
 
@@ -33,7 +33,7 @@ Here are the basic options available. If a default is listed, then that default 
 - **UseCriticalFailureMessages**: In some RPG systems, getting the minimum value on a die roll (e.g. 1 on 1d20 or 2 on 2d6) is considered a "Critical Failure". If this option is turned on, the dicebot will print a critical failure message when using the Standard roller or any other dice roller which supports them. The message will be picked randomly from those provided in the personality key "CriticalFailures".
 
 ###Changing the bot's personality
-The bot outputs a lot of text to the channels it's in as part of the rolling process, and also as part of several commands. Most of this text is configurable, with the exception of the text of the !help command, which is largely fixed. Changing this text is fairly easy in most cases - locate the text you want to replace in the properties file, and replace it with the text you want the bot to say. If the text includes markers like %d or %s, that means the command has values which are substituted in for those markers. Here's a list of the text keys the bot looks for, a description of when they're used, and a list of markers for that text key, if any. This list is broken up roughly by features.
+The bot outputs a lot of text to the channels it's in as part of the rolling process, and also as part of several commands. This text is configurable via providing a "personality file", a configuration file that provides an easy way to provide custom bot texts, with the exception of the text of the !help command, which is largely fixed. The default personality file is "dicesuke.properties", which provides a surly personality to the bot. An additional personality file ("chibiVernon.properties") is included for your convenience, which provides a more cheery (if unhinged) experience. Creating or personalizing your bot's personality file is fairly easy in most cases - locate the text you want to replace in the properties file, and replace it with the text you want the bot to say. If the text includes markers like %d or %s, that means the command has values which are substituted in for those markers. Here's a list of the text keys the bot looks for, a description of when they're used, and a list of markers for that text key, if any. This list is broken up roughly by features.
 
 - ####General Error
     - **BrokenRegexp**: Triggered when one of the regular expressions the bot uses to parse IRC lines breaks. *Markers*: None.
@@ -76,8 +76,8 @@ The bot outputs a lot of text to the channels it's in as part of the rolling pro
     - **Fudge1Group**: Triggered when only one group of Fudge dice are rolled (e.g. 4dF). *Markers*: %s, %s, %s, %s, %s, %s. In order: The dice roll made, the user who made the dice roll, the numeric result of the dice roll, the actual faces of the dice result (e.g. -, , , +), the result of the dice after modifiers, the Fate Ladder description of the roll.
     - **FudgeMoreGroups**: Triggered when multiple groups of Fudge dice are rolled (e.g. 10 4dF). *Markers*: %s, %s, %s, %s. In order: The dice roll made, the user who made the dice roll, the results for all groups, the actual faces of the dice for all groups.
 - ####Criticals
-    - **CriticalFailures**:The list of critical failure messages, separated by commas.
-    - **CriticalSuccesses**:The list of critical success messages, separated by commas.
+    - **CriticalFailures**:The list of critical failure messages, separated by '#' symbols.
+    - **CriticalSuccesses**:The list of critical success messages, separated by '#' symbols.
 
 ###Building the project from source
 The dicebot is configured as a Maven project, and any maven command should work on the project out of the box. To build an
