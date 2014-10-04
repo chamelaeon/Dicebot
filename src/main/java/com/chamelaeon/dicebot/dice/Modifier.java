@@ -54,14 +54,6 @@ public abstract class Modifier {
 		}
 	}
 	
-	/**
-	 * Creates a Modifier that does nothing.
-	 * @return a modifier that does nothing.
-	 */
-	public static Modifier createNullModifier() {
-		return new NullModifier();
-	}
-	
 	@Override
 	public String toString() {
 		if (value > 0) {
@@ -103,19 +95,6 @@ public abstract class Modifier {
 		public Modifier appendToValue(int delta) {
 			// Always use Positive here, because the value might be negative.
  			return new PositiveModifier(super.value + delta);
-		}
-	}
-	
-	/** A modifier that does nothing. */
-	private static class NullModifier extends Modifier {
-		/** Constructs a new {@link NullModifier} */
-		public NullModifier() {
-			super(0);
-		}
-		
-		@Override
-		public Modifier appendToValue(int delta) {
-			return this;
 		}
 	}
 }

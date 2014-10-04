@@ -83,12 +83,6 @@ public class ModifierTest {
     }
     
     @Test
-    public void testCreateNullModifier() {
-        Modifier mod = Modifier.createNullModifier();
-        assertEquals(0, mod.apply(0));
-    }
-
-    @Test
     public void testToStringPos() throws InputException {
         Modifier posMod = Modifier.createModifier("+3", personality);
         assertEquals("+3", posMod.toString());
@@ -105,5 +99,4 @@ public class ModifierTest {
         Modifier nullMod = Modifier.createModifier(null, personality);
         assertEquals("", nullMod.toString());
     }
-
 }
