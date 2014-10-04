@@ -64,7 +64,7 @@ public class TokenSubstitutionTest {
         assertNotEquals(tokenSub3, tokenSub);
         assertNotEquals(tokenSub, tokenSub4);
         assertNotEquals(tokenSub4, tokenSub);
-        assertNotEquals(tokenSub2, tokenSub2);
+        assertEquals(tokenSub2, tokenSub2);
     };
     
     @Test 
