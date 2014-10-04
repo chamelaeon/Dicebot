@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.api.InputException;
@@ -24,6 +26,7 @@ import com.chamelaeon.dicebot.dice.Roll;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
 import com.chamelaeon.dicebot.personality.BasicPersonality;
+import com.chamelaeon.dicebot.personality.TokenSubstitution;
 import com.chamelaeon.dicebot.random.MersenneTwisterRandom;
 import com.chamelaeon.dicebot.random.Random;
 
@@ -76,18 +79,23 @@ public abstract class Roller extends DicebotListenerAdapter {
 		}
 	}
 	
-	/**
-	 * Prints the group count to a string, suppressing if the value is 1.
-	 * @param groups The group count that was rolled.
-	 * @return the string.
-	 */
-	protected String getGroupCountString(int groupCount) {
-		String ret = "";
-		if (groupCount > 1) {
-			ret = ret + groupCount + " ";
-		}
-		return ret;
-	}
+	protected String buildModifiedList(List<GroupResult> groups) {
+        StringBuilder modified = new StringBuilder();
+        for (GroupResult group : groups) {
+            modified.append(group.getModified());
+            modified.append(" ");
+        }
+        return modified.toString();
+    }
+
+	protected String buildNaturalList(List<GroupResult> groups) {
+        StringBuilder natural = new StringBuilder();
+        for (GroupResult group : groups) {
+            natural.append(group.getNatural());
+            natural.append(" ");
+        }
+        return natural.toString();
+    }
 	
 	/**
 	 * Performs the actual roll, given all the matched groups from the parsing regexp.
@@ -123,7 +131,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			} else if (diceType < 1) {
 				throw getPersonality().getException("Roll0Sides");
 			} else if (diceType == 1) {
-				throw getPersonality().getException("OneSidedDice", diceCount, diceCount);
+				throw getPersonality().getException("OneSidedDice", new TokenSubstitution("%DICECOUNT%", diceCount));
 			}
 			Reroll reroll = Behavior.parseReroll(parts[4], getPersonality());
 			Explosion explosion = Behavior.parseExplosion(parts[4], diceType, getPersonality());
@@ -133,7 +141,44 @@ public abstract class Roller extends DicebotListenerAdapter {
 			List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
 				
 			String behaviors = Behavior.getPrettyString(roll);
-			return buildString(getGroupCountString(groupCount) + diceCount + "d" + diceType + behaviors + modifier , user, groups);
+			
+			String textKey;
+            String natural;
+            String modified;
+            String criticalType = null;
+            String criticalComment = null;
+            if (groups.size() > 1) {
+                textKey = "StandardMoreGroups";
+                natural = buildNaturalList(groups);
+                modified = buildModifiedList(groups);
+            } else {
+                GroupResult group = groups.get(0);
+                
+                if (group.isCriticalFailure() || group.isCriticalSuccess()) {
+                    textKey = "Standard1GroupCrit";
+                    
+                    if (group.isCriticalFailure()) {
+                        criticalType = "FAILURE";
+                        criticalComment = getPersonality().chooseCriticalFailureLine();
+                    } else if (group.isCriticalSuccess()) {
+                        criticalType = "SUCCESS";
+                        criticalComment = getPersonality().chooseCriticalSuccessLine();
+                    }
+                    
+                } else {
+                   textKey = "Standard1Group";
+                }
+                
+                natural = Long.toString(group.getNatural());
+                modified = Long.toString(group.getModified());
+            }
+	         
+	        return getPersonality().getRollResult(textKey, new TokenSubstitution("%GROUPCOUNT%", groupCount),
+	                new TokenSubstitution("%DICECOUNT%", diceCount), new TokenSubstitution("%DICETYPE%", diceType),
+	                new TokenSubstitution("%MODIFIER%", modifier), new TokenSubstitution("%BEHAVIORS%", behaviors), 
+	                new TokenSubstitution("%USER%", user), new TokenSubstitution("%CRITICALTYPE%", criticalType),
+	                new TokenSubstitution("%CRITICALCOMMENT%", criticalComment), 
+	                new TokenSubstitution("%NATURALVALUE%", natural), new TokenSubstitution("%MODIFIEDVALUE%", modified));
 		}
 		
 		/**
@@ -147,38 +192,6 @@ public abstract class Roller extends DicebotListenerAdapter {
 			builder.append("To roll additional groups of die, prefix the roll with a number then a space (ex. 10 d20+10). Modifiers will be applied to each group individually. ");
 			builder.append("Brutal values of 1-9 are available by adding \"b\" then a number (ex. 2d8b2+5). Vorpal is also available by appending \"v\" (ex. 2d8v+5).");
 			return builder.toString();
-		}
-
-		/**
-		 * Builds the result string for the roll groups.
-		 * @param groups The groups to use to build the string.
-		 * @return the output string.
-		 */
-		private String buildString(String baseRoll, String user, List<GroupResult> groups) {
-			if (groups.size() > 1) {
-				StringBuilder natural = new StringBuilder();
-				for (GroupResult group : groups) {
-					natural.append(group.getNatural());
-					natural.append(" ");
-				}
-				
-				StringBuilder modified = new StringBuilder();
-				for (GroupResult group : groups) {
-					modified.append(group.getModified());
-					modified.append(" ");
-				}
-				return getPersonality().getRollResult("StandardMoreGroups", baseRoll, user, natural, modified);
-			} else {
-				GroupResult group = groups.get(0);
-				if (group.isCriticalFailure() || group.isCriticalSuccess()) {
-					if (group.isCriticalFailure()) {
-						return getPersonality().getRollResult("Standard1GroupCrit", baseRoll, user, group.getNatural(), group.getModified(), "FAILURE", getPersonality().chooseCriticalFailureLine());
-					} else if (group.isCriticalSuccess()) {
-						return getPersonality().getRollResult("Standard1GroupCrit", baseRoll, user, group.getNatural(), group.getModified(), "SUCCESS", getPersonality().chooseCriticalSuccessLine());
-					}
-				} 
-				return getPersonality().getRollResult("Standard1Group", baseRoll, user, group.getNatural(), group.getModified());
-			}
 		}
 	}
 	
@@ -225,7 +238,26 @@ public abstract class Roller extends DicebotListenerAdapter {
 			} else {
 				List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
 				String behaviors = Behavior.getPrettyString(roll);
-				return buildString(getGroupCountString(groupCount) + roll.getRolled() + "k" + roll.getKept() + roll.getModifier() + behaviors, user, groups);
+				
+				String textKey;
+				String natural;
+				String modified;
+				if (groups.size() > 1) {
+	                natural = buildNaturalList(groups);
+	                modified = buildModifiedList(groups);
+	                textKey = "L5RMoreGroups";
+	            } else {
+	                GroupResult group = groups.get(0);
+	                textKey = "L5ROneGroup";
+	                natural = group.getDice().toString();
+	                modified = Long.toString(group.getModified());
+	            }
+				
+				return getPersonality().getRollResult(textKey, 
+				        new TokenSubstitution("%GROUPCOUNT%", groupCount), new TokenSubstitution("%ROLLEDDICE%", rolled), 
+				        new TokenSubstitution("%KEPTDICE%", kept), new TokenSubstitution("%MODIFIER%", modifier), 
+				        new TokenSubstitution("%BEHAVIORS%", behaviors), new TokenSubstitution("%USER%", user), 
+				        new TokenSubstitution("%NATURALVALUE%", natural), new TokenSubstitution("%MODIFIEDVALUE%", modified));
 			}
 		}
 		
@@ -283,31 +315,6 @@ public abstract class Roller extends DicebotListenerAdapter {
 			builder.append("Emphasis rolls are available by appending \"e\" to the roll (ex. 9k5e). Mastery is also available by appending \"m\" (ex. 12k3m). They may be combined (ex. 12k3+5em).");
 			return builder.toString();
 		}
-		
-		/**
-		 * Builds the result string for the roll groups.
-		 * @param groups The groups to use to build the string.
-		 * @return the output string.
-		 */
-		private String buildString(String baseRoll, String user, List<GroupResult> groups) {
-			if (groups.size() > 1) {
-				StringBuilder dice = new StringBuilder();
-				for (GroupResult group : groups) {
-					dice.append(group.getDice());
-					dice.append(" ");
-				}
-				
-				StringBuilder modified = new StringBuilder();
-				for (GroupResult group : groups) {
-					modified.append(group.getModified());
-					modified.append(" ");
-				}
-				return getPersonality().getRollResult("L5RMoreGroups", baseRoll, user, dice, modified);
-			} else {
-				GroupResult group = groups.get(0);
-				return getPersonality().getRollResult("L5ROneGroup", baseRoll, user, group.getDice(), group.getModified());
-			}
-		}
 	}
 	
 	/** A roller for handling White Wolf die behavior. */
@@ -329,11 +336,12 @@ public abstract class Roller extends DicebotListenerAdapter {
 			short rolled = getPersonality().parseShort(parts[1]);
 			short neededSuccesses = getPersonality().parseShort(parts[2]);
 			Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
-			String emphasis = parts[4];
-			String dcString = parts[5];
+			String specialization = StringUtils.defaultString(parts[4]);
+			String dcString = StringUtils.defaultString(parts[5], " ");
 			Short dc = 6;
-			if (null != dcString) {
+			if (!StringUtils.isBlank(dcString.trim())) {
 				dc = Short.parseShort(parts[6]);
+				dcString = " " + dcString + " ";
 			}
 			
 			if (rolled < 1) {
@@ -341,15 +349,43 @@ public abstract class Roller extends DicebotListenerAdapter {
 			} else if (dc < 0) {
 				throw getPersonality().getException("DCLessThan0");
 			} else if (rolled < neededSuccesses) {
-				throw getPersonality().getException("CannotSatisfySuccesses", neededSuccesses, rolled);
+				throw getPersonality().getException("CannotSatisfySuccesses", 
+				        new TokenSubstitution("%SUCCESSESNEEDED%", neededSuccesses), 
+				        new TokenSubstitution("%DICEROLLED%", rolled));
 			}
 			
 			Roll roll = new Roll(rolled, rolled, new SimpleDie((short) 10), modifier, null, null, getPersonality());
 			List<GroupResult> groups = roll.performRoll(1, random, statistics);
-			String behaviors = null == emphasis | "".equals(emphasis) ? "" : emphasis;
-			dcString = null == dcString || "".equals(dcString) ? "" : " " + dcString; 
-			return buildString(roll.getRolled() + "t" + neededSuccesses + modifier + behaviors + dcString, user, neededSuccesses, dc, modifier, 
-					emphasis, groups.get(0));
+			long successesOverMinimum = -neededSuccesses;
+            int onesRolled = 0;
+            for (DieResult die : groups.get(0).getDice()) {
+            
+                if (10 == die.getResult() && !StringUtils.isEmpty(specialization)) {
+                    successesOverMinimum += 2;
+                } else if (die.getResult() >= dc) {
+                    successesOverMinimum++;
+                } else if (die.getResult() == 1) {
+                    onesRolled++;
+                }
+            }
+
+            if (null != modifier) {
+                successesOverMinimum = modifier.apply(successesOverMinimum);
+            }
+            
+            String textKey;
+            if (successesOverMinimum >= 0) {
+                textKey = "WhiteWolfSuccess";
+            } else {
+                textKey = "WhiteWolfFailure";
+            }
+            
+            return getPersonality().getRollResult(textKey,
+                new TokenSubstitution("%ROLLEDDICE%", rolled), new TokenSubstitution("%SUCCESSESNEEDED%", neededSuccesses), 
+                new TokenSubstitution("%MODIFIER%", modifier), new TokenSubstitution("%SPECIALIZATION%", specialization), 
+                new TokenSubstitution("%DCSTRING%", dcString), new TokenSubstitution("%USER%", user), 
+                new TokenSubstitution("%DICEVALUE%", groups.get(0).getDice()), new TokenSubstitution("%ONESROLLED%", onesRolled), 
+                new TokenSubstitution("%SUCCESSES%", successesOverMinimum));
 		}
 		
 		/**
@@ -363,40 +399,6 @@ public abstract class Roller extends DicebotListenerAdapter {
 			builder.append("emphasis) makes 10s explode twice. An example: 6t2+1e dc7 - this specifies rolling 6 dice, looking for 2 dice with a value of ");
 			builder.append("7 or higher. Tens will explode twice, and there will be one guaranteed success. If not specified, the DC is 6+.");
 			return builder.toString();
-		}
-		
-		/**
-		 * Builds the result string for the roll groups.
-		 * @param baseRoll The base roll string.
-		 * @param user The user who made the roll.
-		 * @param neededSuccesses The number of successes needed for the roll.
-		 * @param group The group to use to build the string.
-		 * @return the output string.
-		 */
-		private String buildString(String baseRoll, String user, short neededSuccesses, short dc, Modifier modifier, 
-				String specialization, GroupResult group) {
-			long successesOverMinimum = -neededSuccesses;
-			int onesRolled = 0;
-			for (DieResult die : group.getDice()) {
-			
-				if (10 == die.getResult() && null != specialization) {
-					successesOverMinimum += 2;
-				} else if (die.getResult() >= dc) {
-					successesOverMinimum++;
-				} else if (die.getResult() == 1) {
-					onesRolled++;
-				}
-			}
-
-			if (null != modifier) {
-				successesOverMinimum = modifier.apply(successesOverMinimum);
-			}
-			
-			if (successesOverMinimum >= 0) {
-				return getPersonality().getRollResult("WhiteWolfSuccess", baseRoll, user, group.getDice(), successesOverMinimum, onesRolled);
-			} else {
-				return getPersonality().getRollResult("WhiteWolfFailure", baseRoll, user, group.getDice());
-			}
 		}
 	}
 	
@@ -451,41 +453,40 @@ public abstract class Roller extends DicebotListenerAdapter {
 			
 			Roll roll = new Roll(rolled, rolled, new FudgeDie(), modifier, null, null, getPersonality());
 			List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
-			return buildString(getGroupCountString(groupCount) + roll.getRolled() + "dF" + modifier, user, groups);
+			
+			String textKey;
+			String natural;
+			String modified;
+			String descriptor = null;
+			List<String> convDice = null;
+			if (groups.size() > 1) {
+			    textKey = "FudgeMoreGroups";
+                natural = buildNaturalList(groups);
+                modified = buildModifiedList(groups); 
+            } else {
+                textKey = "Fudge1Group";
+                GroupResult group = groups.get(0);
+                natural = Long.toString(group.getNatural());
+                modified = Long.toString(group.getModified());
+                convDice = convertToFudgeDie(group.getDice());
+                
+                descriptor = descriptors.get(group.getModified());
+                if (null == descriptor) {
+                    if (group.getModified() > 0) {
+                        descriptor = "Off The Scale!";
+                    } else {
+                        descriptor = "Did You Have Breakfast Today?";
+                    }
+                }
+            }
+			
+			return getPersonality().getRollResult(textKey, 
+			        new TokenSubstitution("%GROUPCOUNT%", groupCount), new TokenSubstitution("%DICECOUNT%", rolled),
+                    new TokenSubstitution("%MODIFIER%", modifier), new TokenSubstitution("%USER%", user), 
+                    new TokenSubstitution("%FUDGEVALUE%", convDice), new TokenSubstitution("%NATURALVALUE%", natural), 
+                    new TokenSubstitution("%MODIFIEDVALUE%", modified), new TokenSubstitution("%DESCRIPTOR%", descriptor));
 		}
 
-		/**
-		 * Builds the result string for the roll groups.
-		 * @param groups The groups to use to build the string.
-		 * @return the output string.
-		 */
-		private String buildString(String baseRoll, String user, List<GroupResult> groups) {
-			if (groups.size() > 1) {
-				List<Long> naturals = new ArrayList<Long>();
-				List<Long> totals = new ArrayList<Long>();
-				for (GroupResult group : groups) {
-					naturals.add(group.getNatural());
-					totals.add(group.getModified());
-				}
-				
-				return getPersonality().getRollResult("FudgeMoreGroups", baseRoll, user, naturals, totals);
-			} else {
-				GroupResult group = groups.get(0);
-				long total = group.getNatural();
-				long modified = group.getModified();
-				String descriptor = descriptors.get(modified);
-				if (null == descriptor) {
-					if (modified > 0) {
-						descriptor = "Off The Scale!";
-					} else {
-						descriptor = "Did You Have Breakfast Today?";
-					}
-				}
-				List<String> convDice = convertToFudgeDie(group.getDice());
-				return getPersonality().getRollResult("Fudge1Group", baseRoll, user, convDice, total, modified, descriptor);
-			}
-		}
-		
 		/**
 		 * Converts normal integer dice into fudge dice.
 		 * @param dice The dice to convert.

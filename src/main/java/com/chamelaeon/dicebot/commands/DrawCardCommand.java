@@ -11,6 +11,7 @@ import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
+import com.chamelaeon.dicebot.personality.TokenSubstitution;
 
 
 /** 
@@ -65,9 +66,12 @@ public class DrawCardCommand extends DicebotListenerAdapter {
 			}
 
 			if (null != notifyNick) {
-				event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCardAndNotify", count, user.getNick(), notifyNick));
+				event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCardAndNotify", 
+				        new TokenSubstitution("%CARDCOUNT%", count), new TokenSubstitution("%NICK%", user.getNick()), 
+				        new TokenSubstitution("%NOTIFYNICK%", notifyNick)));
 			} else {
-			    event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCard", count, user.getNick()));
+			    event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCard", 
+			            new TokenSubstitution("%CARDCOUNT%", count), new TokenSubstitution("%NICK%", user.getNick())));
 			}
 		}
 	}

@@ -9,6 +9,7 @@ import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.api.Statistics;
 import com.chamelaeon.dicebot.dice.Behavior.Explosion;
 import com.chamelaeon.dicebot.dice.Behavior.Reroll;
+import com.chamelaeon.dicebot.personality.TokenSubstitution;
 import com.chamelaeon.dicebot.random.Random;
 
 
@@ -51,9 +52,11 @@ public class Roll {
 		
 		if (reroll != null && reroll.cannotBeSatisfied(die.getSides())) {
 			if (rolled == 1) {
-				throw personality.getException("CannotSatisfyRerollSingleDie", reroll, die.getSides());	
+				throw personality.getException("CannotSatisfyRerollSingleDie", new TokenSubstitution("%REROLL%", reroll), 
+				        new TokenSubstitution("%SIDES%", die.getSides()));
 			} else {
-				throw personality.getException("CannotSatisfyRerollMultipleDice", reroll, rolled, die.getSides());
+				throw personality.getException("CannotSatisfyRerollMultipleDice", new TokenSubstitution("%REROLL%", reroll), 
+				        new TokenSubstitution("%DICEROLLED%", rolled), new TokenSubstitution("%SIDES%", die.getSides()));
 			}
 		}
 		

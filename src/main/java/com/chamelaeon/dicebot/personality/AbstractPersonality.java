@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.random.BasicRandom;
@@ -43,23 +45,18 @@ public abstract class AbstractPersonality implements Personality {
 	}
 	
 	@Override
-    public InputException getException(String key, Object... params) {
-		return new InputException(String.format(outputTexts.get(key), params));
+    public InputException getException(String key, TokenSubstitution... params) {
+		return new InputException(performTokenSubstitution(outputTexts.get(key), params));
 	}
 
 	@Override
-    public String getMessage(String key) {
-		return outputTexts.get(key);
-	}
-	
-	@Override
-    public String getMessage(String key, Object... params) {
-        return String.format(outputTexts.get(key), params);
+    public String getMessage(String key, TokenSubstitution... params) {
+        return performTokenSubstitution(outputTexts.get(key), params);
     }
 	
 	@Override
-    public String getRollResult(String key, Object... params) {
-		return String.format(outputTexts.get(key), params);
+    public String getRollResult(String key, TokenSubstitution... params) {
+		return performTokenSubstitution(outputTexts.get(key), params);
 	}
 	
 	@Override
@@ -87,7 +84,7 @@ public abstract class AbstractPersonality implements Personality {
         try {
             return Short.parseShort(shortString);
         } catch (NumberFormatException nfe) {
-            throw getException("ParseBadShort", shortString);
+            throw getException("ParseBadShort", new TokenSubstitution("%BADSHORT%", shortString));
         }
     }
 
@@ -98,5 +95,25 @@ public abstract class AbstractPersonality implements Personality {
         } else {
             return 1;
         }
+    }
+    
+    /**
+     * Performs the actual token substitution. All tokens are substituted - ones whose tokens do not exist in the
+     * format string are ignored. Tokens that are not substituted are left in place.
+     * 
+     * If performance suffers, we can unspool the TokenSubstitution objects and use StringUtils.replace(string, String[], String[])
+     * which intentionally avoids object creation.
+     * 
+     * @param formatString The string to apply substitutions to.
+     * @param substitutions The substitutions to make.
+     * @return the substituted string.
+     */
+    protected String performTokenSubstitution(String formatString, TokenSubstitution... substitutions) {
+        String retStr = formatString;
+        for (TokenSubstitution substitution : substitutions) {
+            retStr = StringUtils.replace(retStr, substitution.getToken(), substitution.getSubstitution());
+        }
+        
+        return retStr;
     }
 }

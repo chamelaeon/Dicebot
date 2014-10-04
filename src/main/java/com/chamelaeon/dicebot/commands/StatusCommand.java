@@ -7,6 +7,7 @@ import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
+import com.chamelaeon.dicebot.personality.TokenSubstitution;
 
 
 /** 
@@ -25,8 +26,9 @@ public class StatusCommand extends DicebotListenerAdapter {
 		Personality personality = event.getBot().getPersonality();
 		event.respond(personality.getMessage("StatusGeneral"));
 		event.respond(personality.getMessage("StatusChannelCount", 
-		        event.getBot().getUserChannelDao().getAllChannels().size()));
-		event.respond(personality.getMessage("StatusRolledCount", event.getBot().getStatistics().getGroups(), 
-		        event.getBot().getStatistics().getDice()));
+		        new TokenSubstitution("%CHANNELCOUNT%", event.getBot().getUserChannelDao().getAllChannels().size())));
+		event.respond(personality.getMessage("StatusRolledCount", 
+		        new TokenSubstitution("%GROUPSROLLED%", event.getBot().getStatistics().getGroups()), 
+		        new TokenSubstitution("%DICEROLLED%", event.getBot().getStatistics().getDice())));
 	}
 }

@@ -1,38 +1,33 @@
 package com.chamelaeon.dicebot.api;
 
+import com.chamelaeon.dicebot.personality.TokenSubstitution;
+
 
 public interface Personality {
 
     /**
      * Gets the user-facing {@link InputException} represented by the key.  
      * @param key The exception's individual key.
-     * @param params The parameters to fill out for the exception.
+     * @param params 
      * @return the exception to throw up to where a user can see it.
      */
-    public abstract InputException getException(String key, Object... params);
+    public abstract InputException getException(String key, TokenSubstitution... params);
 
     /**
      * Gets a simple configurable message.
      * @param key The key of the message to get.
+     * @param params 
      * @return the message.
      */
-    public abstract String getMessage(String key);
-    
-    /**
-     * Gets a simple configurable message.
-     * @param key The key of the message to get.
-     * @param params The parameters to fill out for the message.
-     * @return the message.
-     */
-    public abstract String getMessage(String key, Object... params);
+    public abstract String getMessage(String key, TokenSubstitution... params);
 
     /**
      * Gets the roll result text for the given key.
      * @param key The roll result's key.
-     * @param params The parameters to fill out for the roll result.
+     * @param params 
      * @return the filled-out roll results.
      */
-    public abstract String getRollResult(String key, Object... params);
+    public abstract String getRollResult(String key, TokenSubstitution... params);
 
     /**
      * Returns whether or not this personality allows critical success messages or not.
