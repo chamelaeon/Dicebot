@@ -1,6 +1,5 @@
 package com.chamelaeon.dicebot.api;
 
-import com.chamelaeon.dicebot.personality.TokenSubstitution;
 
 
 public interface Personality {

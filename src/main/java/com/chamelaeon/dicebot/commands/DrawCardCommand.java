@@ -9,9 +9,9 @@ import com.chamelaeon.dicebot.api.CardBase;
 import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.api.InputException;
+import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
-import com.chamelaeon.dicebot.personality.TokenSubstitution;
 
 
 /** 

@@ -1,4 +1,4 @@
-package com.chamelaeon.dicebot.personality;
+package com.chamelaeon.dicebot.api;
 
 /**
  * @author Chamelaeon

@@ -5,9 +5,9 @@ import java.util.List;
 import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.api.Personality;
+import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
-import com.chamelaeon.dicebot.personality.TokenSubstitution;
 
 
 /** 

@@ -7,6 +7,8 @@ import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.chamelaeon.dicebot.api.TokenSubstitution;
+
 public class TokenSubstitutionTest {
 
     TokenSubstitution tokenSub;

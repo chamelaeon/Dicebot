@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chamelaeon.dicebot.dice;
+package com.chamelaeon.dicebot.dice.behavior;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -123,17 +123,19 @@ public abstract class Behavior {
 	}
 
 	/**
-	 * Gets a pretty string of all valid rerolls and explosions for the given roll.
-	 * @param roll The roll to get the string for.
+	 * Gets a pretty string of all valid rerolls and explosions for a roll with the given
+	 * reroll and explosion behavior.
+	 * @param reroll The reroll behavior.
+	 * @param explosion The explosion behavior.
 	 * @return the pretty string.
 	 */
-	public static String getPrettyString(Roll roll) {
+	public static String getPrettyString(Reroll reroll, Explosion explosion) {
 		StringBuilder builder = new StringBuilder();
-		if (null != roll.getReroll()) {
-			builder.append(roll.getReroll());
+		if (null != reroll) {
+			builder.append(reroll);
 		}
-		if (null != roll.getExplosion()) {
-			builder.append(roll.getExplosion());
+		if (null != explosion) {
+			builder.append(explosion);
 		}
 		return builder.toString();
 	}

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.api.Personality;
+import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.random.BasicRandom;
 import com.chamelaeon.dicebot.random.Random;
 

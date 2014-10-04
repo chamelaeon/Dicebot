@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.chamelaeon.dicebot.api.InputException;
+import com.chamelaeon.dicebot.api.TokenSubstitution;
 
 public class AbstractPersonalityTest {
 

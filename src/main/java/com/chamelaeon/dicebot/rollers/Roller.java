@@ -13,12 +13,13 @@ import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.api.Statistics;
-import com.chamelaeon.dicebot.dice.Behavior;
-import com.chamelaeon.dicebot.dice.Behavior.Explosion;
-import com.chamelaeon.dicebot.dice.Behavior.L5RExplosion;
-import com.chamelaeon.dicebot.dice.Behavior.Reroll;
+import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.dice.Die.FudgeDie;
 import com.chamelaeon.dicebot.dice.Die.SimpleDie;
+import com.chamelaeon.dicebot.dice.behavior.Behavior;
+import com.chamelaeon.dicebot.dice.behavior.Behavior.Explosion;
+import com.chamelaeon.dicebot.dice.behavior.Behavior.L5RExplosion;
+import com.chamelaeon.dicebot.dice.behavior.Behavior.Reroll;
 import com.chamelaeon.dicebot.dice.DieResult;
 import com.chamelaeon.dicebot.dice.GroupResult;
 import com.chamelaeon.dicebot.dice.Modifier;
@@ -26,7 +27,6 @@ import com.chamelaeon.dicebot.dice.Roll;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
 import com.chamelaeon.dicebot.personality.BasicPersonality;
-import com.chamelaeon.dicebot.personality.TokenSubstitution;
 import com.chamelaeon.dicebot.random.MersenneTwisterRandom;
 import com.chamelaeon.dicebot.random.Random;
 
@@ -140,7 +140,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			Roll roll = new Roll(diceCount, diceCount, new SimpleDie(diceType), modifier, reroll, explosion, getPersonality());
 			List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
 				
-			String behaviors = Behavior.getPrettyString(roll);
+			String behaviors = Behavior.getPrettyString(roll.getReroll(), roll.getExplosion());
 			
 			String textKey;
             String natural;
@@ -237,7 +237,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 				return analyzeRoll(roll);
 			} else {
 				List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
-				String behaviors = Behavior.getPrettyString(roll);
+				String behaviors = Behavior.getPrettyString(roll.getReroll(), roll.getExplosion());
 				
 				String textKey;
 				String natural;

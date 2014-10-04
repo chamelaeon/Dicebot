@@ -1,8 +1,8 @@
 package com.chamelaeon.dicebot.dice;
 
 import com.chamelaeon.dicebot.api.Statistics;
-import com.chamelaeon.dicebot.dice.Behavior.Explosion;
-import com.chamelaeon.dicebot.dice.Behavior.Reroll;
+import com.chamelaeon.dicebot.dice.behavior.Behavior.Explosion;
+import com.chamelaeon.dicebot.dice.behavior.Behavior.Reroll;
 import com.chamelaeon.dicebot.random.Random;
 
 /**

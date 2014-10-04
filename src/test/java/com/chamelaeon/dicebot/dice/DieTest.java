@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.chamelaeon.dicebot.api.Statistics;
+import com.chamelaeon.dicebot.dice.behavior.Behavior;
 import com.chamelaeon.dicebot.random.Random;
 import com.chamelaeon.dicebot.statistics.NullStatistics;
 
