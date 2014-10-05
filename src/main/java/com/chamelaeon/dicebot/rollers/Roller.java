@@ -98,6 +98,14 @@ public abstract class Roller extends DicebotListenerAdapter {
         return natural.toString();
     }
 	
+	protected String getAnnotationString(String part) {
+	    if (StringUtils.isEmpty(part) || StringUtils.isEmpty(part.trim())) {
+	        return "";
+	    } else {
+	        return " [" + part.trim() + "]";
+	    }
+	}
+	
 	/**
 	 * Performs the actual roll, given all the matched groups from the parsing regexp.
 	 * @param parts The parts to parse.
@@ -115,7 +123,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public StandardRoller(Personality personality) {
-			super("^(\\d+ )?(\\d*)d(\\d+)(b[1-9]|v(?:[1-9][0-9]?)?)?(\\+\\d+|-\\d+)?", "Standard", getDesc(),
+			super("^(\\d+ )?(\\d*)d(\\d+)(b[1-9]|v(?:[1-9][0-9]?)?)?(\\+\\d+|-\\d+)?( [\\w ,-\\.\"!']+)?$", "Standard", getDesc(),
 			        Arrays.asList("Normal rolls: 2d6, d20", "Roll with modifier: d20+3", "Roll with Brutal 2: 2d6b2",
 			                "Roll with basic vorpal: d10v", "Roll with expanded vorpal (5-10 range): d10v6",
 			                "Roll with brutal 2 and modifier: 2d6b2+5", "Roll with vorpal and modifier: 2d6v+3"),
@@ -139,6 +147,7 @@ public abstract class Roller extends DicebotListenerAdapter {
             Reroll reroll = pair.reroll;
             Explosion explosion = pair.explosion;
 			Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
+			String annotation = getAnnotationString(parts[6]);
 			
 			Roll roll = new Roll(diceCount, diceCount, new SimpleDie(diceType), modifier, reroll, explosion, getPersonality());
 			List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);
@@ -180,7 +189,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 	                new TokenSubstitution("%DICECOUNT%", diceCount), new TokenSubstitution("%DICETYPE%", diceType),
 	                new TokenSubstitution("%MODIFIER%", modifier), new TokenSubstitution("%BEHAVIORS%", behaviors), 
 	                new TokenSubstitution("%USER%", user), new TokenSubstitution("%CRITICALTYPE%", criticalType),
-	                new TokenSubstitution("%CRITICALCOMMENT%", criticalComment), 
+	                new TokenSubstitution("%CRITICALCOMMENT%", criticalComment), new TokenSubstitution("%ANNOTATION%", annotation),
 	                new TokenSubstitution("%NATURALVALUE%", natural), new TokenSubstitution("%MODIFIEDVALUE%", modified));
 		}
 		
@@ -205,7 +214,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public L5RRoller(Personality personality) {
-			super("^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a$)?", "L5R", getDesc(),
+			super("^(\\d+ )?(\\d+)k(\\d+)(\\+\\d+|\\-\\d+)?(me|em|e|m)?( a$)?( [\\w ,-\\.\"!']+)?", "L5R", getDesc(),
 			        Arrays.asList("Basic roll: 5k2", "Roll with modifier: 7k3+5", "Roll with rollover: 14k6", 
 			                "Roll with emphasis: 9k2e", "Roll with modifier and emphasis: 10k6+16e", 
 			                "Roll with mastery: 9k3m", "Roll with modifier, emphasis, and mastery: 10k6me",
@@ -224,6 +233,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			BehaviorsPair pair = Behavior.parseBehavior(parts[5], 100);
 			Reroll reroll = pair.reroll;
 			Explosion explosion = pair.explosion;
+			String annotation = getAnnotationString(parts[7]);
 			
 			// If we have no special explosion use the default L5R one. 
 			if (null == explosion) {
@@ -262,7 +272,8 @@ public abstract class Roller extends DicebotListenerAdapter {
 				        new TokenSubstitution("%GROUPCOUNT%", groupCount), new TokenSubstitution("%ROLLEDDICE%", rolled), 
 				        new TokenSubstitution("%KEPTDICE%", kept), new TokenSubstitution("%MODIFIER%", modifier), 
 				        new TokenSubstitution("%BEHAVIORS%", behaviors), new TokenSubstitution("%USER%", user), 
-				        new TokenSubstitution("%NATURALVALUE%", natural), new TokenSubstitution("%MODIFIEDVALUE%", modified));
+				        new TokenSubstitution("%NATURALVALUE%", natural), new TokenSubstitution("%MODIFIEDVALUE%", modified),
+				        new TokenSubstitution("%ANNOTATION%", annotation));
 			}
 		}
 		
@@ -440,7 +451,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 		 * @param personality The object containing the dicebot personality.
 		 */
 		public FudgeRoller(Personality personality) {
-			super("^(\\d+ )?(\\d+)d[fF](\\+\\d+|-\\d+)?", "Fudge",
+			super("^(\\d+ )?(\\d+)d[fF](\\+\\d+|-\\d+)?( [\\w ,-\\.\"!']+)?", "Fudge",
 					"A dice roller for the FUDGE dice style, which rolls X number of d6s with faces of ['-', '-', ' ', ' ', '+', '+'] and returns the additive result (ex. 4dF).",
 					Arrays.asList("Basic roll: 4dF", " Roll with modifier: 4dF+3"),
 					personality);
@@ -451,6 +462,7 @@ public abstract class Roller extends DicebotListenerAdapter {
 			short groupCount = parseGroups(parts[1]);
 			short rolled = getPersonality().parseShort(parts[2]);
 			Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
+			String annotation = getAnnotationString(parts[4]);
 			
 			if (rolled < 1) {
 				throw getPersonality().getException("Roll0Dice");
@@ -489,7 +501,8 @@ public abstract class Roller extends DicebotListenerAdapter {
 			        new TokenSubstitution("%GROUPCOUNT%", groupCount), new TokenSubstitution("%DICECOUNT%", rolled),
                     new TokenSubstitution("%MODIFIER%", modifier), new TokenSubstitution("%USER%", user), 
                     new TokenSubstitution("%FUDGEVALUE%", convDice), new TokenSubstitution("%NATURALVALUE%", natural), 
-                    new TokenSubstitution("%MODIFIEDVALUE%", modified), new TokenSubstitution("%DESCRIPTOR%", descriptor));
+                    new TokenSubstitution("%MODIFIEDVALUE%", modified), new TokenSubstitution("%DESCRIPTOR%", descriptor),
+			        new TokenSubstitution("%ANNOTATION%", annotation));
 		}
 
 		/**
