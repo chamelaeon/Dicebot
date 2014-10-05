@@ -8,8 +8,8 @@ import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.api.Statistics;
 import com.chamelaeon.dicebot.api.TokenSubstitution;
-import com.chamelaeon.dicebot.dice.behavior.Behavior.Explosion;
-import com.chamelaeon.dicebot.dice.behavior.Behavior.Reroll;
+import com.chamelaeon.dicebot.dice.behavior.Explosion;
+import com.chamelaeon.dicebot.dice.behavior.Reroll;
 import com.chamelaeon.dicebot.random.Random;
 
 

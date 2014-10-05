@@ -13,7 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.chamelaeon.dicebot.api.Statistics;
-import com.chamelaeon.dicebot.dice.behavior.Behavior;
+import com.chamelaeon.dicebot.dice.behavior.Explosion;
+import com.chamelaeon.dicebot.dice.behavior.Reroll;
 import com.chamelaeon.dicebot.random.Random;
 import com.chamelaeon.dicebot.statistics.NullStatistics;
 
@@ -99,7 +100,7 @@ public class DieTest {
     
     @Test
     public void testRollDieWithReroll() {
-        Behavior.Reroll simpleReroll = mock(Behavior.Reroll.class);
+        Reroll simpleReroll = mock(Reroll.class);
         when(simpleReroll.needsRerolled(1)).thenReturn(true);
         when(simpleReroll.forceGoodValue()).thenReturn(false);
         
@@ -117,7 +118,7 @@ public class DieTest {
     
     @Test
     public void testRollDieWithRepeatingReroll() {
-        Behavior.Reroll repeatingReroll = mock(Behavior.Reroll.class);
+        Reroll repeatingReroll = mock(Reroll.class);
         when(repeatingReroll.needsRerolled(1)).thenReturn(true);
         when(repeatingReroll.needsRerolled(4)).thenReturn(true);
         when(repeatingReroll.needsRerolled(5)).thenReturn(false);
@@ -139,7 +140,7 @@ public class DieTest {
     
     @Test
     public void testRollDieWithExplosion() {
-        Behavior.Explosion simpleExplosion = mock(Behavior.Explosion.class);
+        Explosion simpleExplosion = mock(Explosion.class);
         when(simpleExplosion.shouldExplode(1)).thenReturn(true).thenReturn(false);
         
         // It's 2 because we exploded once and rolled the other 1.
@@ -155,7 +156,7 @@ public class DieTest {
 
     @Test
     public void testRollDieWithMultipleExplosion() {
-        Behavior.Explosion simpleExplosion = mock(Behavior.Explosion.class);
+        Explosion simpleExplosion = mock(Explosion.class);
         when(simpleExplosion.shouldExplode(1)).thenReturn(true);
         
         // It's 6 because both 1s exploded and the next roll was a 4: 1 + 1 + 4.

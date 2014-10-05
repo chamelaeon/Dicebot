@@ -17,9 +17,10 @@ import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.dice.Die.FudgeDie;
 import com.chamelaeon.dicebot.dice.Die.SimpleDie;
 import com.chamelaeon.dicebot.dice.behavior.Behavior;
-import com.chamelaeon.dicebot.dice.behavior.Behavior.Explosion;
-import com.chamelaeon.dicebot.dice.behavior.Behavior.L5RExplosion;
-import com.chamelaeon.dicebot.dice.behavior.Behavior.Reroll;
+import com.chamelaeon.dicebot.dice.behavior.Behavior.BehaviorsPair;
+import com.chamelaeon.dicebot.dice.behavior.Explosion;
+import com.chamelaeon.dicebot.dice.behavior.L5RExplosion;
+import com.chamelaeon.dicebot.dice.behavior.Reroll;
 import com.chamelaeon.dicebot.dice.DieResult;
 import com.chamelaeon.dicebot.dice.GroupResult;
 import com.chamelaeon.dicebot.dice.Modifier;
@@ -133,8 +134,10 @@ public abstract class Roller extends DicebotListenerAdapter {
 			} else if (diceType == 1) {
 				throw getPersonality().getException("OneSidedDice", new TokenSubstitution("%DICECOUNT%", diceCount));
 			}
-			Reroll reroll = Behavior.parseReroll(parts[4], getPersonality());
-			Explosion explosion = Behavior.parseExplosion(parts[4], diceType, getPersonality());
+
+			BehaviorsPair pair = Behavior.parseBehavior(parts[4], diceType);
+            Reroll reroll = pair.reroll;
+            Explosion explosion = pair.explosion;
 			Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
 			
 			Roll roll = new Roll(diceCount, diceCount, new SimpleDie(diceType), modifier, reroll, explosion, getPersonality());
@@ -217,8 +220,10 @@ public abstract class Roller extends DicebotListenerAdapter {
 			short kept = getPersonality().parseShort(parts[3]);
 			Modifier modifier = Modifier.createModifier(parts[4], getPersonality());
 			
-			Reroll reroll = Behavior.parseReroll(parts[5], getPersonality());
-			Explosion explosion = Behavior.parseExplosion(parts[5], getPersonality());
+			// We use 100 as a default since it's a SWAG at the max value of a die...
+			BehaviorsPair pair = Behavior.parseBehavior(parts[5], 100);
+			Reroll reroll = pair.reroll;
+			Explosion explosion = pair.explosion;
 			
 			// If we have no special explosion use the default L5R one. 
 			if (null == explosion) {
