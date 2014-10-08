@@ -34,10 +34,10 @@ import com.chamelaeon.dicebot.listener.NickHandlingListener;
 import com.chamelaeon.dicebot.listener.NickSetListener;
 import com.chamelaeon.dicebot.listener.SendMotdListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
-import com.chamelaeon.dicebot.rollers.Roller.FudgeRoller;
-import com.chamelaeon.dicebot.rollers.Roller.L5RRoller;
-import com.chamelaeon.dicebot.rollers.Roller.StandardRoller;
-import com.chamelaeon.dicebot.rollers.Roller.WhiteWolfRoller;
+import com.chamelaeon.dicebot.rollers.FudgeRoller;
+import com.chamelaeon.dicebot.rollers.L5RRoller;
+import com.chamelaeon.dicebot.rollers.StandardRoller;
+import com.chamelaeon.dicebot.rollers.WhiteWolfRoller;
 import com.google.common.io.Closeables;
 
 /**

@@ -14,7 +14,7 @@ public class TokenSubstitution {
      * @param substitution
      */
     public TokenSubstitution(String token, Object substitution) {
-        this(token, substitution.toString());
+        this(token, null == substitution ? "" : substitution.toString());
     }
     
     /**
@@ -73,6 +73,9 @@ public class TokenSubstitution {
         }
         return true;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "TokenSubstitution [token=" + token + ", substitution=" + substitution + "]";
+    }
 }

@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.personality.BasicPersonality;
-import com.chamelaeon.dicebot.rollers.Roller.L5RRoller;
 import com.chamelaeon.dicebot.statistics.StandardStatistics;
 import com.google.common.io.Closeables;
 
