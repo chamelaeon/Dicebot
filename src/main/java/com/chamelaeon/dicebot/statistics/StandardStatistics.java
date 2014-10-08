@@ -84,12 +84,7 @@ public class StandardStatistics implements Statistics {
 		groups += modifier;
 	}
 
-	/**
-	 * Gets the average roll for the type of die rolled. If no dice of that
-	 * type have been rolled, the average will be 0;
-	 * @param dieType The type of die to check the average for.
-	 * @return the average.
-	 */
+	@Override
 	public double getAverage(int dieType) {
 		Double average = averages.get(dieType);
 		if (null == average) {
@@ -99,12 +94,7 @@ public class StandardStatistics implements Statistics {
 		}
 	}
 	
-	/**
-	 * Gets the average roll for the given roll name. If no rolls of that
-	 * type have been rolled, the average will be 0;
-	 * @param rollName The name of the roll to check the average for.
-	 * @return the average.
-	 */
+	@Override
 	public double getAverage(String rollName) {
 		Double average = namedAverages.get(rollName);
 		if (null == average) {

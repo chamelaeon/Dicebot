@@ -33,4 +33,12 @@ public class NullStatistics implements Statistics {
     public void addToGroups(int modifier) {
         // Do nothing.
     }
+
+	public double getAverage(String rollName) {
+		return 0;
+	}
+
+	public double getAverage(int dieType) {
+		return 0;
+	}
 }

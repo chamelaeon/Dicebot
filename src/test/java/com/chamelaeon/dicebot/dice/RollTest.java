@@ -196,6 +196,10 @@ public class RollTest {
         verify(die, times(5)).rollDie(random, reroll, explosion, statistics);
         verify(die).isCritSuccess(5, 40);
         verify(modifier).apply(40);
+        verify(statistics).addToGroups(1);
+        verify(statistics).registerRoll(rolled + "-" + kept, 40);
+        
+        verifyNoMoreInteractions(statistics);
     }
 
     @Test
