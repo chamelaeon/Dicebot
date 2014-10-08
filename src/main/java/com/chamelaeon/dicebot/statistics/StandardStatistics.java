@@ -51,6 +51,7 @@ public class StandardStatistics implements Statistics {
 		if (null != count) {
 			dice.put(diceType, count + 1);
 		} else {
+			// No dice of this type yet, just add it.
 			dice.put(diceType, 1);
 			averages.put(diceType, Double.valueOf(rollValue));
 			return;
