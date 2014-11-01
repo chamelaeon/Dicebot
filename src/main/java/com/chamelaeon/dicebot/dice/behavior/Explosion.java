@@ -13,7 +13,7 @@ public interface Explosion {
 	public boolean shouldExplode(int natural);
 	
 	/**
-     * Gets the threshold for the reroll.
+     * Gets the threshold for the explosion.
      * @return the threshold value.
      */
     public Integer getThreshold();
