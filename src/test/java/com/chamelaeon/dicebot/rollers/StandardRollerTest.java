@@ -52,12 +52,13 @@ public class StandardRollerTest extends RollerTestBase {
 		assertNull(m.group(4));
 		assertNull(m.group(5));
 		assertNull(m.group(6));
+		assertNull(m.group(7));
 	}
 
 	@Test
 	public void testSuperBasicRoll() throws InputException {
 		Statistics statistics = mock(Statistics.class);
-		String[] parts = new String[] {"d6", null, "", "6", null, null, null};
+		String[] parts = new String[] {"d6", null, "", "6", null, null, null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("");
@@ -85,12 +86,13 @@ public class StandardRollerTest extends RollerTestBase {
 		assertNull(m.group(4));
 		assertNull(m.group(5));
 		assertNull(m.group(6));
+		assertNull(m.group(7));
 	}
 
 	@Test
 	public void testBasicRoll() throws InputException {
 		Statistics statistics = mock(Statistics.class);
-		String[] parts = new String[] {"2d6", null, "2", "6", null, null, null};
+		String[] parts = new String[] {"2d6", null, "2", "6", null, null, null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("2");
@@ -107,7 +109,7 @@ public class StandardRollerTest extends RollerTestBase {
 	public void testRollWithNoDice() throws InputException {
 		try {
 			Statistics statistics = mock(Statistics.class);
-			String[] parts = new String[] {"0d6", null, "0", "6", null, null, null};
+			String[] parts = new String[] {"0d6", null, "0", "6", null, null, null, null};
 			when(personality.getException("Roll0Dice")).thenReturn(new InputException("error"));
 			roller.assembleRoll(parts, testNick, statistics);
 		} finally {
@@ -121,7 +123,7 @@ public class StandardRollerTest extends RollerTestBase {
 	public void testRollWithNoSides() throws InputException {
 		try {
 			Statistics statistics = mock(Statistics.class);
-			String[] parts = new String[] {"1d0", null, "1", "0", null, null, null};
+			String[] parts = new String[] {"1d0", null, "1", "0", null, null, null, null};
 			when(personality.getException("Roll0Sides")).thenReturn(new InputException("error"));
 			roller.assembleRoll(parts, testNick, statistics);
 		} finally {
@@ -135,7 +137,7 @@ public class StandardRollerTest extends RollerTestBase {
 	public void testRollWithOneSidedDice() throws InputException {
 		try {
 			Statistics statistics = mock(Statistics.class);
-			String[] parts = new String[] {"1d1", null, "1", "1", null, null, null};
+			String[] parts = new String[] {"1d1", null, "1", "1", null, null, null, null};
 			when(personality.getException(eq("OneSidedDice"), (TokenSubstitution[]) notNull())).thenReturn(new InputException("error"));
 			roller.assembleRoll(parts, testNick, statistics);
 		} finally {
@@ -159,6 +161,7 @@ public class StandardRollerTest extends RollerTestBase {
 		assertNull(m.group(4));
 		assertNull(m.group(5));
 		assertNull(m.group(6));
+		assertNull(m.group(7));
 	}
 
 	@Test
@@ -173,7 +176,7 @@ public class StandardRollerTest extends RollerTestBase {
 		when(personality.useCritFailures()).thenReturn(true);
 		when(personality.chooseCriticalFailureLine()).thenReturn(critFailLine);
 
-		String[] parts = new String[] {"1d2", null, "1", "2", null, null, null};
+		String[] parts = new String[] {"1d2", null, "1", "2", null, null, null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("1");
@@ -195,7 +198,7 @@ public class StandardRollerTest extends RollerTestBase {
 		when(personality.useCritSuccesses()).thenReturn(true);
 		when(personality.chooseCriticalSuccessLine()).thenReturn(critSuccLine);
 
-		String[] parts = new String[] {"1d2", null, "1", "2", "b1", null, null};
+		String[] parts = new String[] {"1d2", null, "1", "2", "b1", null, null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("1");
@@ -213,7 +216,7 @@ public class StandardRollerTest extends RollerTestBase {
 	@Test
 	public void testMultipleGroupsRoll() throws InputException {
 		Statistics statistics = mock(Statistics.class);
-		String[] parts = new String[] {"10 2d6", "10 ", "2", "6", null, null, null};
+		String[] parts = new String[] {"10 2d6", "10 ", "2", "6", null, null, null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("2");
@@ -241,12 +244,13 @@ public class StandardRollerTest extends RollerTestBase {
 		assertNull(m.group(4));
 		assertEquals("+5", m.group(5));
 		assertNull(m.group(6));
+		assertNull(m.group(7));
 	}
 
 	@Test
 	public void testRollWithModifier() throws InputException {
 		Statistics statistics = mock(Statistics.class);
-		String[] parts = new String[] {"2d6+5", null, "2", "6", null, "+5", null};
+		String[] parts = new String[] {"2d6+5", null, "2", "6", null, "+5", null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("2");
@@ -274,12 +278,13 @@ public class StandardRollerTest extends RollerTestBase {
 		assertEquals("b2", m.group(4));
 		assertEquals("+5", m.group(5));
 		assertNull(m.group(6));
+		assertNull(m.group(7));
 	}
 
 	@Test
 	public void testRollWithBrutal() throws InputException {
 		Statistics statistics = mock(Statistics.class);
-		String[] parts = new String[] {"2d6b2+5", null, "2", "6", "b2", "+5", null};
+		String[] parts = new String[] {"2d6b2+5", null, "2", "6", "b2", "+5", null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("2");
@@ -307,12 +312,13 @@ public class StandardRollerTest extends RollerTestBase {
 		assertEquals("v", m.group(4));
 		assertEquals("+5", m.group(5));
 		assertNull(m.group(6));
+		assertNull(m.group(7));
 	}
 
 	@Test
 	public void testRollWithVorpal() throws InputException {
 		Statistics statistics = mock(Statistics.class);
-		String[] parts = new String[] {"2d6v+5", null, "2", "6", "v", "+5", null};
+		String[] parts = new String[] {"2d6v+5", null, "2", "6", "v", "+5", null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("2");
@@ -340,12 +346,13 @@ public class StandardRollerTest extends RollerTestBase {
 		assertEquals("v5", m.group(4));
 		assertEquals("+5", m.group(5));
 		assertNull(m.group(6));
+		assertNull(m.group(7));
 	}
 
 	@Test
 	public void testRollWithNonMaxVorpal() throws InputException {
 		Statistics statistics = mock(Statistics.class);
-		String[] parts = new String[] {"2d6v5+5", null, "2", "6", "v5", "+5", null};
+		String[] parts = new String[] {"2d6v5+5", null, "2", "6", "v5", "+5", null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("2");
@@ -360,6 +367,40 @@ public class StandardRollerTest extends RollerTestBase {
 	}
 
 	@Test
+	public void testRollWithTwoBehaviorsRegexp() {
+		String regexp = StandardRoller.getRegexp();
+		Pattern p = Pattern.compile(regexp);
+
+		Matcher m = p.matcher("2d6v5+5b2 and a goat");
+		m.find();
+		assertEquals("2d6v5+5b2 and a goat", m.group(0));
+		assertNull(m.group(1));
+		assertEquals("2", m.group(2));
+		assertEquals("6", m.group(3));
+		assertEquals("v5", m.group(4));
+		assertEquals("+5", m.group(5));
+		assertEquals("b2", m.group(6));
+		assertEquals(" and a goat", m.group(7));
+	}
+	
+	@Test
+	public void testRollWithTwoBehaviors() throws InputException {
+		Statistics statistics = mock(Statistics.class);
+		String[] parts = new String[] {"2d6v5+5b2 and a goat", null, "2", "6", "v5", "+5", "b2", " and a goat"};
+		roller.assembleRoll(parts, testNick, statistics);
+
+		verify(personality).parseDiceCount("2");
+		verify(personality).parseShort("6");
+		verify(personality).parseShort("5");
+		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
+				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
+				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "b2v5"), 
+				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
+				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", " [and a goat]"),
+				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
+	}
+	
+	@Test
 	public void testRollWithAnnotationRegexp() {
 		String regexp = StandardRoller.getRegexp();
 		Pattern p = Pattern.compile(regexp);
@@ -372,13 +413,14 @@ public class StandardRollerTest extends RollerTestBase {
 		assertEquals("6", m.group(3));
 		assertEquals("v5", m.group(4));
 		assertEquals("+5", m.group(5));
-		assertEquals(" and a goat", m.group(6));
+		assertNull(m.group(6));
+		assertEquals(" and a goat", m.group(7));
 	}
 
 	@Test
 	public void testRollWithAnnotation() throws InputException {
 		Statistics statistics = mock(Statistics.class);
-		String[] parts = new String[] {"2d6v5+5 and a goat", null, "2", "6", "v5", "+5", " and a goat"};
+		String[] parts = new String[] {"2d6v5+5 and a goat", null, "2", "6", "v5", "+5", null, " and a goat"};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("2");

@@ -59,6 +59,7 @@ public class WhiteWolfRollerTest extends RollerTestBase {
         assertNull(m.group(4));
         assertNull(m.group(5));
         assertNull(m.group(6));
+        assertNull(m.group(7));
     }
     
     @Test
@@ -109,7 +110,7 @@ public class WhiteWolfRollerTest extends RollerTestBase {
 	public void testRollWithNoDC() throws InputException {
 		try {
 			Statistics statistics = mock(Statistics.class);
-			String[] parts = new String[] {"7t2 dc0", "7", "2", null, null, " dc0", "0"};
+			String[] parts = new String[] {"7t2 dc0", "7", "2", null, null, null, " dc0", "0"};
 			when(personality.getException("DCEquals0")).thenReturn(new InputException("error"));
 			roller.assembleRoll(parts, testNick, statistics);
 		} finally {
@@ -137,7 +138,7 @@ public class WhiteWolfRollerTest extends RollerTestBase {
     
     @Test
     public void testBasicRollFailure() throws InputException {
-        String[] parts = new String[] {"7t5", "7", "5", null, null, null, null};
+        String[] parts = new String[] {"7t5", "7", "5", null, null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("7");
@@ -159,15 +160,16 @@ public class WhiteWolfRollerTest extends RollerTestBase {
         assertEquals("7t2+5", m.group(0));
         assertEquals("7", m.group(1));
         assertEquals("2", m.group(2));
-        assertEquals("+5", m.group(3));
-        assertNull(m.group(4));
+        assertNull(m.group(3));
+        assertEquals("+5", m.group(4));
         assertNull(m.group(5));
         assertNull(m.group(6));
+        assertNull(m.group(7));
     }
     
     @Test
     public void testRollWithModifier() throws InputException {
-        String[] parts = new String[] {"7t2+5", "7", "2", "+5", null, null, null};
+        String[] parts = new String[] {"7t2+5", "7", "2", null, "+5", null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("7");
@@ -192,13 +194,14 @@ public class WhiteWolfRollerTest extends RollerTestBase {
         assertEquals("2", m.group(2));
         assertNull(m.group(3));
         assertNull(m.group(4));
-        assertEquals(" dc9", m.group(5));
-        assertEquals("9", m.group(6));
+        assertNull(m.group(5));
+        assertEquals(" dc9", m.group(6));
+        assertEquals("9", m.group(7));
     }
     
     @Test
     public void testRollWithCustomDC() throws InputException {
-        String[] parts = new String[] {"7t2 dc9", "7", "2", null, null, " dc9", "9"};
+        String[] parts = new String[] {"7t2 dc9", "7", "2", null, null, null, " dc9", "9"};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("7");
@@ -221,15 +224,75 @@ public class WhiteWolfRollerTest extends RollerTestBase {
         assertEquals("7t2e", m.group(0));
         assertEquals("7", m.group(1));
         assertEquals("2", m.group(2));
-        assertNull(m.group(3));
-        assertEquals("e", m.group(4));
+        assertEquals("e", m.group(3));
+        assertNull(m.group(4));
         assertNull(m.group(5));
         assertNull(m.group(6));
+        assertNull(m.group(7));
+    }
+
+    @Test
+    public void testSpecializationAndModifierRegexp() {
+        String regexp = WhiteWolfRoller.getRegexp();
+        Pattern p = Pattern.compile(regexp);
+        
+        // Ensure we test on both sides of the modifier.
+        Matcher m = p.matcher("7t2+5e");
+        m.find();
+        assertEquals("7t2+5e", m.group(0));
+        assertEquals("7", m.group(1));
+        assertEquals("2", m.group(2));
+        assertNull(m.group(3));
+        assertEquals("+5", m.group(4));
+        assertEquals("e", m.group(5));
+        assertNull(m.group(6));
+        assertNull(m.group(7));
+        
+        m = p.matcher("7t2e+5");
+        m.find();
+        assertEquals("7t2e+5", m.group(0));
+        assertEquals("7", m.group(1));
+        assertEquals("2", m.group(2));
+        assertEquals("e", m.group(3));
+        assertEquals("+5", m.group(4));
+        assertNull(m.group(5));
+        assertNull(m.group(6));
+        assertNull(m.group(7));
     }
     
     @Test
-    public void testSpecializationRoll() throws InputException {
-        String[] parts = new String[] {"7t2e", "7", "2", null, "e", null, null};
+    public void testRollWithTwoSpecializations() throws InputException {
+        String[] parts = new String[] {"7t2+5", "7", "2", "e", "+5", "e", null, null};
+        roller.assembleRoll(parts, testNick, statistics);
+        
+        verify(personality).parseShort("7");
+        verify(personality).parseShort("2");
+        verify(personality).parseShort("5");
+        verify(personality).getRollResult(eq("WhiteWolfSuccess"), tokenSubMatcher("%ROLLEDDICE%", "7"),
+                tokenSubMatcher("%SUCCESSESNEEDED%", "2"), tokenSubMatcher("%MODIFIER%", "+5"), 
+                tokenSubMatcher("%SPECIALIZATION%", "e"), tokenSubMatcher("%DCSTRING%", " "),
+                tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%DICEVALUE%", "*"), 
+                tokenSubMatcher("%ONESROLLED%", "2"), tokenSubMatcher("%SUCCESSESOVERMINIMUM%", "9"));
+    }
+    
+    
+    @Test
+    public void testSpecializationRollOnLeftSide() throws InputException {
+        String[] parts = new String[] {"7t2e", "7", "2", "e", null, null, null, null};
+        roller.assembleRoll(parts, testNick, statistics);
+        
+        verify(personality).parseShort("7");
+        verify(personality).parseShort("2");
+        verify(personality).getRollResult(eq("WhiteWolfSuccess"), tokenSubMatcher("%ROLLEDDICE%", "7"),
+                tokenSubMatcher("%SUCCESSESNEEDED%", "2"), tokenSubMatcher("%MODIFIER%", ""), 
+                tokenSubMatcher("%SPECIALIZATION%", "e"), tokenSubMatcher("%DCSTRING%", " "),
+                tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%DICEVALUE%", "*"), 
+                tokenSubMatcher("%ONESROLLED%", "2"), tokenSubMatcher("%SUCCESSESOVERMINIMUM%", "4"));
+    }
+    
+    @Test
+    public void testSpecializationRollOnRightSide() throws InputException {
+        String[] parts = new String[] {"7t2e", "7", "2", null, null, "e", null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("7");
@@ -246,20 +309,21 @@ public class WhiteWolfRollerTest extends RollerTestBase {
         String regexp = WhiteWolfRoller.getRegexp();
         Pattern p = Pattern.compile(regexp);
         
-        Matcher m = p.matcher("7t2+5e dc9");
+        Matcher m = p.matcher("7t2e+5 dc9");
         m.find();
-        assertEquals("7t2+5e dc9", m.group(0));
+        assertEquals("7t2e+5 dc9", m.group(0));
         assertEquals("7", m.group(1));
         assertEquals("2", m.group(2));
-        assertEquals("+5", m.group(3));
-        assertEquals("e", m.group(4));
-        assertEquals(" dc9", m.group(5));
-        assertEquals("9", m.group(6));
+        assertEquals("e", m.group(3));
+        assertEquals("+5", m.group(4));
+        assertNull(m.group(5));
+        assertEquals(" dc9", m.group(6));
+        assertEquals("9", m.group(7));
     }
     
     @Test
     public void testRollWithKitchenSink() throws InputException {
-        String[] parts = new String[] {"7t2+5e dc9", "7", "2", "+5", "e", " dc9", "9"};
+        String[] parts = new String[] {"7t2+5e dc9", "7", "2", null, "+5", "e", " dc9", "9"};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("7");

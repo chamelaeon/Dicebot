@@ -50,12 +50,13 @@ public class L5RRollerTest extends RollerTestBase {
         assertNull(m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
+        assertNull(m.group(8));
     }
     
     @Test
     public void testBasicRoll() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5", null, "9", "5", null, null, null, null};
+        String[] parts = new String[] {"9k5", null, "9", "5", null, null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
@@ -70,7 +71,7 @@ public class L5RRollerTest extends RollerTestBase {
     @Test
     public void testBasicRollWithRollover() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"14k6", null, "14", "6", null, null, null, null};
+        String[] parts = new String[] {"14k6", null, "14", "6", null, null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("14");        
@@ -85,7 +86,7 @@ public class L5RRollerTest extends RollerTestBase {
     @Test
     public void testBasicRollWithRolloverPast10K10() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"14k10", null, "14", "10", null, null, null, null};
+        String[] parts = new String[] {"14k10", null, "14", "10", null, null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("14");        
@@ -100,7 +101,7 @@ public class L5RRollerTest extends RollerTestBase {
     @Test
     public void testBasicRollWithRolloverAt11k10() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"11k8", null, "11", "8", null, null, null, null};
+        String[] parts = new String[] {"11k8", null, "11", "8", null, null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("11");        
@@ -115,7 +116,7 @@ public class L5RRollerTest extends RollerTestBase {
     @Test
     public void testBasicRollWithDoubleOverflowRollover() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"14k9", null, "14", "9", null, null, null, null};
+        String[] parts = new String[] {"14k9", null, "14", "9", null, null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("14");        
@@ -131,7 +132,7 @@ public class L5RRollerTest extends RollerTestBase {
     public void testRollWithMoreKeptThanRolled() throws InputException {
     	try {
 			Statistics statistics = mock(Statistics.class);
-			String[] parts = new String[] {"8k10", null, "8", "10", null, null, null, null};
+			String[] parts = new String[] {"8k10", null, "8", "10", null, null, null, null, null};
 			when(personality.getException("RollLessThanKeep")).thenReturn(new InputException("error"));
 			roller.assembleRoll(parts, testNick, statistics);
 		} finally {
@@ -145,7 +146,7 @@ public class L5RRollerTest extends RollerTestBase {
 	public void testRollWithNoKeptDice() throws InputException {
 		try {
 			Statistics statistics = mock(Statistics.class);
-			String[] parts = new String[] {"10k0", null, "10", "0", null, null, null, null};
+			String[] parts = new String[] {"10k0", null, "10", "0", null, null, null, null, null};
 			when(personality.getException("KeepingLessThan1")).thenReturn(new InputException("error"));
 			roller.assembleRoll(parts, testNick, statistics);
 		} finally {
@@ -170,12 +171,13 @@ public class L5RRollerTest extends RollerTestBase {
         assertNull(m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
+        assertNull(m.group(8));
     }
     
     @Test
     public void testMultipleGroupsRoll() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"10 9k5", "10 ", "9", "5", null, null, null, null};
+        String[] parts = new String[] {"10 9k5", "10 ", "9", "5", null, null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
@@ -199,16 +201,17 @@ public class L5RRollerTest extends RollerTestBase {
         assertNull(m.group(1));
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
-        assertEquals("+7", m.group(4));
-        assertNull(m.group(5));
+        assertNull(m.group(4));
+        assertEquals("+7", m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
+        assertNull(m.group(8));
     }
     
     @Test
     public void testRollWithModifier() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5+7", null, "9", "5", "+7", null, null, null};
+        String[] parts = new String[] {"9k5+7", null, "9", "5", null, "+7", null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
@@ -232,16 +235,17 @@ public class L5RRollerTest extends RollerTestBase {
         assertNull(m.group(1));
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
-        assertNull(m.group(4));
-        assertEquals("e", m.group(5));
+        assertEquals("e", m.group(4));
+        assertNull(m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
+        assertNull(m.group(8));
     }
     
     @Test
     public void testRollWithEmphasis() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5e", null, "9", "5", null, "e", null, null};
+        String[] parts = new String[] {"9k5e", null, "9", "5", "e", null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
@@ -264,16 +268,17 @@ public class L5RRollerTest extends RollerTestBase {
         assertNull(m.group(1));
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
-        assertEquals("+7", m.group(4));
-        assertEquals("e", m.group(5));
-        assertNull(m.group(6));
+        assertNull(m.group(4));
+        assertEquals("+7", m.group(5));
+        assertEquals("e", m.group(6));
         assertNull(m.group(7));
+        assertNull(m.group(8));
     }
     
     @Test
     public void testRollWithModifierAndEmphasis() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5+7e", null, "9", "5", "+7", "e", null, null};
+        String[] parts = new String[] {"9k5+7e", null, "9", "5", null, "+7", "e", null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
@@ -282,6 +287,40 @@ public class L5RRollerTest extends RollerTestBase {
         verify(personality).getRollResult(eq("L5ROneGroup"), tokenSubMatcher("%GROUPCOUNT%", "1"),
                 tokenSubMatcher("%ROLLEDDICE%", "9"), tokenSubMatcher("%KEPTDICE%", "5"),
                 tokenSubMatcher("%MODIFIER%", "+7"), tokenSubMatcher("%BEHAVIORS%", "e"),
+                tokenSubMatcher("%USER%", testNick),  tokenSubMatcher("%NATURALVALUE%", "*"), 
+                tokenSubMatcher("%MODIFIEDVALUE%", "*"), tokenSubMatcher("%ANNOTATION%", ""));
+    }
+    
+    @Test
+    public void testRollWithTwoModifiersRegexp() {
+        String regexp = L5RRoller.getRegexp();
+        Pattern p = Pattern.compile(regexp);
+        
+        Matcher m = p.matcher("9k5e+7m");
+        m.find();
+        assertEquals("9k5e+7m", m.group(0));
+        assertNull(m.group(1));
+        assertEquals("9", m.group(2));
+        assertEquals("5", m.group(3));
+        assertEquals("e", m.group(4));
+        assertEquals("+7", m.group(5));
+        assertEquals("m", m.group(6));
+        assertNull(m.group(7));
+        assertNull(m.group(8));
+    }
+    
+    @Test
+    public void testRollWithTwoModifiers() throws InputException {
+        Statistics statistics = mock(Statistics.class);
+        String[] parts = new String[] {"9k5+7e", null, "9", "5", "e", "+7", "m", null, null};
+        roller.assembleRoll(parts, testNick, statistics);
+        
+        verify(personality).parseShort("9");        
+        verify(personality).parseShort("5");
+        verify(personality).parseShort("7");
+        verify(personality).getRollResult(eq("L5ROneGroup"), tokenSubMatcher("%GROUPCOUNT%", "1"),
+                tokenSubMatcher("%ROLLEDDICE%", "9"), tokenSubMatcher("%KEPTDICE%", "5"),
+                tokenSubMatcher("%MODIFIER%", "+7"), tokenSubMatcher("%BEHAVIORS%", "em"),
                 tokenSubMatcher("%USER%", testNick),  tokenSubMatcher("%NATURALVALUE%", "*"), 
                 tokenSubMatcher("%MODIFIEDVALUE%", "*"), tokenSubMatcher("%ANNOTATION%", ""));
     }
@@ -297,16 +336,17 @@ public class L5RRollerTest extends RollerTestBase {
         assertNull(m.group(1));
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
-        assertNull(m.group(4));
-        assertEquals("m", m.group(5));
+        assertEquals("m", m.group(4));
+        assertNull(m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
+        assertNull(m.group(8));
     }
     
     @Test
     public void testRollWithMastery() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5e", null, "9", "5", null, "m", null, null};
+        String[] parts = new String[] {"9k5e", null, "9", "5", "m", null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
@@ -329,16 +369,17 @@ public class L5RRollerTest extends RollerTestBase {
         assertNull(m.group(1));
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
-        assertEquals("+7", m.group(4));
-        assertEquals("em", m.group(5));
-        assertNull(m.group(6));
-        assertEquals(" and a partridge in a pear tree", m.group(7));
+        assertNull(m.group(4));
+        assertEquals("+7", m.group(5));
+        assertEquals("em", m.group(6));
+        assertNull(m.group(7));
+        assertEquals(" and a partridge in a pear tree", m.group(8));
     }
     
     @Test
     public void testRollWithEverything() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5+7em", null, "9", "5", "+7", "em", null, " and a partridge in a pear tree"};
+        String[] parts = new String[] {"9k5+7em", null, "9", "5", null, "+7", "em", null, " and a partridge in a pear tree"};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
@@ -364,14 +405,15 @@ public class L5RRollerTest extends RollerTestBase {
         assertEquals("5", m.group(3));
         assertNull(m.group(4));
         assertNull(m.group(5));
-        assertEquals(" a", m.group(6));
-        assertNull(m.group(7));
+        assertNull(m.group(6));
+        assertEquals(" a", m.group(7));
+        assertNull(m.group(8));
     }
     
     @Test
     public void testAnalyzeRoll() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5 a", null, "9", "5", null, null, "a", null};
+        String[] parts = new String[] {"9k5 a", null, "9", "5", null, null, null, "a", null};
         assertEquals("doesn't quite know how to analyze rolls yet.", roller.assembleRoll(parts, testNick, statistics));
         
         verify(personality).parseShort("9");        

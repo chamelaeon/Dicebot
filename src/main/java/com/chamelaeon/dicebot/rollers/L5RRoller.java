@@ -27,7 +27,7 @@ public class L5RRoller extends Roller {
     /** Regex piece for the analyze flag. */
     private static final String ANALYZE_REGEX = "( a$)?";
     /** The complete regex for the roller. */
-    private static final String TOTAL_REGEX = "^" + GROUP_REGEX + BASIC_ROLL_REGEX + MODIFIER_REGEX + BEHAVIOR_REGEX 
+    private static final String TOTAL_REGEX = "^" + GROUP_REGEX + BASIC_ROLL_REGEX + BEHAVIOR_REGEX + MODIFIER_REGEX + BEHAVIOR_REGEX 
     		+ ANALYZE_REGEX + ANNOTATION_REGEX + "$";
 	
 	/**
@@ -48,13 +48,13 @@ public class L5RRoller extends Roller {
 		int groupCount = parseGroups(parts[1]);
 		short rolled = getPersonality().parseShort(parts[2]);
 		short kept = getPersonality().parseShort(parts[3]);
-		Modifier modifier = Modifier.createModifier(parts[4], getPersonality());
+		Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
 		
 		// We use 100 as a default since it's a SWAG at the max value of a die...
-		BehaviorsPair pair = Behavior.parseBehavior(parts[5], 100);
+		BehaviorsPair pair = Behavior.parseBehavior(coalesceBehavior(parts[4], parts[6]), 100);
 		Reroll reroll = pair.reroll;
 		Explosion explosion = pair.explosion;
-		String annotation = getAnnotationString(parts[7]);
+		String annotation = getAnnotationString(parts[8]);
 		
 		// If we have no special explosion use the default L5R one. 
 		if (null == explosion) {
@@ -69,7 +69,7 @@ public class L5RRoller extends Roller {
 		}
 		
 		// If the analyze flag is on, analyze the roll. Otherwise perform it.
-		if (null != parts[6]) {
+		if (null != parts[7]) {
 			return analyzeRoll(roll);
 		} else {
 			List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);

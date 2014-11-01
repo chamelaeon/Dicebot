@@ -26,7 +26,7 @@ public class WhiteWolfRoller extends Roller {
     /** Regex piece for the DC. */
     private static final String DC_REGEX = "([ ]*[dc|DC]+(\\d+))?";
     /** The complete regex for the roller. */
-    private static final String TOTAL_REGEX = "^" + BASIC_ROLL_REGEX + MODIFIER_REGEX + SPECIALIZATION_REGEX + DC_REGEX + "$";
+    private static final String TOTAL_REGEX = "^" + BASIC_ROLL_REGEX + SPECIALIZATION_REGEX + MODIFIER_REGEX + SPECIALIZATION_REGEX + DC_REGEX + "$";
     
 	/**
 	 * Constructor.
@@ -57,12 +57,12 @@ public class WhiteWolfRoller extends Roller {
 	public String assembleRoll(String[] parts, String user, Statistics statistics) throws InputException {
 		short rolled = getPersonality().parseShort(parts[1]);
 		short neededSuccesses = getPersonality().parseShort(parts[2]);
-		Modifier modifier = Modifier.createModifier(parts[3], getPersonality());
-		String specialization = StringUtils.defaultString(parts[4]);
-		String dcString = StringUtils.defaultString(parts[5], " ");
+		Modifier modifier = Modifier.createModifier(parts[4], getPersonality());
+		String specialization = coalesceBehavior(parts[3], parts[5]);
+		String dcString = StringUtils.defaultString(parts[6], " ");
 		Short dc = 6;
 		if (!StringUtils.isBlank(dcString.trim())) {
-			dc = getPersonality().parseShort(parts[6]);
+			dc = getPersonality().parseShort(parts[7]);
 			dcString = " " + dcString.trim() + " ";
 		}
 		

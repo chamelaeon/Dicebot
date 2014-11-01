@@ -27,7 +27,8 @@ public class StandardRoller extends Roller {
     /** Regex piece for behavior matching. */
     private static final String BEHAVIORS_REGEX = "(b[1-9]|v(?:[1-9][0-9]?)?)?";
     /** The complete regex for the roller. */
-    private static final String TOTAL_REGEX = "^" + GROUP_REGEX + BASIC_ROLL_REGEX + BEHAVIORS_REGEX + MODIFIER_REGEX + ANNOTATION_REGEX + "$";
+    private static final String TOTAL_REGEX = "^" + GROUP_REGEX + BASIC_ROLL_REGEX + BEHAVIORS_REGEX + MODIFIER_REGEX + BEHAVIORS_REGEX 
+    		+ ANNOTATION_REGEX + "$";
     
 	/**
 	 * Constructor.
@@ -67,11 +68,11 @@ public class StandardRoller extends Roller {
 			throw getPersonality().getException("OneSidedDice", new TokenSubstitution("%DICECOUNT%", diceCount));
 		}
 
-		BehaviorsPair pair = Behavior.parseBehavior(parts[4], diceType);
+		BehaviorsPair pair = Behavior.parseBehavior(coalesceBehavior(parts[4], parts[6]), diceType);
         Reroll reroll = pair.reroll;
         Explosion explosion = pair.explosion;
 		Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
-		String annotation = getAnnotationString(parts[6]);
+		String annotation = getAnnotationString(parts[7]);
 		
 		Roll roll = new Roll(diceCount, diceCount, new SimpleDie(diceType), modifier, reroll, explosion, getPersonality());
 		List<GroupResult> groups = roll.performRoll(groupCount, random, statistics);

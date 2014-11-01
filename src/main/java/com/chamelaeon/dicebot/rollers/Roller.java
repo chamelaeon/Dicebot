@@ -102,6 +102,38 @@ public abstract class Roller extends DicebotListenerAdapter {
 	    }
 	}
 	
+	/** 
+	 * Takes two behavior strings and de-duplicates them into a single combined behavior string. If neither the left or right hand sides 
+	 * exist, an empty string is returned.
+	 * @param behaviorLeft The left-hand side behavior string.
+	 * @param behaviorRight The right-hand side behavior string.
+	 * @return the behavior string to use.
+	 */
+	protected String coalesceBehavior(String behaviorLeft, String behaviorRight) {
+		behaviorLeft = StringUtils.defaultString(behaviorLeft, "");
+		behaviorRight = StringUtils.defaultString(behaviorRight, "");
+		
+		// Take the left-hand string as canonical and see if we can remove anything from the right-hand side.
+		for (int i = 0; i < behaviorRight.length(); i++) {
+			String singleCharString = behaviorRight.substring(i, i + 1);
+			String doubleCharString = "";
+			if (i + 1 < behaviorRight.length()) {
+				doubleCharString = behaviorRight.substring(i, i + 2);
+			}
+
+			// Check the double-char string first. If it exists, remove it and increment again to account for two chars.
+			if (StringUtils.isNotEmpty(doubleCharString) && behaviorLeft.contains(doubleCharString)) {
+				behaviorRight = behaviorRight.replace(doubleCharString, "");
+				i++;
+			} else if (behaviorLeft.contains(singleCharString)) {
+				// Then the single-char string...
+				behaviorRight = behaviorRight.replace(singleCharString, "");
+			}
+		}
+		
+		return behaviorLeft + behaviorRight;
+	}
+	
 	/**
 	 * Performs the actual roll, given all the matched groups from the parsing regexp.
 	 * @param parts The parts to parse.
