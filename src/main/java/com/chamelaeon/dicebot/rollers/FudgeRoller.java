@@ -11,10 +11,10 @@ import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.api.Statistics;
 import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.dice.DieResult;
+import com.chamelaeon.dicebot.dice.FudgeDie;
 import com.chamelaeon.dicebot.dice.GroupResult;
 import com.chamelaeon.dicebot.dice.Modifier;
 import com.chamelaeon.dicebot.dice.Roll;
-import com.chamelaeon.dicebot.dice.Die.FudgeDie;
 
 /** A roller for Fudge behavior, e.g. "4dF". */
 public class FudgeRoller extends Roller {

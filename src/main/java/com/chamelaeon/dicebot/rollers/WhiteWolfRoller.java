@@ -9,11 +9,11 @@ import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.api.Statistics;
 import com.chamelaeon.dicebot.api.TokenSubstitution;
-import com.chamelaeon.dicebot.dice.Die.SimpleDie;
 import com.chamelaeon.dicebot.dice.DieResult;
 import com.chamelaeon.dicebot.dice.GroupResult;
 import com.chamelaeon.dicebot.dice.Modifier;
 import com.chamelaeon.dicebot.dice.Roll;
+import com.chamelaeon.dicebot.dice.SimpleDie;
 import com.chamelaeon.dicebot.random.Random;
 
 /** A roller for handling White Wolf die behavior. */

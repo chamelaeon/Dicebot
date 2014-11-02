@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,8 +30,8 @@ public class DieTest {
     
     @Before
     public void setUp() throws Exception {
-        fudgeDie = new Die.FudgeDie();
-        simpleDie = new Die.SimpleDie(sides);
+        fudgeDie = new FudgeDie();
+        simpleDie = new SimpleDie(sides);
         stats = new NullStatistics();
         random = new Random() {
             int count = 0;
@@ -82,20 +84,20 @@ public class DieTest {
     @Test
     public void testRollDieFudge() {
         // Fudge has no rerolls or explosions.
-        DieResult result = fudgeDie.rollDie(random, null, null, stats);
-        assertEquals(-1, result.getResult());
-        result = fudgeDie.rollDie(random, null, null, stats);
-        assertEquals(-1, result.getResult());
-        result = fudgeDie.rollDie(random, null, null, stats);
-        assertEquals(0, result.getResult());
-        result = fudgeDie.rollDie(random, null, null, stats);
-        assertEquals(1, result.getResult());
+    	List<DieResult> result = fudgeDie.rollDice(1, random, null, null, stats);
+        assertEquals(-1, result.get(0).getResult());
+        result = fudgeDie.rollDice(1, random, null, null, stats);
+        assertEquals(-1, result.get(0).getResult());
+        result = fudgeDie.rollDice(1, random, null, null, stats);
+        assertEquals(0, result.get(0).getResult());
+        result = fudgeDie.rollDice(1, random, null, null, stats);
+        assertEquals(1, result.get(0).getResult());
     }
     
     @Test
     public void testRollDieSimple() {
-        DieResult result = simpleDie.rollDie(random, null, null, stats);
-        assertEquals(1, result.getResult());
+    	List<DieResult> result = simpleDie.rollDice(1, random, null, null, stats);
+        assertEquals(1, result.get(0).getResult());
     }
     
     @Test
@@ -105,10 +107,10 @@ public class DieTest {
         when(simpleReroll.forceGoodValue()).thenReturn(false);
         
         // The first roll of 1 is skipped and we get the second roll.
-        DieResult result = simpleDie.rollDie(random, simpleReroll, null, stats);
-        assertEquals(1, result.getResult());
-        result = simpleDie.rollDie(random, simpleReroll, null, stats);
-        assertEquals(4, result.getResult());
+        List<DieResult> result = simpleDie.rollDice(1, random, simpleReroll, null, stats);
+        assertEquals(1, result.get(0).getResult());
+        result = simpleDie.rollDice(1, random, simpleReroll, null, stats);
+        assertEquals(4, result.get(0).getResult());
         
         verify(simpleReroll, times(2)).needsRerolled(1);
         verify(simpleReroll).needsRerolled(4);
@@ -125,10 +127,10 @@ public class DieTest {
         when(repeatingReroll.needsRerolled(6)).thenReturn(false);
         when(repeatingReroll.forceGoodValue()).thenReturn(true);
         
-        DieResult result = simpleDie.rollDie(random, repeatingReroll, null, stats);
-        assertEquals(6, result.getResult());
-        result = simpleDie.rollDie(random, repeatingReroll, null, stats);
-        assertEquals(5, result.getResult());
+        List<DieResult> result = simpleDie.rollDice(1, random, repeatingReroll, null, stats);
+        assertEquals(6, result.get(0).getResult());
+        result = simpleDie.rollDice(1, random, repeatingReroll, null, stats);
+        assertEquals(5, result.get(0).getResult());
         
         verify(repeatingReroll, times(2)).needsRerolled(1);
         verify(repeatingReroll).needsRerolled(4);
@@ -144,10 +146,10 @@ public class DieTest {
         when(simpleExplosion.shouldExplode(1)).thenReturn(true).thenReturn(false);
         
         // It's 2 because we exploded once and rolled the other 1.
-        DieResult result = simpleDie.rollDie(random, null, simpleExplosion, stats);
-        assertEquals(2, result.getResult());
-        result = simpleDie.rollDie(random, null, simpleExplosion, stats);
-        assertEquals(4, result.getResult());
+        List<DieResult> result = simpleDie.rollDice(1, random, null, simpleExplosion, stats);
+        assertEquals(2, result.get(0).getResult());
+        result = simpleDie.rollDice(1, random, null, simpleExplosion, stats);
+        assertEquals(4, result.get(0).getResult());
         
         verify(simpleExplosion, times(2)).shouldExplode(1);
         verify(simpleExplosion).shouldExplode(4);
@@ -160,10 +162,10 @@ public class DieTest {
         when(simpleExplosion.shouldExplode(1)).thenReturn(true);
         
         // It's 6 because both 1s exploded and the next roll was a 4: 1 + 1 + 4.
-        DieResult result = simpleDie.rollDie(random, null, simpleExplosion, stats);
-        assertEquals(6, result.getResult());
-        result = simpleDie.rollDie(random, null, simpleExplosion, stats);
-        assertEquals(6, result.getResult());
+        List<DieResult> result = simpleDie.rollDice(1, random, null, simpleExplosion, stats);
+        assertEquals(6, result.get(0).getResult());
+        result = simpleDie.rollDice(1, random, null, simpleExplosion, stats);
+        assertEquals(6, result.get(0).getResult());
         
         verify(simpleExplosion, times(2)).shouldExplode(1);
         verify(simpleExplosion).shouldExplode(4);

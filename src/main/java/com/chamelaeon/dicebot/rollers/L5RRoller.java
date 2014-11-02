@@ -10,7 +10,7 @@ import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.dice.GroupResult;
 import com.chamelaeon.dicebot.dice.Modifier;
 import com.chamelaeon.dicebot.dice.Roll;
-import com.chamelaeon.dicebot.dice.Die.SimpleDie;
+import com.chamelaeon.dicebot.dice.SimpleDie;
 import com.chamelaeon.dicebot.dice.behavior.Behavior;
 import com.chamelaeon.dicebot.dice.behavior.Explosion;
 import com.chamelaeon.dicebot.dice.behavior.L5RExplosion;

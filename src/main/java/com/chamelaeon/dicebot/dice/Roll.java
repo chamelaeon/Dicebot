@@ -156,11 +156,7 @@ public class Roll {
 		statistics.addToGroups(groupCount);
 		for (int i = 0; i < groupCount; i++) {
 			// Generate the rolled dice.
-			List<DieResult> dice = new ArrayList<DieResult>();
-			for (int j = 0; j < rolled; j++) {
-				DieResult rolled = die.rollDie(random, reroll, explosion, statistics);
-				dice.add(rolled);
-			}
+			List<DieResult> dice = die.rollDice(rolled, random, reroll, explosion, statistics);
 			Collections.sort(dice);
 			Collections.reverse(dice);
 			

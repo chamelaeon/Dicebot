@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
@@ -60,6 +61,14 @@ public class RollTest {
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(die);
         verifyNoMoreInteractions(modifier, reroll, explosion, personality);
+    }
+    
+    private List<DieResult> getResultList(int rolled, int result) {
+    	List<DieResult> results = new ArrayList<DieResult>();
+    	for (int i = 0; i < rolled; i++) {
+			results.add(new DieResult(result, false));
+		}
+    	return results;
     }
 
     @Test(expected = InputException.class)
@@ -186,14 +195,14 @@ public class RollTest {
         Statistics statistics = mock(Statistics.class);
         Random random = mock(Random.class);
         
-        when(die.rollDie(random, reroll, explosion, statistics)).thenReturn(new DieResult(8, false));
+        when(die.rollDice(rolled, random, reroll, explosion, statistics)).thenReturn(getResultList(rolled, 8));
         
         List<GroupResult> result = roll.performRoll(1, random, statistics);
         assertEquals(40, result.get(0).getNatural());
         assertFalse(result.get(0).isCriticalSuccess());
         assertFalse(result.get(0).isCriticalFailure());
         
-        verify(die, times(5)).rollDie(random, reroll, explosion, statistics);
+        verify(die).rollDice(rolled, random, reroll, explosion, statistics);
         verify(die).isCritSuccess(5, 40);
         verify(modifier).apply(40);
         verify(statistics).addToGroups(1);
@@ -207,7 +216,7 @@ public class RollTest {
         Statistics statistics = mock(Statistics.class);
         Random random = mock(Random.class);
         
-        when(die.rollDie(random, reroll, explosion, statistics)).thenReturn(new DieResult(8, false));
+        when(die.rollDice(rolled, random, reroll, explosion, statistics)).thenReturn(getResultList(rolled, 8));
         when(die.isCritSuccess(5, 40)).thenReturn(true);
         when(personality.useCritSuccesses()).thenReturn(true);
         
@@ -216,7 +225,7 @@ public class RollTest {
         assertTrue(result.get(0).isCriticalSuccess());
         assertFalse(result.get(0).isCriticalFailure());
         
-        verify(die, times(5)).rollDie(random, reroll, explosion, statistics);
+        verify(die).rollDice(rolled, random, reroll, explosion, statistics);
         verify(die).isCritSuccess(5, 40);
         verify(modifier).apply(40);
         verify(personality).useCritSuccesses();
@@ -227,7 +236,7 @@ public class RollTest {
         Statistics statistics = mock(Statistics.class);
         Random random = mock(Random.class);
         
-        when(die.rollDie(random, reroll, explosion, statistics)).thenReturn(new DieResult(1, false));
+        when(die.rollDice(rolled, random, reroll, explosion, statistics)).thenReturn(getResultList(rolled, 1));
         when(personality.useCritFailures()).thenReturn(true);
         
         List<GroupResult> result = roll.performRoll(1, random, statistics);
@@ -235,7 +244,7 @@ public class RollTest {
         assertFalse(result.get(0).isCriticalSuccess());
         assertTrue(result.get(0).isCriticalFailure());
         
-        verify(die, times(5)).rollDie(random, reroll, explosion, statistics);
+        verify(die).rollDice(rolled, random, reroll, explosion, statistics);
         verify(modifier).apply(5);
         verify(personality).useCritFailures();
     }
