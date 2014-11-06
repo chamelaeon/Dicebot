@@ -36,6 +36,7 @@ import com.chamelaeon.dicebot.listener.SendMotdListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
 import com.chamelaeon.dicebot.rollers.FudgeRoller;
 import com.chamelaeon.dicebot.rollers.L5RRoller;
+import com.chamelaeon.dicebot.rollers.ShadowrunRoller;
 import com.chamelaeon.dicebot.rollers.StandardRoller;
 import com.chamelaeon.dicebot.rollers.WhiteWolfRoller;
 import com.google.common.io.Closeables;
@@ -75,7 +76,7 @@ public class DicebotRunner {
 		if (args.length < 2) {
 		    configStream = DicebotRunner.class.getResourceAsStream("/config.properties");
 		    personalityStream = DicebotRunner.class.getResourceAsStream("/dicesuke.properties");
-			cardStream = DicebotRunner.class.getResourceAsStream("/dramaCards.properties");
+			cardStream = DicebotRunner.class.getResourceAsStream("/dramaCards.json");
 			
 			if (null == configStream || null == personalityStream) {
 				System.out.println("This dicebot requires two arguments: a properties file with configuration options " 
@@ -311,6 +312,7 @@ public class DicebotRunner {
 		registerRoller(new L5RRoller(personality), configBuilder);
 		registerRoller(new WhiteWolfRoller(personality), configBuilder);
 		registerRoller(new FudgeRoller(personality), configBuilder);
+		registerRoller(new ShadowrunRoller(personality), configBuilder);
 	}
 	
 	/**
