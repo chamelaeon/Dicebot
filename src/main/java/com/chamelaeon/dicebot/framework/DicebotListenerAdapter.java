@@ -35,7 +35,7 @@ public abstract class DicebotListenerAdapter extends ListenerAdapter<Dicebot> im
 	 */
 	public DicebotListenerAdapter(String commandPattern, HelpDetails helpDetails) {
 		this.helpDetails = helpDetails;
-		this.commandPattern = Pattern.compile(commandPattern);
+		this.commandPattern = Pattern.compile("^" + commandPattern);
 	}
 
 	@Override
