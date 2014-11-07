@@ -1,29 +1,33 @@
+/**
+ * 
+ */
 package com.chamelaeon.dicebot.dice.behavior;
 
-/** 
- * L5R Mastery explosion behavior. 
- * @author Chamelaeon 
+/**
+ * Represents a roll which will never explode.
+ * @author Chamelaeon
  */
-public class Mastery extends AbstractExplosion {
-    /** Private constructor. */
-    private Mastery() { 
-        super(9); 
-    }
+public class Raw extends AbstractExplosion {
+	
+	/** Private constructor. */
+    private Raw() {
+		super(Integer.MAX_VALUE);
+	}
 
-    @Override
+	@Override
     public String toString() { 
-        return "m"; 
+        return "r"; 
     }
 
     /**
-     * Creates a factory for making Mastery behaviors.
+     * Creates a factory for making Raw behaviors.
      * @return the factory.
      */
     public static BehaviorFactory getFactory() {
         return new BehaviorFactory() {
             @Override
             public Behavior createBehavior(int threshold) {
-                return new Mastery();
+                return new Raw();
             }
         };
     }

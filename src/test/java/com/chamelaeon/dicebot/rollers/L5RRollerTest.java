@@ -346,7 +346,7 @@ public class L5RRollerTest extends RollerTestBase {
     @Test
     public void testRollWithMastery() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5e", null, "9", "5", "m", null, null, null, null};
+        String[] parts = new String[] {"9k5m", null, "9", "5", "m", null, null, null, null};
         roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
@@ -354,6 +354,39 @@ public class L5RRollerTest extends RollerTestBase {
         verify(personality).getRollResult(eq("L5ROneGroup"), tokenSubMatcher("%GROUPCOUNT%", "1"),
                 tokenSubMatcher("%ROLLEDDICE%", "9"), tokenSubMatcher("%KEPTDICE%", "5"),
                 tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", "m"),
+                tokenSubMatcher("%USER%", testNick),  tokenSubMatcher("%NATURALVALUE%", "*"), 
+                tokenSubMatcher("%MODIFIEDVALUE%", "*"), tokenSubMatcher("%ANNOTATION%", ""));
+    }
+    
+    @Test
+    public void testRollWithRawRegexp() {
+        String regexp = L5RRoller.getRegexp();
+        Pattern p = Pattern.compile(regexp);
+        
+        Matcher m = p.matcher("9k5r");
+        m.find();
+        assertEquals("9k5r", m.group(0));
+        assertNull(m.group(1));
+        assertEquals("9", m.group(2));
+        assertEquals("5", m.group(3));
+        assertEquals("r", m.group(4));
+        assertNull(m.group(5));
+        assertNull(m.group(6));
+        assertNull(m.group(7));
+        assertNull(m.group(8));
+    }
+    
+    @Test
+    public void testRollWithRaw() throws InputException {
+        Statistics statistics = mock(Statistics.class);
+        String[] parts = new String[] {"9k5r", null, "9", "5", "r", null, null, null, null};
+        roller.assembleRoll(parts, testNick, statistics);
+        
+        verify(personality).parseShort("9");        
+        verify(personality).parseShort("5");
+        verify(personality).getRollResult(eq("L5ROneGroup"), tokenSubMatcher("%GROUPCOUNT%", "1"),
+                tokenSubMatcher("%ROLLEDDICE%", "9"), tokenSubMatcher("%KEPTDICE%", "5"),
+                tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", "r"),
                 tokenSubMatcher("%USER%", testNick),  tokenSubMatcher("%NATURALVALUE%", "*"), 
                 tokenSubMatcher("%MODIFIEDVALUE%", "*"), tokenSubMatcher("%ANNOTATION%", ""));
     }

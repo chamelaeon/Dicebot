@@ -28,6 +28,7 @@ public abstract class Behavior {
 	    BEHAVIORS.put('b', Brutal.getFactory());
 	    BEHAVIORS.put('m', Mastery.getFactory());
 	    BEHAVIORS.put('v', Vorpal.getFactory());
+	    BEHAVIORS.put('r', Raw.getFactory());
 	}
 	
 	/** The range for the reroll. */

@@ -23,7 +23,7 @@ public class L5RRoller extends Roller {
 	/** Regex piece for the basic roll. */
     private static final String BASIC_ROLL_REGEX = "(\\d+)k(\\d+)";
     /** Regex piece for the behavior. */
-    private static final String BEHAVIOR_REGEX = "(me|em|e|m)?";
+    private static final String BEHAVIOR_REGEX = "(me|em|e|m|r)?";
     /** Regex piece for the analyze flag. */
     private static final String ANALYZE_REGEX = "( a$)?";
     /** The complete regex for the roller. */
@@ -39,7 +39,7 @@ public class L5RRoller extends Roller {
 		        Arrays.asList("Basic roll: 5k2", "Roll with modifier: 7k3+5", "Roll with rollover: 14k6", 
 		                "Roll with emphasis: 9k2e", "Roll with modifier and emphasis: 10k6+16e", 
 		                "Roll with mastery: 9k3m", "Roll with modifier, emphasis, and mastery: 10k6me",
-		                "One with everything: 10k8+16me"),
+		                "Roll with no explosions (raw): 9k2r", "One with everything: 10k8+16me"),
 				personality);
 	}
 	
