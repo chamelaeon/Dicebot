@@ -60,18 +60,21 @@ public class StandardRoller extends Roller {
 		short groupCount = parseGroups(parts[1]);
 		short diceCount = getPersonality().parseDiceCount(parts[2]);
 		short diceType = getPersonality().parseShort(parts[3]);
+		Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
+		
 		if (diceCount < 1) {
 			throw getPersonality().getException("Roll0Dice");
 		} else if (diceType < 1) {
 			throw getPersonality().getException("Roll0Sides");
 		} else if (diceType == 1) {
-			throw getPersonality().getException("OneSidedDice", new TokenSubstitution("%DICECOUNT%", diceCount));
+			long modified = modifier.apply(1); 
+			throw getPersonality().getException("OneSidedDice", new TokenSubstitution("%DICECOUNT%", diceCount), 
+					new TokenSubstitution("%MODIFIEDVALUE%", modified));
 		}
 
 		BehaviorsPair pair = Behavior.parseBehavior(coalesceBehavior(parts[4], parts[6]), diceType);
         Reroll reroll = pair.reroll;
         Explosion explosion = pair.explosion;
-		Modifier modifier = Modifier.createModifier(parts[5], getPersonality());
 		String annotation = getAnnotationString(parts[7]);
 		
 		Roll roll = new Roll(diceCount, diceCount, new SimpleDie(diceType), modifier, reroll, explosion, getPersonality());
