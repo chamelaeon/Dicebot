@@ -6,10 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.BitSet;
 
 import org.apache.commons.math3.special.Erf;
 import org.apache.commons.math3.special.Gamma;
@@ -17,7 +14,6 @@ import org.jtransforms.fft.DoubleFFT_1D;
 import org.junit.Test;
 
 import com.chamelaeon.dicebot.statistics.ChiSquaredStatistics;
-import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
 public class MersenneTwisterRandomTest {
