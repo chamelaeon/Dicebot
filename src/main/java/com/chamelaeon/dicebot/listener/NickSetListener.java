@@ -17,6 +17,8 @@ public class NickSetListener extends ListenerAdapter<Dicebot> implements NickHan
 	private final String[] nicks;
 	/** The current index for nicks. */
 	private int index = 0;
+	/** Autosuffixes for defaulting nicks. */
+	private int nickSuffix = 1;
 	
 	/**
 	 * Constructor.
@@ -28,14 +30,17 @@ public class NickSetListener extends ListenerAdapter<Dicebot> implements NickHan
 	
 	@Override
 	public void onNickAlreadyInUse(NickAlreadyInUseEvent<Dicebot> event) throws Exception {
-	    if (index < nicks.length) {
-			System.out.println(event.getUsedNick() + " already in use. Retrying with " + nicks[++index] + ".");
-			event.getBot().setNick(nicks[index]);
-			event.respond(nicks[index]);
+		String nextNick;
+	    if (++index < nicks.length) {
+			System.out.println(event.getUsedNick() + " already in use. Retrying with " + nicks[index] + ".");
+			nextNick = nicks[index];
 		} else {
 			System.out.println("All given nicks are currently being used! Defaulting to just appending numbers...");
-			event.respond(event.getAutoNewNick());
+			nextNick = event.getBot().getConfiguration().getName() + nickSuffix++;
 		}
+	    
+	    event.getBot().setNick(nextNick);
+		event.respond(nextNick);
 	}
 
     @Override
