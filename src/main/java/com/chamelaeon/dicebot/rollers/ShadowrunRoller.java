@@ -30,10 +30,8 @@ public class ShadowrunRoller extends Roller {
     private static final String BASIC_ROLL_REGEX = "(\\d+)s(\\d+)";
     /** Regex piece for the behavior. */
     private static final String BEHAVIOR_REGEX = "(e)?";
-    /** Regex piece for the DC. */
-    private static final String DC_REGEX = "([ ]*[dc|DC]+(\\d+))?";
     /** The complete regex for the roller. */
-    private static final String TOTAL_REGEX = "^" + BASIC_ROLL_REGEX + BEHAVIOR_REGEX + MODIFIER_REGEX + BEHAVIOR_REGEX + DC_REGEX + "$";
+    private static final String TOTAL_REGEX = "^" + BASIC_ROLL_REGEX + BEHAVIOR_REGEX + MODIFIER_REGEX + BEHAVIOR_REGEX + "$";
 	
     /**
 	 * Constructor.
@@ -49,17 +47,9 @@ public class ShadowrunRoller extends Roller {
 		short neededSuccesses = getPersonality().parseShort(parts[2]);
 		Modifier modifier = Modifier.createModifier(parts[4], getPersonality());
 		String edge = coalesceBehavior(parts[3], parts[5]);
-		String dcString = StringUtils.defaultString(parts[6], " ");
-		Short dc = 5;
-		if (!StringUtils.isBlank(dcString.trim())) {
-			dc = getPersonality().parseShort(parts[7]);
-			dcString = " " + dcString.trim() + " ";
-		}
 		
 		if (rolled < 1) {
 			throw getPersonality().getException("Roll0Dice");
-		} else if (dc <=0) {
-			throw getPersonality().getException("DCEquals0");
 		} else if (rolled < neededSuccesses && StringUtils.isEmpty(edge)) {
 			// Let them try a useless roll if they have edge.
 			throw getPersonality().getException("CannotSatisfySuccesses", 
@@ -79,7 +69,7 @@ public class ShadowrunRoller extends Roller {
         int onesRolled = 0;
         int successes = 0;
         for (DieResult dieResult : groups.get(0).getDice()) {
-            if (dieResult.getResult() >= dc) {
+            if (dieResult.getResult() >= 5) {
                 successes++;
             } else if (dieResult.getResult() == 1) {
                 onesRolled++;
@@ -110,8 +100,7 @@ public class ShadowrunRoller extends Roller {
         return getPersonality().getRollResult(textKey,
             new TokenSubstitution("%ROLLEDDICE%", rolled), new TokenSubstitution("%SUCCESSESNEEDED%", neededSuccesses), 
             new TokenSubstitution("%MODIFIER%", modifier), new TokenSubstitution("%EDGE%", edge), 
-            new TokenSubstitution("%DCSTRING%", dcString), new TokenSubstitution("%USER%", user), 
-            new TokenSubstitution("%DICEVALUE%", groups.get(0).getDice()), 
+            new TokenSubstitution("%USER%", user), new TokenSubstitution("%DICEVALUE%", groups.get(0).getDice()), 
             new TokenSubstitution("%SUCCESSESOVERMINIMUM%", successesOverMinimum));
 	}
 
