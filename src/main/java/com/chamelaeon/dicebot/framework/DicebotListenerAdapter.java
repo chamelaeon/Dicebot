@@ -58,6 +58,11 @@ public abstract class DicebotListenerAdapter extends ListenerAdapter<Dicebot> im
 	 * @param event The event to dispatch.
 	 */
 	public void parseMessage(DicebotGenericEvent<Dicebot> event) {
+		// If the message is from another bot, ignore it.
+		if (event.getUser().getRealName().equals(event.getBot().getUserBot().getRealName())) {
+			return;
+		}
+		
 		// Check for any match.
 		Matcher matcher = commandPattern.matcher(event.getMessage());
 		if (matcher.find()) {
