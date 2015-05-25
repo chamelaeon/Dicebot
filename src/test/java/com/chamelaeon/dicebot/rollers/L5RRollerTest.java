@@ -475,6 +475,7 @@ public class L5RRollerTest extends RollerTestBase {
         list.add("Roll with modifier and emphasis: 10k6+16e");
         list.add("Roll with mastery: 9k3m");
         list.add("Roll with modifier, emphasis, and mastery: 10k6me");
+        list.add("Roll with no explosions (raw): 9k2r");
         list.add("One with everything: 10k8+16me");
         assertEquals(list, details.getExamples());
     }

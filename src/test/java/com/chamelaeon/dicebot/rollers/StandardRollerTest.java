@@ -2,8 +2,8 @@ package com.chamelaeon.dicebot.rollers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -138,12 +138,12 @@ public class StandardRollerTest extends RollerTestBase {
 		try {
 			Statistics statistics = mock(Statistics.class);
 			String[] parts = new String[] {"1d1", null, "1", "1", null, null, null, null};
-			when(personality.getException(eq("OneSidedDice"), (TokenSubstitution[]) notNull())).thenReturn(new InputException("error"));
+			when(personality.getException(eq("OneSidedDice"), (TokenSubstitution[]) anyVararg())).thenReturn(new InputException("error"));
 			roller.assembleRoll(parts, testNick, statistics);
 		} finally {
 			verify(personality).parseDiceCount("1");
 			verify(personality).parseShort("1");
-			verify(personality).getException(eq("OneSidedDice"), tokenSubMatcher("%DICECOUNT%", "1"));
+			verify(personality).getException(eq("OneSidedDice"), tokenSubMatcher("%DICECOUNT%", "1"), tokenSubMatcher("%MODIFIEDVALUE%", "1"));
 		}
 	}
 
