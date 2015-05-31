@@ -23,7 +23,7 @@ public class L5RRoller extends Roller {
 	/** Regex piece for the basic roll. */
     private static final String BASIC_ROLL_REGEX = "(\\d+)k(\\d+)";
     /** Regex piece for the behavior. */
-    private static final String BEHAVIOR_REGEX = "(me|em|e|m|r)?";
+    private static final String BEHAVIOR_REGEX = "(me|em|er|re|e|m|r)?";
     /** Regex piece for the analyze flag. */
     private static final String ANALYZE_REGEX = "( a$)?";
     /** The complete regex for the roller. */
