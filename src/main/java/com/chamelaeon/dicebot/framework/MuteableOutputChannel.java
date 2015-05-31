@@ -7,7 +7,6 @@ import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.output.OutputChannel;
 
-import com.chamelaeon.dicebot.IdleChannelTracker;
 
 /**
  * An output channel that can be muted.

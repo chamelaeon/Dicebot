@@ -1,5 +1,6 @@
 package com.chamelaeon.dicebot.api;
 
+
 public interface Statistics {
 
     /**
@@ -37,4 +38,19 @@ public interface Statistics {
      */
     public void addToGroups(int modifier);
 
+    /**
+	 * Gets the average roll for the given roll name. If no rolls of that
+	 * type have been rolled, the average will be 0;
+	 * @param rollName The name of the roll to check the average for.
+	 * @return the average.
+	 */
+	public double getAverage(String rollName);
+
+	/**
+	 * Gets the average roll for the type of die rolled. If no dice of that
+	 * type have been rolled, the average will be 0;
+	 * @param dieType The type of die to check the average for.
+	 * @return the average.
+	 */
+	public double getAverage(int dieType);
 }

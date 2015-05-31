@@ -15,6 +15,17 @@
 			</snapshots>
 		</repository>
 		<repository>
+			<id>sonatype-nexus-releases</id>
+			<name>Sonatype Nexus Releases</name>
+			<url>https://oss.sonatype.org/content/repositories/releases</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
 			<id>sonatype-nexus-snapshots</id>
 			<name>Sonatype Nexus Snapshots</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -71,8 +82,9 @@
 						<program>
 							<mainClass>com.chamelaeon.dicebot.DicebotRunner</mainClass>
 							<commandLineArguments>
+								<commandLineArgument>../etc/config.properties</commandLineArgument>
 								<commandLineArgument>../etc/dicesuke.properties</commandLineArgument>
-								<commandLineArgument>../etc/dramaCards.properties</commandLineArgument>
+								<commandLineArgument>../etc/dramaCards.json</commandLineArgument>
 							</commandLineArguments>
 							<id>dicebot</id>
 						</program>
@@ -102,7 +114,12 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>r09</version>
+			<version>18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -119,5 +136,26 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.5</version>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.wendykierp</groupId>
+			<artifactId>JTransforms</artifactId>
+			<version>3.0</version>
+		</dependency>
+
 	</dependencies>
 </project>

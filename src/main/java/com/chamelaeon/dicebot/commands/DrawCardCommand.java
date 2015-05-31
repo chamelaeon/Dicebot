@@ -9,6 +9,7 @@ import com.chamelaeon.dicebot.api.CardBase;
 import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.api.InputException;
+import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 import com.chamelaeon.dicebot.framework.DicebotListenerAdapter;
 
@@ -55,7 +56,6 @@ public class DrawCardCommand extends DicebotListenerAdapter {
 			
 			// Hit up the card DB.
 			for (int i = 0; i < count; i++) {
-				// TODO: Add rarity
 				String card = cardBase.draw();
 				
 				// Send a msg to the originating user, and the notified user.
@@ -66,9 +66,12 @@ public class DrawCardCommand extends DicebotListenerAdapter {
 			}
 
 			if (null != notifyNick) {
-				event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCardAndNotify", count, user.getNick(), notifyNick));
+				event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCardAndNotify", 
+				        new TokenSubstitution("%CARDCOUNT%", count), new TokenSubstitution("%NICK%", user.getNick()), 
+				        new TokenSubstitution("%NOTIFYNICK%", notifyNick)));
 			} else {
-			    event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCard", count, user.getNick()));
+			    event.respondWithAction(event.getBot().getPersonality().getMessage("DrawCard", 
+			            new TokenSubstitution("%CARDCOUNT%", count), new TokenSubstitution("%NICK%", user.getNick())));
 			}
 		}
 	}

@@ -16,5 +16,12 @@
         <exclude>maven-metadata-appassembler.xml</exclude>
       </excludes>
     </fileSet>
+    <fileSet>
+      <directory>target</directory>
+      <includes>
+      	<include>dicebot-${version}.jar</include>
+      </includes>
+      <outputDirectory>/repo/com/chamelaeon/dicebot/${version}/</outputDirectory>
+    </fileSet>
   </fileSets> 
 </assembly>

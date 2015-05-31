@@ -1,0 +1,44 @@
+{
+    "Rarity": [ 
+	    {
+	    	"Name": "Common",
+	        "Percent": 50,
+	        "Card": [
+	            {
+	                "Title": "Test common card.",
+	                "Text": "Test common description."
+	            }
+	        ]
+	    },
+	    {
+	    	"Name": "Uncommon",
+	        "Percent": 30,
+	        "Card": [
+	            {
+	                "Title": "Test uncommon card.",
+	                "Text": "Test uncommon description."
+	            }
+			]
+	    },
+	    {
+	    	"Name": "Rare",
+	        "Percent": 15,
+	        "Card" : [
+	            {
+	                "Title": "Test rare card",
+	                "Text": "Test rare description."
+	            }
+            ]
+	    },
+	    {
+	    	"Name": "Mythic",
+	        "Percent": 5,
+	        "Card" : [
+	            {
+	                "Title": "Test Mythic Card",
+	                "Text": "Test mythic description."
+	            }
+			]
+	    }
+    ]
+}

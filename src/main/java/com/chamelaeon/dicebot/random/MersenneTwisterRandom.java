@@ -55,7 +55,7 @@ public class MersenneTwisterRandom implements Random {
      * Returns the next mersenne twister int.
      * @return the next int.
      */
-    private int nextInt() {
+    protected int nextInt() {
         if (index == 0) {
             generateNumbers();
         }
@@ -75,7 +75,7 @@ public class MersenneTwisterRandom implements Random {
      * Initialize the generator from a seed
      * @param seed The seed to initialize with.
      */
-    private void initializeGenerator(int seed) {
+    protected void initializeGenerator(int seed) {
         MT[0] = seed;
         for (int i = 1; i < 624; i++) { // loop over each other element
             MT[i] = (0x6c078965 * (MT[i-1] ^ (MT[i-1] >>> 30))) + i;

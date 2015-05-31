@@ -11,7 +11,6 @@ import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.output.OutputIRC;
 
-import com.chamelaeon.dicebot.IdleChannelTracker;
 
 /**
  * OutputIRC class that tracks the joining of, messages to, and actions to channels.

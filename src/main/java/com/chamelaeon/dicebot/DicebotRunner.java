@@ -20,6 +20,7 @@ import com.chamelaeon.dicebot.api.CardBase;
 import com.chamelaeon.dicebot.api.Command;
 import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.HelpDetails;
+import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.commands.CheatCommand;
 import com.chamelaeon.dicebot.commands.DrawCardCommand;
 import com.chamelaeon.dicebot.commands.HelpCommand;
@@ -33,10 +34,11 @@ import com.chamelaeon.dicebot.listener.NickHandlingListener;
 import com.chamelaeon.dicebot.listener.NickSetListener;
 import com.chamelaeon.dicebot.listener.SendMotdListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
-import com.chamelaeon.dicebot.rollers.Roller.FudgeRoller;
-import com.chamelaeon.dicebot.rollers.Roller.L5RRoller;
-import com.chamelaeon.dicebot.rollers.Roller.StandardRoller;
-import com.chamelaeon.dicebot.rollers.Roller.WhiteWolfRoller;
+import com.chamelaeon.dicebot.rollers.FudgeRoller;
+import com.chamelaeon.dicebot.rollers.L5RRoller;
+import com.chamelaeon.dicebot.rollers.ShadowrunRoller;
+import com.chamelaeon.dicebot.rollers.StandardRoller;
+import com.chamelaeon.dicebot.rollers.WhiteWolfRoller;
 import com.google.common.io.Closeables;
 
 /**
@@ -49,11 +51,11 @@ public class DicebotRunner {
 	/** The list of help details for rollers. */
 	private final List<HelpDetails> rollerHelpDetails;
 	/** The dicebot's personality. */
-	private PropertiesPersonality personality;
+	private Personality personality;
 	/** The listener for handling nicks. */
     private NickHandlingListener nickListener;
-	
-	/** Constructor. */
+
+    /** Constructor. */
 	private DicebotRunner() {
 		this.commandHelpDetails = new ArrayList<>();
 		this.rollerHelpDetails = new ArrayList<>();
@@ -68,64 +70,87 @@ public class DicebotRunner {
 	 * @param args Arguments for the dicebot.  
 	 */
 	public static void main(String[] args) throws Exception {
-		InputStream propStream;
+		InputStream configStream;
+		InputStream personalityStream;
 		InputStream cardStream;
-		if (args.length < 1) {
-			propStream = DicebotRunner.class.getResourceAsStream("/dicesuke.properties");
-			cardStream = DicebotRunner.class.getResourceAsStream("/dramaCards.properties");
+		if (args.length < 2) {
+		    configStream = DicebotRunner.class.getResourceAsStream("/config.properties");
+		    personalityStream = DicebotRunner.class.getResourceAsStream("/dicesuke.properties");
+			cardStream = DicebotRunner.class.getResourceAsStream("/dramaCards.json");
 			
-			if (null == propStream) {
-				System.out.println("This dicebot requires a single argument: a properties file containing personality information. " 
+			if (null == configStream || null == personalityStream) {
+				System.out.println("This dicebot requires two arguments: a properties file with configuration options " 
+				        + "and a properties file containing personality information. " 
 						+ "An additional properties file with drama cards can be specified as well.");
 				System.exit(1);
 			}
 		} else {
 			// Find the arguments.
-			String fileName = args[0];
+			String configPath = args[0];
+			String personalityPath = args[1];
 			String cardPath = null;
-			if (args.length >= 2) {
-				cardPath = args[1];
+			if (args.length >= 3) {
+				cardPath = args[2];
 			}
 			
-			propStream = new FileInputStream(new File(fileName));
+			configStream = new FileInputStream(new File(configPath));
+			personalityStream = new FileInputStream(new File(personalityPath));
 			cardStream = new FileInputStream(new File(cardPath));
 		}
 		
-		// Grab the properties.
-		Properties props = new Properties();
+		// Grab the configuration and personality properties.
+		Properties configProps = new Properties();
+		Properties personalityProps = new Properties();
 		try {
-			props.load(propStream);
+			configProps.load(configStream);
+			personalityProps.load(personalityStream);
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			throw ioe;
 		} finally {
-			Closeables.closeQuietly(propStream);
+			Closeables.closeQuietly(configStream);
+			Closeables.closeQuietly(personalityStream);
+		}
+		
+		// Load the card base.
+		CardBase cardBase = null;
+		if (0 == cardStream.available()) {
+    		try {
+    		    cardBase = new CardBase(cardStream);
+    		} catch (IOException ioe) {
+    		    throw ioe;
+            } finally {
+                Closeables.closeQuietly(cardStream);
+            }
 		}
 		
 		DicebotRunner runner = new DicebotRunner();
-		runner.start(props, cardStream);
+		runner.start(configProps, personalityProps, cardBase);
 	}
 	
 	/**
 	 * Starts the dicebot. 
-	 * @param props The properties of the dicebot.
-	 * @param cardPath The card path for the dicebot to use, if any.
+	 * @param config The configuration properties of the dicebot.
+	 * @param personality The personality of the dicebot.
+	 * @param cardBase The card base for the dicebot to use, if any.
 	 * @throws IrcException if there is a problem with the bot framework.
 	 * @throws IOException if there is a connection issue.
 	 */
-	private void start(Properties props, InputStream cardStream) throws IrcException, IOException { 
+	private void start(Properties config, Properties personalityProps, CardBase cardBase) throws IrcException, IOException { 
 		// Pull out properties we need.
-		String network = props.getProperty("Network", "irc.sandwich.net");
-		int port = Integer.parseInt(props.getProperty("Port", "6697"));
-		boolean useSsl = Boolean.parseBoolean(props.getProperty("SSL", "true"));
-		boolean trustAllCerts = Boolean.parseBoolean(props.getProperty("TrustAllCertificates", "false"));
-		String nicks = props.getProperty("Nicks", "Dicebot");
-		String nickservPassword = props.getProperty("NickservPassword", "");
-		boolean useGhostIfNickExists = Boolean.parseBoolean(props.getProperty("UseGhostIfNickExists", "false"));
-		String channels = props.getProperty("Channels");
-		final String motd = props.getProperty("MotD");
+		String network = config.getProperty("Network", "irc.sandwich.net");
+		int port = Integer.parseInt(config.getProperty("Port", "6697"));
+		boolean useSsl = Boolean.parseBoolean(config.getProperty("SSL", "true"));
+		boolean trustAllCerts = Boolean.parseBoolean(config.getProperty("TrustAllCertificates", "false"));
+		String nicks = config.getProperty("Nicks", "Dicebot");
+		String nickservPassword = config.getProperty("NickservPassword", "");
+		boolean useGhostIfNickExists = Boolean.parseBoolean(config.getProperty("UseGhostIfNickExists", "false"));
+		String channels = config.getProperty("Channels");
+		final String motd = config.getProperty("MotD");
 
 		// Builder and mandatory config.
-		this.personality = new PropertiesPersonality(props);
+		this.personality =  new PropertiesPersonality(personalityProps, 
+		                Boolean.parseBoolean(config.getProperty("UseCriticalSuccessMessages").trim()),
+		                Boolean.parseBoolean(config.getProperty("UseCriticalFailureMessages").trim()));
 		Builder<Dicebot> configBuilder = new DicebotBuilder(personality);
 		configBuilder.setIdentServerEnabled(true);
 		configBuilder.setAutoReconnect(true);
@@ -148,7 +173,7 @@ public class DicebotRunner {
         processNicks(nicks, useGhostIfNickExists, nickservPassword, configBuilder);
         processChannels(channels, configBuilder);
         createRollers(configBuilder);
-        createCommands(configBuilder, cardStream);
+        createCommands(configBuilder, cardBase);
         configBuilder.addListener(new SendMotdListener(motd));
         
         // Start the ident server before anything else, unless there's already one running.
@@ -208,7 +233,7 @@ public class DicebotRunner {
 	        	}
 	        }
         } finally {
-    		Closeables.closeQuietly(scanner);
+    		Closeables.close(scanner, false);
     	}
 	}
 
@@ -217,14 +242,14 @@ public class DicebotRunner {
 	 * @param configBuilder The configuration Builder to register commands with.
 	 * @param cardPath The card path to use.
 	 */
-	private void createCommands(Builder<Dicebot> configBuilder, InputStream cardStream) {
+	private void createCommands(Builder<Dicebot> configBuilder, CardBase cardBase) {
 		registerCommand(new MuteUnmuteCommand(), configBuilder);
 		registerCommand(new LeaveCommand(), configBuilder);
 		registerCommand(new StatusCommand(), configBuilder);
 		registerCommand(new JoinCommand(), configBuilder);
 		registerCommand(new CheatCommand(), configBuilder);
-		if (null != cardStream) {
-			registerCommand(new DrawCardCommand(new CardBase(cardStream)), configBuilder);
+		if (null != cardBase) {
+			registerCommand(new DrawCardCommand(cardBase), configBuilder);
 		}
 		
 		// Always register the help command last so it has all the help details.
@@ -287,6 +312,7 @@ public class DicebotRunner {
 		registerRoller(new L5RRoller(personality), configBuilder);
 		registerRoller(new WhiteWolfRoller(personality), configBuilder);
 		registerRoller(new FudgeRoller(personality), configBuilder);
+		registerRoller(new ShadowrunRoller(personality), configBuilder);
 	}
 	
 	/**

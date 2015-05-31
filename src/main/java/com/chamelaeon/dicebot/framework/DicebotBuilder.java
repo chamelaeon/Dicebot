@@ -13,7 +13,6 @@ import org.pircbotx.hooks.events.ServerResponseEvent;
 import org.pircbotx.output.OutputChannel;
 import org.pircbotx.output.OutputIRC;
 
-import com.chamelaeon.dicebot.IdleChannelTracker;
 import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.Personality;
 

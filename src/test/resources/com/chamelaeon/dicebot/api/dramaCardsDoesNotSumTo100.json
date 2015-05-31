@@ -1,0 +1,14 @@
+{
+    "Rarity": [ 
+	    {
+	    	"Name": "Common",
+	        "Percent": 50,
+	        "Card": [
+	            {
+	                "Title": "Test common card.",
+	                "Text": "Test common description."
+	            }
+	        ]
+	    }
+    ]
+}

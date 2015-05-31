@@ -7,8 +7,9 @@ import java.util.List;
 import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.api.Statistics;
-import com.chamelaeon.dicebot.dice.Behavior.Explosion;
-import com.chamelaeon.dicebot.dice.Behavior.Reroll;
+import com.chamelaeon.dicebot.api.TokenSubstitution;
+import com.chamelaeon.dicebot.dice.behavior.Explosion;
+import com.chamelaeon.dicebot.dice.behavior.Reroll;
 import com.chamelaeon.dicebot.random.Random;
 
 
@@ -35,10 +36,12 @@ public class Roll {
 	 * @param kept The number of kept dice.
 	 * @param sides The number of sides on the dice to be rolled.
 	 * @param modifier The numerical modifier for the roll.
+	 * @param reroll The reroll behavior for the roll, if any.
+	 * @param explosion The explosion behavior for the roll, if any.
 	 * @throws InputException if there is an issue with the construction of the roll.
 	 */
-	public Roll(short rolled, short kept, Die die, Modifier modifier, Reroll reroll, Explosion explosion, Personality personality) 
-	throws InputException {
+	public Roll(short rolled, short kept, Die die, Modifier modifier, Reroll reroll, Explosion explosion, 
+	        Personality personality) throws InputException {
 		this.rolled = rolled;
 		this.kept = kept;
 		this.die = die;
@@ -49,9 +52,11 @@ public class Roll {
 		
 		if (reroll != null && reroll.cannotBeSatisfied(die.getSides())) {
 			if (rolled == 1) {
-				throw personality.getException("CannotSatisfyRerollSingleDie", reroll, die.getSides());	
+				throw personality.getException("CannotSatisfyRerollSingleDie", new TokenSubstitution("%REROLL%", reroll), 
+				        new TokenSubstitution("%SIDES%", die.getSides()));
 			} else {
-				throw personality.getException("CannotSatisfyRerollMultipleDice", reroll, rolled, die.getSides());
+				throw personality.getException("CannotSatisfyRerollMultipleDice", new TokenSubstitution("%REROLL%", reroll), 
+				        new TokenSubstitution("%DICEROLLED%", rolled), new TokenSubstitution("%SIDES%", die.getSides()));
 			}
 		}
 		
@@ -138,18 +143,20 @@ public class Roll {
 	public Explosion getExplosion() {
 		return explosion;
 	}
-	
-	
-	public List<GroupResult> performRoll(int groupCount, Random random, Statistics statistics) {
+
+	/**
+	 * Performs the actual roll.
+	 * @param groupCount The number of groups to roll.
+	 * @param random The random object for the roll.
+	 * @param statistics The statistics tracking object.
+	 * @return the result of all groups in the roll.
+	 */
+    public List<GroupResult> performRoll(int groupCount, Random random, Statistics statistics) {
 		List<GroupResult> groups = new ArrayList<GroupResult>();
 		statistics.addToGroups(groupCount);
 		for (int i = 0; i < groupCount; i++) {
 			// Generate the rolled dice.
-			List<DieResult> dice = new ArrayList<DieResult>();
-			for (int j = 0; j < rolled; j++) {
-				DieResult rolled = die.rollDie(random, reroll, explosion, statistics);
-				dice.add(rolled);
-			}
+			List<DieResult> dice = die.rollDice(rolled, random, reroll, explosion, statistics);
 			Collections.sort(dice);
 			Collections.reverse(dice);
 			

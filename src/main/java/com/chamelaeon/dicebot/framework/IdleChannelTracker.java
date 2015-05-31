@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chamelaeon.dicebot;
+package com.chamelaeon.dicebot.framework;
 
 import java.util.ArrayList;
 import java.util.Comparator;
