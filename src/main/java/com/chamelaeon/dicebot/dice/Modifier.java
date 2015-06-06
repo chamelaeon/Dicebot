@@ -24,7 +24,7 @@ public abstract class Modifier {
 	 */
 	public long apply(long rollResult) {
 		return rollResult + value;
-	}
+	}  
 	
 	/**
      * Applies the modifier to the given roll result.
