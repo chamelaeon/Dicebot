@@ -446,11 +446,15 @@ public class L5RRollerTest extends RollerTestBase {
     @Test
     public void testAnalyzeRoll() throws InputException {
         Statistics statistics = mock(Statistics.class);
-        String[] parts = new String[] {"9k5 a", null, "9", "5", null, null, null, "a", null};
-        assertEquals("doesn't quite know how to analyze rolls yet.", roller.assembleRoll(parts, testNick, statistics));
+        String[] parts = new String[] {"9k5+7em a", null, "9", "5", null, "+7", "em", "a", null};
+        roller.assembleRoll(parts, testNick, statistics);
         
         verify(personality).parseShort("9");        
         verify(personality).parseShort("5");
+        verify(personality).parseShort("7");
+        verify(personality).getMessage(eq("L5RAnalyze"), tokenSubMatcher("%ROLLEDDICE%", "9"), 
+                tokenSubMatcher("%KEPTDICE%", "5"), tokenSubMatcher("%MODIFIER%", "+7"), tokenSubMatcher("%BEHAVIORS%", "em"),
+                tokenSubMatcher("%USER%", testNick),  tokenSubMatcher("%AVERAGE%", "*"));
     }
     
     @Test
@@ -463,7 +467,8 @@ public class L5RRollerTest extends RollerTestBase {
 				+ "13k9 into 10k10+2). To roll additional groups of die, prefix the roll with a number then a space "
 				+ "(ex. 10 2k2-5). Modifiers will be applied to each group individually. Emphasis rolls are available "
 				+ "by appending \"e\" to the roll (ex. 9k5e). Mastery is also available by appending \"m\" (ex. 12k3m). "
-				+ "They may be combined (ex. 12k3+5em).", 
+				+ "They may be combined (ex. 12k3+5em). To analyze the predicted average of a given roll, put an 'a' after " +
+				"the roll, separated by a space (ex. 9k5e+2 a). This can help with knowing how many raises you should take.", 
         		details.getDescription());
         assertEquals("roller", details.getType());
 
@@ -476,6 +481,8 @@ public class L5RRollerTest extends RollerTestBase {
         list.add("Roll with mastery: 9k3m");
         list.add("Roll with modifier, emphasis, and mastery: 10k6me");
         list.add("Roll with no explosions (raw): 9k2r");
+        list.add("Roll with no explosions (raw) and emphasis: 9k2r"); 
+        list.add("Roll with analysis: 9k2me+3 a");
         list.add("One with everything: 10k8+16me");
         assertEquals(list, details.getExamples());
     }

@@ -27,6 +27,15 @@ public abstract class Modifier {
 	}
 	
 	/**
+     * Applies the modifier to the given roll result.
+     * @param rollResult The roll result to modify.
+     * @return the modified value.
+     */
+    public double apply(double rollResult) {
+        return rollResult + value;
+    }
+	
+	/**
 	 * Adds a delta to the value of the modifier.
 	 * @param delta The delta to add.
 	 * @return the new altered modifier.
