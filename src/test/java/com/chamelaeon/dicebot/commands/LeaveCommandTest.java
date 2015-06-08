@@ -1,7 +1,9 @@
 package com.chamelaeon.dicebot.commands;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,41 +12,22 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pircbotx.Channel;
-import org.pircbotx.output.OutputChannel;
 
-import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.HelpDetails;
-import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 
 public class LeaveCommandTest extends CommandTestBase {
 
     LeaveCommand command;
     
-    DicebotGenericEvent<Dicebot> event;
-    Channel channel;
-    OutputChannel outputChannel;
-    Dicebot bot;
-    
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
-        doPersonalitySetup();
+        doMockSetup();
         command = new LeaveCommand();
-        event = mock(DicebotGenericEvent.class);
-        channel = mock(Channel.class);
-        outputChannel = mock(OutputChannel.class);
-        bot = mock(Dicebot.class);
-        
-        when(event.getChannel()).thenReturn(channel);
-        when(event.getBot()).thenReturn(bot);
-        when(bot.getPersonality()).thenReturn(personality);
-        when(channel.send()).thenReturn(outputChannel);
     }
     
     @After
     public void tearDown() throws Exception {
-        doPersonalityTeardown();
+        doMockTeardown();
     }
 
     @Test

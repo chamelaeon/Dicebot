@@ -18,7 +18,7 @@ import com.chamelaeon.dicebot.commands.CommandTestBase;
 public class RollerTestBase extends CommandTestBase {
 
 	public void doPersonalitySetup() throws InputException {
-		super.doPersonalitySetup();
+		super.doMockSetup();
 		when(personality.parseShort(anyString())).thenAnswer(new ParsingAnswer());
 		when(personality.parseDiceCount(anyString())).thenAnswer(new CheckingParsingAnswer());
 	}
@@ -26,7 +26,7 @@ public class RollerTestBase extends CommandTestBase {
 	public void doPersonalityTeardown() {
 		verify(personality, atMost(50)).useCritFailures();
 		verify(personality, atMost(50)).useCritSuccesses();
-		super.doPersonalityTeardown();
+		super.doMockTeardown();
 	}
 	
 	protected static class ParsingAnswer implements Answer<Short> {

@@ -3,24 +3,43 @@ package com.chamelaeon.dicebot.commands;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
+import org.pircbotx.Channel;
+import org.pircbotx.output.OutputChannel;
 
+import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.InputException;
 import com.chamelaeon.dicebot.api.Personality;
 import com.chamelaeon.dicebot.api.TokenSubstitution;
+import com.chamelaeon.dicebot.framework.DicebotGenericEvent;
 
 public class CommandTestBase {
     protected String testNick = "testNick";
     protected Personality personality;
+    protected DicebotGenericEvent<Dicebot> event;
+    protected Channel channel;
+    protected OutputChannel outputChannel;
+    protected Dicebot bot;
 
-    protected void doPersonalitySetup() throws InputException {
+    @SuppressWarnings("unchecked")
+    protected void doMockSetup() throws InputException {
         personality = mock(Personality.class);
+        event = mock(DicebotGenericEvent.class);
+        channel = mock(Channel.class);
+        outputChannel = mock(OutputChannel.class);
+        bot = mock(Dicebot.class);
+        
+        when(event.getChannel()).thenReturn(channel);
+        when(event.getBot()).thenReturn(bot);
+        when(bot.getPersonality()).thenReturn(personality);
+        when(channel.send()).thenReturn(outputChannel);
     }
     
-    protected void doPersonalityTeardown() {
+    protected void doMockTeardown() {
         verifyNoMoreInteractions(personality);
     }
     

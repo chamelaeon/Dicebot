@@ -7,7 +7,7 @@ import java.util.List;
  * Details about the command, for use in the help system.
  * @author Chamelaeon
  */
-public class HelpDetails {
+public class HelpDetails implements Comparable<HelpDetails> {
     /** The description of the command. */
 	private final String description;
 	/** The "name" of the command, or what the user has to type to activate it. */
@@ -94,4 +94,9 @@ public class HelpDetails {
 	public List<String> getExamples() {
 		return examples;
 	}
+
+    @Override
+    public int compareTo(HelpDetails o) {
+        return name.compareTo(o.name);
+    }
 }
