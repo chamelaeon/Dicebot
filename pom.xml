@@ -83,7 +83,7 @@
 							<mainClass>com.chamelaeon.dicebot.DicebotRunner</mainClass>
 							<commandLineArguments>
 								<commandLineArgument>../etc/config.properties</commandLineArgument>
-								<commandLineArgument>../etc/dicesuke.properties</commandLineArgument>
+								<commandLineArgument>../etc/default.properties</commandLineArgument>
 								<commandLineArgument>../etc/dramaCards.json</commandLineArgument>
 							</commandLineArguments>
 							<id>dicebot</id>
