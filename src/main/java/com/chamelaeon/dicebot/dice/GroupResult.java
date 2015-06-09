@@ -6,7 +6,7 @@ import java.util.List;
  * Class that represents the result of a rolled group of dice.
  * @author Chamelaeon 
  */
-public class GroupResult {
+public class GroupResult implements Comparable<GroupResult> {
 	/** The sorted group of rolled dice. */ 
 	private final List<DieResult> dice;
 	/** The summed natural value of the group. */
@@ -73,4 +73,9 @@ public class GroupResult {
 	public boolean isCriticalSuccess() {
 		return criticalSuccess;
 	}
+
+    @Override
+    public int compareTo(GroupResult o) {
+        return Long.compare(natural, o.getNatural());
+    }
 }
