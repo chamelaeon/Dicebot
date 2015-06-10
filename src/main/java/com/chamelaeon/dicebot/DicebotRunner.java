@@ -21,6 +21,7 @@ import com.chamelaeon.dicebot.api.Command;
 import com.chamelaeon.dicebot.api.Dicebot;
 import com.chamelaeon.dicebot.api.HelpDetails;
 import com.chamelaeon.dicebot.api.Personality;
+import com.chamelaeon.dicebot.commands.ChangelogCommand;
 import com.chamelaeon.dicebot.commands.CheatCommand;
 import com.chamelaeon.dicebot.commands.DrawCardCommand;
 import com.chamelaeon.dicebot.commands.HelpCommand;
@@ -248,6 +249,7 @@ public class DicebotRunner {
 		registerCommand(new StatusCommand(), configBuilder);
 		registerCommand(new JoinCommand(), configBuilder);
 		registerCommand(new CheatCommand(), configBuilder);
+		registerCommand(new ChangelogCommand(), configBuilder);
 		if (null != cardBase) {
 			registerCommand(new DrawCardCommand(cardBase), configBuilder);
 		}
