@@ -29,6 +29,7 @@ import com.chamelaeon.dicebot.commands.JoinCommand;
 import com.chamelaeon.dicebot.commands.LeaveCommand;
 import com.chamelaeon.dicebot.commands.MuteUnmuteCommand;
 import com.chamelaeon.dicebot.commands.StatusCommand;
+import com.chamelaeon.dicebot.commands.VersionCommand;
 import com.chamelaeon.dicebot.framework.DicebotBuilder;
 import com.chamelaeon.dicebot.listener.NickGhostListener;
 import com.chamelaeon.dicebot.listener.NickHandlingListener;
@@ -74,10 +75,12 @@ public class DicebotRunner {
 		InputStream configStream;
 		InputStream personalityStream;
 		InputStream cardStream;
+		InputStream versionStream;
 		if (args.length < 2) {
 		    configStream = DicebotRunner.class.getResourceAsStream("/config.properties");
 		    personalityStream = DicebotRunner.class.getResourceAsStream("/dicesuke.properties");
 			cardStream = DicebotRunner.class.getResourceAsStream("/dramaCards.json");
+	        versionStream = DicebotRunner.class.getResourceAsStream("/version.properties");
 			
 			if (null == configStream || null == personalityStream) {
 				System.out.println("This dicebot requires two arguments: a properties file with configuration options " 
@@ -97,19 +100,23 @@ public class DicebotRunner {
 			configStream = new FileInputStream(new File(configPath));
 			personalityStream = new FileInputStream(new File(personalityPath));
 			cardStream = new FileInputStream(new File(cardPath));
+			versionStream = DicebotRunner.class.getResourceAsStream("/version.properties");
 		}
 		
 		// Grab the configuration and personality properties.
 		Properties configProps = new Properties();
 		Properties personalityProps = new Properties();
+		Properties versionProps = new Properties();
 		try {
 			configProps.load(configStream);
 			personalityProps.load(personalityStream);
+			versionProps.load(versionStream);
 		} catch (IOException ioe) {
 			throw ioe;
 		} finally {
 			Closeables.closeQuietly(configStream);
 			Closeables.closeQuietly(personalityStream);
+			Closeables.closeQuietly(versionStream);
 		}
 		
 		// Load the card base.
@@ -125,7 +132,7 @@ public class DicebotRunner {
 		}
 		
 		DicebotRunner runner = new DicebotRunner();
-		runner.start(configProps, personalityProps, cardBase);
+		runner.start(configProps, personalityProps, versionProps, cardBase);
 	}
 	
 	/**
@@ -136,7 +143,7 @@ public class DicebotRunner {
 	 * @throws IrcException if there is a problem with the bot framework.
 	 * @throws IOException if there is a connection issue.
 	 */
-	private void start(Properties config, Properties personalityProps, CardBase cardBase) throws IrcException, IOException { 
+	private void start(Properties config, Properties personalityProps, Properties versionProps, CardBase cardBase) throws IrcException, IOException { 
 		// Pull out properties we need.
 		String network = config.getProperty("Network", "irc.sandwich.net");
 		int port = Integer.parseInt(config.getProperty("Port", "6697"));
@@ -174,7 +181,7 @@ public class DicebotRunner {
         processNicks(nicks, useGhostIfNickExists, nickservPassword, configBuilder);
         processChannels(channels, configBuilder);
         createRollers(configBuilder);
-        createCommands(configBuilder, cardBase);
+        createCommands(configBuilder, cardBase, versionProps.getProperty("version"));
         configBuilder.addListener(new SendMotdListener(motd));
         
         // Start the ident server before anything else, unless there's already one running.
@@ -242,14 +249,16 @@ public class DicebotRunner {
 	 * Creates the commands for the dicebot.
 	 * @param configBuilder The configuration Builder to register commands with.
 	 * @param cardPath The card path to use.
+	 * @param version The version of the dicebot.
 	 */
-	private void createCommands(Builder<Dicebot> configBuilder, CardBase cardBase) {
+	private void createCommands(Builder<Dicebot> configBuilder, CardBase cardBase, String version) {
 		registerCommand(new MuteUnmuteCommand(), configBuilder);
 		registerCommand(new LeaveCommand(), configBuilder);
 		registerCommand(new StatusCommand(), configBuilder);
 		registerCommand(new JoinCommand(), configBuilder);
 		registerCommand(new CheatCommand(), configBuilder);
 		registerCommand(new ChangelogCommand(), configBuilder);
+		registerCommand(new VersionCommand(version), configBuilder);
 		if (null != cardBase) {
 			registerCommand(new DrawCardCommand(cardBase), configBuilder);
 		}
