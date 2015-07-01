@@ -47,7 +47,7 @@ public class L5RRollerTest extends RollerTestBase {
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
         assertNull(m.group(4));
-        assertNull(m.group(5));
+        assertEquals("", m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
         assertNull(m.group(8));
@@ -168,7 +168,7 @@ public class L5RRollerTest extends RollerTestBase {
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
         assertNull(m.group(4));
-        assertNull(m.group(5));
+        assertEquals("", m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
         assertNull(m.group(8));
@@ -236,7 +236,7 @@ public class L5RRollerTest extends RollerTestBase {
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
         assertEquals("e", m.group(4));
-        assertNull(m.group(5));
+        assertEquals("", m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
         assertNull(m.group(8));
@@ -337,7 +337,7 @@ public class L5RRollerTest extends RollerTestBase {
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
         assertEquals("m", m.group(4));
-        assertNull(m.group(5));
+        assertEquals("", m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
         assertNull(m.group(8));
@@ -370,7 +370,7 @@ public class L5RRollerTest extends RollerTestBase {
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
         assertEquals("r", m.group(4));
-        assertNull(m.group(5));
+        assertEquals("", m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
         assertNull(m.group(8));
@@ -437,7 +437,7 @@ public class L5RRollerTest extends RollerTestBase {
         assertEquals("9", m.group(2));
         assertEquals("5", m.group(3));
         assertNull(m.group(4));
-        assertNull(m.group(5));
+        assertEquals("", m.group(5));
         assertNull(m.group(6));
         assertEquals(" a", m.group(7));
         assertNull(m.group(8));
