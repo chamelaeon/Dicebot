@@ -6,6 +6,10 @@ Added a target for the !leave command so it works with multiple bots in a room.
 Added the ability to analyze L5R rolls and determine their mean average.
 Fixed L5R rolls with "er" for behavior not triggering.
 Fixed the default MotD to be more surly.
+Added a version command.
+Added the ability to do multiple modifiers in a single roll, e.g. 1d8+8+2-5
+Allowed for more symbols in annotations, including : and /.
+Fixed a small bug with the message for rolling multiple one-sided dice.
 #1.2.0
 Implemented a marker substitution system for the personality file.
 Split the config options from the personality file.
