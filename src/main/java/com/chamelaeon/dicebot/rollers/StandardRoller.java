@@ -67,7 +67,7 @@ public class StandardRoller extends Roller {
 		} else if (diceType < 1) {
 			throw getPersonality().getException("Roll0Sides");
 		} else if (diceType == 1) {
-			long modified = modifier.apply(1); 
+			long modified = modifier.apply(1 * diceCount); 
 			throw getPersonality().getException("OneSidedDice", new TokenSubstitution("%DICECOUNT%", diceCount), 
 					new TokenSubstitution("%MODIFIEDVALUE%", modified));
 		}

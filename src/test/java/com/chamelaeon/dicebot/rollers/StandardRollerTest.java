@@ -50,7 +50,7 @@ public class StandardRollerTest extends RollerTestBase {
 		assertEquals("", m.group(2));
 		assertEquals("6", m.group(3));
 		assertNull(m.group(4));
-		assertNull(m.group(5));
+		assertEquals("", m.group(5));
 		assertNull(m.group(6));
 		assertNull(m.group(7));
 	}
@@ -84,7 +84,7 @@ public class StandardRollerTest extends RollerTestBase {
 		assertEquals("2", m.group(2));
 		assertEquals("6", m.group(3));
 		assertNull(m.group(4));
-		assertNull(m.group(5));
+		assertEquals("", m.group(5));
 		assertNull(m.group(6));
 		assertNull(m.group(7));
 	}
@@ -159,7 +159,7 @@ public class StandardRollerTest extends RollerTestBase {
 		assertEquals("2", m.group(2));
 		assertEquals("6", m.group(3));
 		assertNull(m.group(4));
-		assertNull(m.group(5));
+		assertEquals("", m.group(5));
 		assertNull(m.group(6));
 		assertNull(m.group(7));
 	}

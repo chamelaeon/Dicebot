@@ -173,6 +173,8 @@ public class Roll {
 			}
 		}
 		
+		Collections.sort(groups);
+		Collections.reverse(groups);
 		return groups;
 	}
 	

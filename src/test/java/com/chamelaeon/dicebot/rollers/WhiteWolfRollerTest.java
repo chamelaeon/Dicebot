@@ -56,14 +56,14 @@ public class WhiteWolfRollerTest extends RollerTestBase {
         assertEquals("7", m.group(1));
         assertEquals("2", m.group(2));
         assertNull(m.group(3));
-        assertNull(m.group(4));
+        assertEquals("", m.group(4));
         assertNull(m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));
     }
     
     @Test
-    public void testtestBasicRollSuccessWithOriginalConstructor() throws InputException {
+    public void testBasicRollSuccessWithOriginalConstructor() throws InputException {
     	roller = new WhiteWolfRoller(personality);
     	
     	String[] parts = new String[] {"7t2", "7", "2", null, null, null, null};
@@ -193,7 +193,7 @@ public class WhiteWolfRollerTest extends RollerTestBase {
         assertEquals("7", m.group(1));
         assertEquals("2", m.group(2));
         assertNull(m.group(3));
-        assertNull(m.group(4));
+        assertEquals("", m.group(4));
         assertNull(m.group(5));
         assertEquals(" dc9", m.group(6));
         assertEquals("9", m.group(7));
@@ -225,7 +225,7 @@ public class WhiteWolfRollerTest extends RollerTestBase {
         assertEquals("7", m.group(1));
         assertEquals("2", m.group(2));
         assertEquals("e", m.group(3));
-        assertNull(m.group(4));
+        assertEquals("", m.group(4));
         assertNull(m.group(5));
         assertNull(m.group(6));
         assertNull(m.group(7));

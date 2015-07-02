@@ -1,7 +1,7 @@
 package com.chamelaeon.dicebot.commands;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,12 +66,12 @@ public class HelpCommand extends DicebotListenerAdapter {
 	 * @param event The event that triggered this output.
 	 */
 	private void sendMainHelp(DicebotGenericEvent<Dicebot> event) {
-		List<String> commandList = buildHelpList("Here is a list of the commands I can perform: ", commandDetailsMap.values());
+		List<String> commandList = buildHelpList("Here is a list of the commands I can perform: ", new ArrayList<HelpDetails>(commandDetailsMap.values()));
 		for (String string : commandList) {
 			event.respond(string);
 		}
 		event.respond("For more details on the commands, try !help [command], replacing \"[command]\" with the actual name of the command. Prefix all commands with !.");
-		List<String> rollerList = buildHelpList("Here is a list of the dice systems I can handle: ", rollerDetailsMap.values());
+		List<String> rollerList = buildHelpList("Here is a list of the dice systems I can handle: ", new ArrayList<HelpDetails>(rollerDetailsMap.values()));
 		for (String string : rollerList) {
 			event.respond(string);
 		}
@@ -96,15 +96,16 @@ public class HelpCommand extends DicebotListenerAdapter {
 	 * @param base The initial line.
 	 * @param details All the HelpDetails that need to be output.
 	 */
-	private List<String> buildHelpList(String base, Collection<HelpDetails> details) {
+	private List<String> buildHelpList(String base, List<HelpDetails> details) {
 		List<String> commandList = new ArrayList<String>();
+		Collections.sort(details);
 		String next = base;
 		for (HelpDetails detail : details) {
-				if (next.length() + detail.getCommandName().length() > 600) {
-					next = next.substring(0, next.length() - 2);
-					commandList.add(next);
-					next = "";
-				}
+			if (next.length() + detail.getCommandName().length() > 600) {
+				next = next.substring(0, next.length() - 2);
+				commandList.add(next);
+				next = "";
+			}
 			next += detail.getCommandName() + ", ";
 		}
 		next = next.substring(0, next.length() - 2);

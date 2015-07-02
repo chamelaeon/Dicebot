@@ -21,9 +21,9 @@ public abstract class Roller extends DicebotListenerAdapter {
 	/** Regex piece for group matching. */
 	protected static final String GROUP_REGEX = "(\\d+ )?";
 	/** Regex piece for modifier matching. */
-	protected static final String MODIFIER_REGEX = "(\\+\\d+|-\\d+)?";
+	protected static final String MODIFIER_REGEX = "((?:\\+\\d+|-\\d+)*)";
 	/** Regex piece for annotation matching. */
-	protected static final String ANNOTATION_REGEX = "( [\\w ,-\\.\"!']+)?";
+	protected static final String ANNOTATION_REGEX = "( [\\w ,-\\.\"!/:\\(\\)'\\[\\]]+)?";
 	/** The random to use. */
 	protected final Random random;
 	/** The personality object containing quotes (if necessary). */

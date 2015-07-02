@@ -1,0 +1,35 @@
+#1.3.0
+Added a changelog command.
+Added a default and bland personality file.
+Sorted all multi-group rolls by natural result, descending.
+Added a target for the !leave command so it works with multiple bots in a room.
+Added the ability to analyze L5R rolls and determine their mean average.
+Fixed L5R rolls with "er" for behavior not triggering.
+Fixed the default MotD to be more surly.
+Added a version command.
+Added the ability to do multiple modifiers in a single roll, e.g. 1d8+8+2-5
+Allowed for more symbols in annotations, including : and /.
+Fixed a small bug with the message for rolling multiple one-sided dice.
+#1.2.0
+Implemented a marker substitution system for the personality file.
+Split the config options from the personality file.
+Allowed for annotating a roll (e.g. 2d10 vs Willpower)
+Allowed for "raw" L5R rolls that do not explode (e.g. 10k5r)
+Added a Shadowrun roller.
+Fixed a bug where 1-sided dice did not get modified by modifiers.
+Fixed a bug where the dicebot responded to other dicebots, especially with the !help command.
+Fixed commands to only work at the start of a line again.
+Implemented rarity for the drama card draw.
+#1.1.1
+Actually added the additional property texts to the personality file.
+#1.1.0
+Upgraded to PircBotX framework.
+Added examples to the help system.
+Added a readme.
+Limited the number of channels a bot can be in, and added idle-time tracking to allow for leaving idle channels.
+Added the ability for the bot to use nickserv ghost to reclaim nicknames.
+Added the ability to auto-append # in front of channel names on most commands, if missing.
+Allowed behavior flags before and after the modifiers in both standard and L5R rollers.
+#1.0.0
+Fixed a few commandline arguments for the bot runner.
+Revamped the White Wolf roller.

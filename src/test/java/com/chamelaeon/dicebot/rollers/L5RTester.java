@@ -28,7 +28,8 @@ public class L5RTester {
 		final AtomicBoolean running = new AtomicBoolean(true);
 		final L5RRoller roller = new L5RRoller(personality);
 		final int rolled = 10;
-		final int kept = 9;
+		final int kept = 10;
+		final String behavior = "re";
 
 		Executor executor = Executors.newSingleThreadExecutor();
 		executor.execute(new Runnable() {
@@ -36,7 +37,7 @@ public class L5RTester {
 			public void run() {
 				try {
 					while (running.get()) {
-						String[] parts = new String[] {"", "1", "" + rolled, "" + kept, null, null, null};
+						String[] parts = new String[] {"", null, "" + rolled, "" + kept, behavior, null, null, null, null};
 						roller.assembleRoll(parts, "", statistics);
 					}
 				} catch (InputException ie) {
@@ -54,13 +55,13 @@ public class L5RTester {
 				if ("stop".equals(line)) {
 					running.set(false);
 					long diceCount = statistics.getDice();
-					System.out.println("Rolled " + diceCount + " " + rolled + "k" + kept + " for a mean average of " 
+					System.out.println("Rolled " + diceCount + " " + rolled + "k" + kept + " with behavior " + behavior + " for a mean average of " 
 							+ statistics.getAverage(rolled + "-" + kept) + ".");
 					System.exit(0);
 				}
 				if ("stats".equals(line)) {
 					long diceCount = statistics.getDice();
-					System.out.println("Rolled " + diceCount + " " + rolled + "k" + kept + " for a mean average of " 
+					System.out.println("Rolled " + diceCount + " " + rolled + "k" + kept + " with behavior " + behavior + " for a mean average of " 
 							+ statistics.getAverage(rolled + "-" + kept) + ".");
 				}
 			}

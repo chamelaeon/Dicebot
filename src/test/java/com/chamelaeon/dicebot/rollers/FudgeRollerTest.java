@@ -45,7 +45,7 @@ public class FudgeRollerTest extends RollerTestBase {
         assertEquals("4dF", m.group(0));
         assertNull(m.group(1));
         assertEquals("4", m.group(2));
-        assertNull(m.group(3));
+        assertEquals("", m.group(3));
         assertNull(m.group(4));
     }
     
@@ -116,7 +116,7 @@ public class FudgeRollerTest extends RollerTestBase {
         assertEquals("10 4dF", m.group(0));
         assertEquals("10 ", m.group(1));
         assertEquals("4", m.group(2));
-        assertNull(m.group(3));
+        assertEquals("", m.group(3));
         assertNull(m.group(4));
     }
     

@@ -70,7 +70,7 @@ public abstract class DicebotListenerAdapter extends ListenerAdapter<Dicebot> im
 			List<String> groups = new ArrayList<>();
 			// Process all the groups.
 			for (int i = 0; i <= matcher.groupCount(); i++) {
-				groups.add(StringUtils.trim(matcher.group(i)));
+				groups.add(StringUtils.trimToNull(matcher.group(i)));
 			}
 			
 			try {
