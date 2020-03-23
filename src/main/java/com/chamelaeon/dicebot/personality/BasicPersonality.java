@@ -1,7 +1,8 @@
 package com.chamelaeon.dicebot.personality;
 
-
-
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BasicPersonality extends AbstractPersonality {
 	// TODO: Fix this class.
@@ -21,7 +22,7 @@ public class BasicPersonality extends AbstractPersonality {
 		outputTexts.put("ReflectionError", "The fundamental constants of the universe seem a little off-kilter today. Better not try that again.");
 		outputTexts.put("CannotSatisfySuccesses", "I may be clinically insane, but even I know you'll never get %d successes off %d dice.");
 		outputTexts.put("Cheat", " Cheating's limited to the Europa Team only, sorry.");
-		
+
 		outputTexts.put("Standard1Group", "rolls %s for %s and gets a natural %s for a result of %s.");
 		outputTexts.put("Standard1GroupCrit", "rolls %s for %s and gets a natural (%s), a CRITICAL %s! \"%s\"");
 		outputTexts.put("StandardMoreGroups", "rolls %s for %s and gets a natural ( %s) for a result of ( %s).");
@@ -32,11 +33,19 @@ public class BasicPersonality extends AbstractPersonality {
 		outputTexts.put("WhiteWolfBotch", "rolls %s for %s and gets %s, which is a botch!. Shame, really, so much good could be done with those organs...");
 		outputTexts.put("Fudge1Group", "rolls %s for %s and gets %s for a result of %s.");
 		outputTexts.put("FudgeMoreGroups", "rolls %s for %s and gets ( %s) for results of ( %s).");
-		
-		criticalFailures.add("Excellent! We've been looking for a test subject. Hold on to this horseshoe and penny while I alert the Leprechaun Entrapment Brigade, we'll have you fixed in no time...");
-		criticalFailures.add("We've developed an implantable luck generator you could try, if you aren't using that liver...");
-		
-		criticalSuccesses.add("Ah, then this IS the reality where you're kicking ass. My apologies, I'll amend my notes.");
-		criticalSuccesses.add("Astonishing! May I borrow your pituitary gland for a moment? You'll get it back good as new, I promise!");
+
+		rollResultFlags.put("criticalFailure", new AtomicBoolean(true));
+		List<String> critFailList = Arrays.asList(
+				"Excellent! We've been looking for a test subject. Hold on to this horseshoe and penny while I alert the Leprechaun Entrapment Brigade, we'll have you fixed in no time...",
+				"We've developed an implantable luck generator you could try, if you aren't using that liver..."
+		);
+		rollResultMessageLists.put("criticalFailure", critFailList);
+
+		rollResultFlags.put("criticalSuccess", new AtomicBoolean(true));
+		List<String> critSuccList = Arrays.asList(
+				"Ah, then this IS the reality where you're kicking ass. My apologies, I'll amend my notes.",
+				"Astonishing! May I borrow your pituitary gland for a moment? You'll get it back good as new, I promise!"
+		);
+		rollResultMessageLists.put("criticalSuccess", critFailList);
 	}
 }

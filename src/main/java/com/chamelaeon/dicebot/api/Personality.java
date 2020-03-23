@@ -1,56 +1,46 @@
 package com.chamelaeon.dicebot.api;
 
-
-
 public interface Personality {
-
     /**
-     * Gets the user-facing {@link InputException} represented by the key.  
+     * Gets the user-facing {@link InputException} represented by the key.
      * @param key The exception's individual key.
-     * @param params 
+     * @param substitutions The token substitutions to make in the exception message.
      * @return the exception to throw up to where a user can see it.
      */
-    public abstract InputException getException(String key, TokenSubstitution... params);
+    InputException getException(String key, TokenSubstitution... substitutions);
 
     /**
      * Gets a simple configurable message.
      * @param key The key of the message to get.
-     * @param params 
+     * @param substitutions The token substitutions to make in the message.
      * @return the message.
      */
-    public abstract String getMessage(String key, TokenSubstitution... params);
+    String getMessage(String key, TokenSubstitution... substitutions);
 
     /**
      * Gets the roll result text for the given key.
      * @param key The roll result's key.
-     * @param params 
+     * @param substitutions The token substitutions to make in the roll result.
      * @return the filled-out roll results.
      */
-    public abstract String getRollResult(String key, TokenSubstitution... params);
+    String getRollResult(String key, TokenSubstitution... substitutions);
 
     /**
-     * Returns whether or not this personality allows critical success messages or not.
-     * @return true if critical success messages are allowed, false otherwise.
+     * Returns whether or not this personality allows messages for the given type of roll result.
+     * This allows the personality to show or hide for each given roll result. For instance, it could hide critical
+     * failures but show critical successes, or hide all but miss messages for the PbtA roller, or hide all the PbtA
+     * roll result messages entirely.
+     * @param rollResultType The type of roll result to check for allowing.
+     * @return true if messages for that result type are allowed, false otherwise.
      */
-    public abstract boolean useCritSuccesses();
+    boolean shouldShowMessagesForRollResultType(String rollResultType);
 
     /**
-     * Returns whether or not this personality allows critical failure messages or not.
-     * @return true if critical failure messages are allowed, false otherwise.
+     * Returns a random personality comment line from the available selection for that roll result type.
+     * @param rollResultType The type of roll result to get a comment line for.
+     * @return the selected comment line for that roll result type.
      */
-    public abstract boolean useCritFailures();
-
-    /**
-     * Picks a random critical failure line from the available selection.
-     * @return the selected critical failure line.
-     */
-    public abstract String chooseCriticalFailureLine();
-
-    /**
-     * Picks a random critical success line from the available selection.
-     * @return the selected critical success line.
-     */
-    public abstract String chooseCriticalSuccessLine();
+    String chooseRollResultTypeCommentLine(String rollResultType);
 
     /**
      * Safely parses a string into an short.
@@ -58,7 +48,7 @@ public interface Personality {
      * @return the parsed short.
      * @throws InputException if the string could not be parsed.
      */
-    public abstract short parseShort(String shortString) throws InputException;
+    short parseShort(String shortString) throws InputException;
 
     /**
      * Parses the dice count portion of the roll and replaces NULL with 1.
@@ -66,7 +56,7 @@ public interface Personality {
      * @return the number of dice to roll.
      * @throws InputException if the dice rolls could not be parsed.
      */
-    public abstract short parseDiceCount(String diceCountString)
+    short parseDiceCount(String diceCountString)
             throws InputException;
 
 }

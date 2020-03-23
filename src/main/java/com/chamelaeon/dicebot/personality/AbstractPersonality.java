@@ -1,6 +1,5 @@
 package com.chamelaeon.dicebot.personality;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,37 +13,28 @@ import com.chamelaeon.dicebot.api.TokenSubstitution;
 import com.chamelaeon.dicebot.random.BasicRandom;
 import com.chamelaeon.dicebot.random.Random;
 
-
 public abstract class AbstractPersonality implements Personality {
 
 	/** The bot text strings, mapped by key. */
 	final Map<String, String> outputTexts;
-	
-	/** The available critical failure message list. */
-	final List<String> criticalFailures;
-	
-	/** The available critical failure message list. */
-	final List<String> criticalSuccesses;
-	
-	/** Whether or not to use critical success messages. */
-	final AtomicBoolean useCritSuccesses;
-	
-	/** Whether or not to use critical failure messages. */
-	final AtomicBoolean useCritFailures;
-	
+
+	/** Whether or not to show messages for each roll result type, mapped by the roll result type. */
+	final Map<String, AtomicBoolean> rollResultFlags;
+
+	/** The available message lists for each roll result type, mapped by the roll result type. */
+	final Map<String, List<String>> rollResultMessageLists;
+
 	/** The random for selecting random values. */
 	final Random random;
-	
+
 	/** Constructor. */
 	AbstractPersonality() {
-		outputTexts = new HashMap<String, String>();
-		criticalFailures = new ArrayList<String>();
-		criticalSuccesses = new ArrayList<String>();
-		useCritSuccesses = new AtomicBoolean(true);
-		useCritFailures = new AtomicBoolean(true);
+		outputTexts = new HashMap<>();
+		rollResultMessageLists = new HashMap<>();
+		rollResultFlags = new HashMap<>();
 		random = new BasicRandom();
 	}
-	
+
 	@Override
     public InputException getException(String key, TokenSubstitution... params) {
 		return new InputException(performTokenSubstitution(outputTexts.get(key), params));
@@ -54,30 +44,29 @@ public abstract class AbstractPersonality implements Personality {
     public String getMessage(String key, TokenSubstitution... params) {
         return performTokenSubstitution(outputTexts.get(key), params);
     }
-	
+
 	@Override
     public String getRollResult(String key, TokenSubstitution... params) {
 		return performTokenSubstitution(outputTexts.get(key), params);
 	}
-	
+
 	@Override
-    public boolean useCritSuccesses() {
-		return useCritSuccesses.get();
-	}
-	
-	@Override
-    public boolean useCritFailures() {
-		return useCritFailures.get();
+	public boolean shouldShowMessagesForRollResultType(String rollResultType) {
+		if (rollResultFlags.containsKey(rollResultType)) {
+			return rollResultFlags.get(rollResultType).get();
+		} else {
+			return false;
+		}
 	}
 
 	@Override
-    public String chooseCriticalFailureLine() {
-		return criticalFailures.get(random.getRoll(criticalFailures.size()) - 1);
-	}
-	
-	@Override
-    public String chooseCriticalSuccessLine() {
-		return criticalSuccesses.get(random.getRoll(criticalSuccesses.size()) - 1);
+	public String chooseRollResultTypeCommentLine(String rollResultType) {
+		if (rollResultMessageLists.containsKey(rollResultType)) {
+			List<String> rollResultCommentLines = rollResultMessageLists.get(rollResultType);
+			return rollResultCommentLines.get(random.getRoll(rollResultCommentLines.size()) - 1);
+		} else {
+			return "";
+		}
 	}
 
     @Override
@@ -97,14 +86,14 @@ public abstract class AbstractPersonality implements Personality {
             return 1;
         }
     }
-    
+
     /**
      * Performs the actual token substitution. All tokens are substituted - ones whose tokens do not exist in the
      * format string are ignored. Tokens that are not substituted are left in place.
-     * 
+     *
      * If performance suffers, we can unspool the TokenSubstitution objects and use StringUtils.replace(string, String[], String[])
      * which intentionally avoids object creation.
-     * 
+     *
      * @param formatString The string to apply substitutions to.
      * @param substitutions The substitutions to make.
      * @return the substituted string.
@@ -114,7 +103,7 @@ public abstract class AbstractPersonality implements Personality {
         for (TokenSubstitution substitution : substitutions) {
             retStr = StringUtils.replace(retStr, substitution.getToken(), substitution.getSubstitution());
         }
-        
+
         return retStr;
     }
 }

@@ -65,13 +65,13 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("6");
 		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "1"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", ""), 
+				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", ""),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
 	}
 
-	
+
 	@Test
 	public void testBasicRegexp() {
 		String regexp = StandardRoller.getRegexp();
@@ -99,7 +99,7 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("6");
 		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", ""), 
+				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", ""),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -171,21 +171,21 @@ public class StandardRollerTest extends RollerTestBase {
 		String critFailLine = "critical failure";
 		roller = new StandardRoller(personality, random);
 
-		// Ensure a critical failure. 
+		// Ensure a critical failure.
 		when(random.getRoll(2, statistics)).thenReturn(1);
-		when(personality.useCritFailures()).thenReturn(true);
-		when(personality.chooseCriticalFailureLine()).thenReturn(critFailLine);
+		when(personality.shouldShowMessagesForRollResultType("criticalFailure")).thenReturn(true);
+		when(personality.chooseRollResultTypeCommentLine("criticalFailure")).thenReturn(critFailLine);
 
 		String[] parts = new String[] {"1d2", null, "1", "2", null, null, null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("1");
 		verify(personality).parseShort("2");
-		verify(personality).useCritFailures();
-		verify(personality).chooseCriticalFailureLine();
+		verify(personality).shouldShowMessagesForRollResultType("criticalFailure");
+		verify(personality).chooseRollResultTypeCommentLine("criticalFailure");
 		verify(personality).getRollResult(eq("Standard1GroupCrit"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "1"), tokenSubMatcher("%DICETYPE%", "2"),
-				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", ""), 
+				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", ""),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", "FAILURE"),
 				tokenSubMatcher("%CRITICALCOMMENT%", critFailLine), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -195,19 +195,19 @@ public class StandardRollerTest extends RollerTestBase {
 	public void testRollWithCriticalSuccess() throws InputException {
 		Statistics statistics = mock(Statistics.class);
 		String critSuccLine = "critical success";
-		when(personality.useCritSuccesses()).thenReturn(true);
-		when(personality.chooseCriticalSuccessLine()).thenReturn(critSuccLine);
+		when(personality.shouldShowMessagesForRollResultType("criticalSuccess")).thenReturn(true);
+		when(personality.chooseRollResultTypeCommentLine("criticalSuccess")).thenReturn(critSuccLine);
 
 		String[] parts = new String[] {"1d2", null, "1", "2", "b1", null, null, null};
 		roller.assembleRoll(parts, testNick, statistics);
 
 		verify(personality).parseDiceCount("1");
 		verify(personality).parseShort("2");
-		verify(personality).useCritSuccesses();
-		verify(personality).chooseCriticalSuccessLine();
+		verify(personality).shouldShowMessagesForRollResultType("criticalSuccess");
+		verify(personality).chooseRollResultTypeCommentLine("criticalSuccess");
 		verify(personality).getRollResult(eq("Standard1GroupCrit"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "1"), tokenSubMatcher("%DICETYPE%", "2"),
-				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", "b1"), 
+				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", "b1"),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", "SUCCESS"),
 				tokenSubMatcher("%CRITICALCOMMENT%", critSuccLine), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -224,7 +224,7 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("10 ");
 		verify(personality).getRollResult(eq("StandardMoreGroups"), tokenSubMatcher("%GROUPCOUNT%", "10"),
 				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", ""), 
+				tokenSubMatcher("%MODIFIER%", ""), tokenSubMatcher("%BEHAVIORS%", ""),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -258,7 +258,7 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("5");
 		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", ""), 
+				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", ""),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -292,7 +292,7 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("5");
 		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "b2"), 
+				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "b2"),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -326,7 +326,7 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("5");
 		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "v6"), 
+				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "v6"),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -360,7 +360,7 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("5");
 		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "v5"), 
+				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "v5"),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", ""),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -382,7 +382,7 @@ public class StandardRollerTest extends RollerTestBase {
 		assertEquals("b2", m.group(6));
 		assertEquals(" and a goat", m.group(7));
 	}
-	
+
 	@Test
 	public void testRollWithTwoBehaviors() throws InputException {
 		Statistics statistics = mock(Statistics.class);
@@ -394,12 +394,12 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("5");
 		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "b2v5"), 
+				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "b2v5"),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", " [and a goat]"),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
 	}
-	
+
 	@Test
 	public void testRollWithAnnotationRegexp() {
 		String regexp = StandardRoller.getRegexp();
@@ -428,7 +428,7 @@ public class StandardRollerTest extends RollerTestBase {
 		verify(personality).parseShort("5");
 		verify(personality).getRollResult(eq("Standard1Group"), tokenSubMatcher("%GROUPCOUNT%", "1"),
 				tokenSubMatcher("%DICECOUNT%", "2"), tokenSubMatcher("%DICETYPE%", "6"),
-				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "v5"), 
+				tokenSubMatcher("%MODIFIER%", "+5"), tokenSubMatcher("%BEHAVIORS%", "v5"),
 				tokenSubMatcher("%USER%", testNick), tokenSubMatcher("%CRITICALTYPE%", null),
 				tokenSubMatcher("%CRITICALCOMMENT%", null), tokenSubMatcher("%ANNOTATION%", " [and a goat]"),
 				tokenSubMatcher("%NATURALVALUE%", "*"), tokenSubMatcher("%MODIFIEDVALUE%", "*"));
@@ -442,7 +442,7 @@ public class StandardRollerTest extends RollerTestBase {
 				"Positive or negative modifiers may be applied to affect the result (ex. 2d6-5). If rolling only one die, the " +
 				"initial number may be omitted (ex. d20+10). To roll additional groups of die, prefix the roll with a number " +
 				"then a space (ex. 10 d20+10). Modifiers will be applied to each group individually. Brutal values of 1-9 are " +
-				"available by adding \"b\" then a number (ex. 2d8b2+5). Vorpal is also available by appending \"v\" (ex. 2d8v+5).", 
+				"available by adding \"b\" then a number (ex. 2d8b2+5). Vorpal is also available by appending \"v\" (ex. 2d8v+5).",
 				details.getDescription());
 		assertEquals("roller", details.getType());
 

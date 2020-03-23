@@ -16,10 +16,10 @@ public class GroupResultTest {
     private long modified = 2;
     private boolean criticalFailure = true;
     private boolean criticalSuccess = false;
-    
+
     @Before
     public void setUp() throws Exception {
-        result = new GroupResult(dice, natural, modified, criticalFailure, criticalSuccess);
+        result = new GroupResult(dice, natural, modified);
     }
 
     @Test
@@ -35,15 +35,5 @@ public class GroupResultTest {
     @Test
     public void testGetModified() {
         assertSame(modified, result.getModified());
-    }
-
-    @Test
-    public void testIsCriticalFailure() {
-        assertTrue(result.isCriticalFailure());
-    }
-
-    @Test
-    public void testIsCriticalSuccess() {
-        assertFalse(result.isCriticalSuccess());
     }
 }
