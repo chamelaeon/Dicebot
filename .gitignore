@@ -2,3 +2,5 @@ target
 Dicebot.jar
 dicebot.zip
 random.png
+.idea
+*.iml
