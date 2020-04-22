@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
+import com.chamelaeon.dicebot.rollers.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.pircbotx.Configuration.Builder;
 import org.pircbotx.IdentServer;
@@ -36,11 +37,6 @@ import com.chamelaeon.dicebot.listener.NickHandlingListener;
 import com.chamelaeon.dicebot.listener.NickSetListener;
 import com.chamelaeon.dicebot.listener.SendMotdListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
-import com.chamelaeon.dicebot.rollers.FudgeRoller;
-import com.chamelaeon.dicebot.rollers.L5RRoller;
-import com.chamelaeon.dicebot.rollers.ShadowrunRoller;
-import com.chamelaeon.dicebot.rollers.StandardRoller;
-import com.chamelaeon.dicebot.rollers.WhiteWolfRoller;
 import com.google.common.io.Closeables;
 
 /**
@@ -322,6 +318,7 @@ public class DicebotRunner {
 		registerRoller(new WhiteWolfRoller(personality), configBuilder);
 		registerRoller(new FudgeRoller(personality), configBuilder);
 		registerRoller(new ShadowrunRoller(personality), configBuilder);
+		registerRoller(new PbtARoller(personality), configBuilder);
 	}
 
 	/**

@@ -35,5 +35,29 @@ public class PropertiesPersonality extends AbstractPersonality {
 			String[] critFailSplit = critFail.split("#");
 			rollResultMessageLists.put("criticalFailure", Arrays.asList(critFailSplit));
 		}
+
+		String usePbtaStrongHitMessages = props.getProperty("UsePbtAStrongHitMessages");
+		if (Boolean.parseBoolean(usePbtaStrongHitMessages)) {
+			String strongHitMessages = props.getProperty("PbtAStrongHitMessages");
+			rollResultFlags.put("pbtaStrongHit", new AtomicBoolean(true));
+			String[] strongHitSplit = strongHitMessages.split("#");
+			rollResultMessageLists.put("pbtaStrongHit", Arrays.asList(strongHitSplit));
+		}
+
+		String usePbtaHitMessages = props.getProperty("UsePbtAHitMessages");
+		if (Boolean.parseBoolean(usePbtaHitMessages)) {
+			String hitMessages = props.getProperty("PbtAHitMessages");
+			rollResultFlags.put("pbtaHit", new AtomicBoolean(true));
+			String[] hitSplit = hitMessages.split("#");
+			rollResultMessageLists.put("pbtaHit", Arrays.asList(hitSplit));
+		}
+
+		String usePbtaMissMessages = props.getProperty("UsePbtAMissMessages");
+		if (Boolean.parseBoolean(usePbtaMissMessages)) {
+			String missMessages = props.getProperty("PbtAMissMessages");
+			rollResultFlags.put("pbtaMiss", new AtomicBoolean(true));
+			String[] missSplit = missMessages.split("#");
+			rollResultMessageLists.put("pbtaMiss", Arrays.asList(missSplit));
+		}
 	}
 }
