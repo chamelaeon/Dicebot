@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
+import com.chamelaeon.dicebot.rollers.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.pircbotx.Configuration.Builder;
 import org.pircbotx.IdentServer;
@@ -36,11 +37,6 @@ import com.chamelaeon.dicebot.listener.NickHandlingListener;
 import com.chamelaeon.dicebot.listener.NickSetListener;
 import com.chamelaeon.dicebot.listener.SendMotdListener;
 import com.chamelaeon.dicebot.personality.PropertiesPersonality;
-import com.chamelaeon.dicebot.rollers.FudgeRoller;
-import com.chamelaeon.dicebot.rollers.L5RRoller;
-import com.chamelaeon.dicebot.rollers.ShadowrunRoller;
-import com.chamelaeon.dicebot.rollers.StandardRoller;
-import com.chamelaeon.dicebot.rollers.WhiteWolfRoller;
 import com.google.common.io.Closeables;
 
 /**
@@ -62,14 +58,14 @@ public class DicebotRunner {
 		this.commandHelpDetails = new ArrayList<>();
 		this.rollerHelpDetails = new ArrayList<>();
 	}
-	
+
 	/**
 	 * Runs the dicebot.
-	 * <ul> 
+	 * <ul>
 	 * <li>The first argument should be a path to a properties file containing the props for the dicebot.
 	 * <li>The second argument is optional but should be a path to a properties file containing the card database for the dicebot.
 	 * </ul>
-	 * @param args Arguments for the dicebot.  
+	 * @param args Arguments for the dicebot.
 	 */
 	public static void main(String[] args) throws Exception {
 		InputStream configStream;
@@ -81,10 +77,10 @@ public class DicebotRunner {
 		    personalityStream = DicebotRunner.class.getResourceAsStream("/dicesuke.properties");
 			cardStream = DicebotRunner.class.getResourceAsStream("/dramaCards.json");
 	        versionStream = DicebotRunner.class.getResourceAsStream("/version.properties");
-			
+
 			if (null == configStream || null == personalityStream) {
-				System.out.println("This dicebot requires two arguments: a properties file with configuration options " 
-				        + "and a properties file containing personality information. " 
+				System.out.println("This dicebot requires two arguments: a properties file with configuration options "
+				        + "and a properties file containing personality information. "
 						+ "An additional properties file with drama cards can be specified as well.");
 				System.exit(1);
 			}
@@ -96,13 +92,13 @@ public class DicebotRunner {
 			if (args.length >= 3) {
 				cardPath = args[2];
 			}
-			
+
 			configStream = new FileInputStream(new File(configPath));
 			personalityStream = new FileInputStream(new File(personalityPath));
 			cardStream = new FileInputStream(new File(cardPath));
 			versionStream = DicebotRunner.class.getResourceAsStream("/version.properties");
 		}
-		
+
 		// Grab the configuration and personality properties.
 		Properties configProps = new Properties();
 		Properties personalityProps = new Properties();
@@ -118,7 +114,7 @@ public class DicebotRunner {
 			Closeables.closeQuietly(personalityStream);
 			Closeables.closeQuietly(versionStream);
 		}
-		
+
 		// Load the card base.
 		CardBase cardBase = null;
 		if (0 == cardStream.available()) {
@@ -130,20 +126,20 @@ public class DicebotRunner {
                 Closeables.closeQuietly(cardStream);
             }
 		}
-		
+
 		DicebotRunner runner = new DicebotRunner();
 		runner.start(configProps, personalityProps, versionProps, cardBase);
 	}
-	
+
 	/**
-	 * Starts the dicebot. 
+	 * Starts the dicebot.
 	 * @param config The configuration properties of the dicebot.
-	 * @param personality The personality of the dicebot.
+	 * @param personalityProps The personality of the dicebot.
 	 * @param cardBase The card base for the dicebot to use, if any.
 	 * @throws IrcException if there is a problem with the bot framework.
 	 * @throws IOException if there is a connection issue.
 	 */
-	private void start(Properties config, Properties personalityProps, Properties versionProps, CardBase cardBase) throws IrcException, IOException { 
+	private void start(Properties config, Properties personalityProps, Properties versionProps, CardBase cardBase) throws IrcException, IOException {
 		// Pull out properties we need.
 		String network = config.getProperty("Network", "irc.sandwich.net");
 		int port = Integer.parseInt(config.getProperty("Port", "6697"));
@@ -156,19 +152,17 @@ public class DicebotRunner {
 		final String motd = config.getProperty("MotD");
 
 		// Builder and mandatory config.
-		this.personality =  new PropertiesPersonality(personalityProps, 
-		                Boolean.parseBoolean(config.getProperty("UseCriticalSuccessMessages").trim()),
-		                Boolean.parseBoolean(config.getProperty("UseCriticalFailureMessages").trim()));
+		this.personality =  new PropertiesPersonality(personalityProps);
 		Builder<Dicebot> configBuilder = new DicebotBuilder(personality);
 		configBuilder.setIdentServerEnabled(true);
 		configBuilder.setAutoReconnect(true);
 		configBuilder.setMaxLineLength(400);
 		configBuilder.setRealName("DiceWombot");
-		
+
 		// Dynamic config.
 		configBuilder.setServer(network, port);
 		configBuilder.setNickservPassword(nickservPassword);
-		
+
 		// SSL config.
 		if (useSsl) {
 			UtilSSLSocketFactory socketFactory = new UtilSSLSocketFactory();
@@ -177,13 +171,13 @@ public class DicebotRunner {
 			}
 			configBuilder.setSocketFactory(socketFactory);
 		}
-		
+
         processNicks(nicks, useGhostIfNickExists, nickservPassword, configBuilder);
         processChannels(channels, configBuilder);
         createRollers(configBuilder);
         createCommands(configBuilder, cardBase, versionProps.getProperty("version"));
         configBuilder.addListener(new SendMotdListener(motd));
-        
+
         // Start the ident server before anything else, unless there's already one running.
         try {
         	IdentServer.startServer();
@@ -201,34 +195,34 @@ public class DicebotRunner {
 	        scanner.useDelimiter("\\n");
 	        while (scanner.hasNextLine()) {
 	        	String line = "";
-	        	try { 
+	        	try {
 		        	line = scanner.nextLine();
-		        	
+
 		        	if (line.equals("exit") || line.equals("quit")) {
 		        		bot.disconnect();
 		        		System.exit(0);
 		        	}
-		        	
+
 		        	// Allow the person running it to reset the nicks
 		        	if (line.equals("nickreset")) {
 		        	    nickListener.resetNickIndex();
 		        	    bot.disconnect();
 		        	    continue;
 		        	}
-		        	
+
 		        	// Allow for raw command sending.
 		        	if (line.startsWith("//")) {
 		        	    line = line.substring(2);
 		        	    bot.sendRaw().rawLine(line);
 		        	    continue;
 		        	}
-		        	
+
 		        	String[] parts = line.split(" ");
 		        	String channel = parts[0];
 		        	if (!channel.startsWith("#")) {
 		        	    channel = "#" + channel;
 		        	}
-		        	
+
 		        	if (parts[1].equals("/me")) {
 		        		String message = line.substring(channel.length() + 4).trim();
 		        		bot.getUserChannelDao().getChannel(channel).send().action(message);
@@ -248,7 +242,7 @@ public class DicebotRunner {
 	/**
 	 * Creates the commands for the dicebot.
 	 * @param configBuilder The configuration Builder to register commands with.
-	 * @param cardPath The card path to use.
+	 * @param cardBase The card base to use.
 	 * @param version The version of the dicebot.
 	 */
 	private void createCommands(Builder<Dicebot> configBuilder, CardBase cardBase, String version) {
@@ -262,11 +256,11 @@ public class DicebotRunner {
 		if (null != cardBase) {
 			registerCommand(new DrawCardCommand(cardBase), configBuilder);
 		}
-		
+
 		// Always register the help command last so it has all the help details.
 		registerCommand(new HelpCommand(commandHelpDetails, rollerHelpDetails), configBuilder);
 	}
-	
+
 	/**
 	 * Registers a command with the configuration builder and help systems.
 	 * @param command The command to register.
@@ -276,7 +270,7 @@ public class DicebotRunner {
 		configBuilder.addListener(command);
 		commandHelpDetails.add(command.getHelpDetails());
 	}
-	
+
 	/**
 	 * Processes all channels that should be joined initially.
 	 * @param channelsString The channels that should be joined, in a comma-delimited string.
@@ -288,22 +282,22 @@ public class DicebotRunner {
             configBuilder.addAutoJoinChannel(channel);
         }
 	}
-	
+
 	/**
 	 * Processes all nicks for use by the bot. If useGhostIfNickExists is false, the bot will attempt to use
 	 * alternate provided nicks if the first one is in use. If true, the bot will attempt to use the nickserv
 	 * "ghost" command to kick the nick and reclaim it.
-	 * 
+	 *
 	 * @param nickString The bot's nicks, in a comma-delimited string.
 	 * @param useGhostIfNickExists If true, will use the ghost strategy for nick in use problems.
 	 *                             If false, will use the alternate nick strategy instead.
 	 * @param nickservPassword The nickserv password to use for ghosting.
 	 * @param configBuilder The config builder.
 	 */
-	private void processNicks(String nickString, boolean useGhostIfNickExists, String nickservPassword, 
+	private void processNicks(String nickString, boolean useGhostIfNickExists, String nickservPassword,
 	        Builder<Dicebot> configBuilder) {
 		String[] nicks = nickString.split(",");
-		
+
 		if (useGhostIfNickExists) {
 		    nickListener = new NickGhostListener(nickservPassword);
 		} else {
@@ -313,7 +307,7 @@ public class DicebotRunner {
 		// Set the first nick.
 		configBuilder.setName(nicks[0]);
 	}
-	
+
 	/**
 	 * Creates the rollers for the dicebot.
 	 * @param configBuilder The configuration Builder to register rollers with.
@@ -324,8 +318,9 @@ public class DicebotRunner {
 		registerRoller(new WhiteWolfRoller(personality), configBuilder);
 		registerRoller(new FudgeRoller(personality), configBuilder);
 		registerRoller(new ShadowrunRoller(personality), configBuilder);
+		registerRoller(new PbtARoller(personality), configBuilder);
 	}
-	
+
 	/**
      * Registers a roller with the configuration builder and help systems.
      * @param roller The roller to register.
